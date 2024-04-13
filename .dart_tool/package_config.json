@@ -2,6 +2,12 @@
   "configVersion": 2,
   "packages": [
     {
+      "name": "animated_notch_bottom_bar",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/animated_notch_bottom_bar-1.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "async",
       "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/async-2.11.0",
       "packageUri": "lib/",
@@ -164,13 +170,13 @@
       "languageVersion": "3.0"
     },
     {
-      "name": "aletrail",
+      "name": "AleTrail",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-04-13T11:08:22.727267Z",
+  "generated": "2024-04-13T11:54:40.208081Z",
   "generator": "pub",
   "generatorVersion": "3.3.3"
 }
