@@ -20,29 +20,40 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.start,
 
           children: [
-            if (!_showLoginForm &&!_showRegisterForm)
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              child:
               Image.asset(
                 'Assets/Background.png',
-                width: 400, // Specify width as needed
-                height: 400, // Specify height as needed
+                width: _showLoginForm || _showRegisterForm ? 200.0 : 400.0, // Specify width as needed
+                height: _showLoginForm || _showRegisterForm ? 200.0 : 400.0, // Specify height as needed
               ),
+            ),
+
             if (!_showLoginForm && !_showRegisterForm)
-              OutlinedButton(
+              ElevatedButton(
+
                 onPressed: () {
                   setState(() {
                     _showLoginForm = true;
                   });
                 },
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all(Size(200, 50)), // Change the size here
+                ),
                 child: Text('Login'),
               ),
             SizedBox(height: 20),
             if (!_showRegisterForm && !_showLoginForm)
-              OutlinedButton(
+              ElevatedButton(
                 onPressed: () {
                   setState(() {
                     _showRegisterForm = true;
                   });
                 },
+                style: ButtonStyle(
+                  minimumSize: MaterialStateProperty.all(Size(150, 40)), // Change the size here
+                ),
                 child: Text('Register'),
               ),
             SizedBox(height: 20),
@@ -51,6 +62,8 @@ class _LoginPageState extends State<LoginPage> {
             if (_showRegisterForm)
               _buildRegisterForm(),
             SizedBox(height: 20),
+
+            if(!_showLoginForm)
             GestureDetector(
               onTap: () {
                 // Add functionality to open business registration form
@@ -59,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
               child: Text(
                 'Register Business',
                 style: TextStyle(
-                  color: Colors.blue,
+                  color: Colors.purple,
                   decoration: TextDecoration.underline,
                 ),
               ),
@@ -82,24 +95,65 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           TextFormField(
             decoration: InputDecoration(
-              hintText: 'Enter your email',
-              labelText: 'Email',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 2.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 2.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 2.0),
+              ),
+              hintText: 'Enter Email',
+              labelText: "Email"
             ),
           ),
+
           SizedBox(height: 20),
           TextFormField(
             obscureText: true,
             decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
               hintText: 'Enter your password',
               labelText: 'Password',
             ),
           ),
           SizedBox(height: 20),
           ElevatedButton(
+            style: ButtonStyle(
+              minimumSize: MaterialStateProperty.all(Size(150, 40)), // Change the size here
+            ),
             onPressed: () {
               // Add login functionality
             },
+
             child: Text('Login'),
+
+          ),
+          ElevatedButton(
+            style: ButtonStyle(
+              minimumSize: MaterialStateProperty.all(Size(200, 30)), // Change the size here
+            ),
+            onPressed: () {
+              // Add login functionality
+            },
+
+            child: Text('Google Sign In'),
+
           ),
         ],
       ),
@@ -118,6 +172,18 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           TextFormField(
             decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
               hintText: 'Enter your email',
               labelText: 'Email',
             ),
@@ -126,6 +192,18 @@ class _LoginPageState extends State<LoginPage> {
           TextFormField(
             obscureText: true,
             decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
               hintText: 'Enter your password',
               labelText: 'Password',
             ),
@@ -134,6 +212,18 @@ class _LoginPageState extends State<LoginPage> {
           TextFormField(
             obscureText: true,
             decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10.0),
+                borderSide: BorderSide(color: Colors.purple, width: 1.0),
+              ),
               hintText: 'Confirm your password',
               labelText: 'Confirm Password',
             ),
@@ -163,6 +253,18 @@ class _LoginPageState extends State<LoginPage> {
                 // Add business registration form fields here
                 TextFormField(
                   decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.purple, width: 1.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.purple, width: 1.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.purple, width: 1.0),
+                    ),
                     hintText: 'Enter business name',
                     labelText: 'Business Name',
                   ),
@@ -170,6 +272,18 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(height: 20),
                 TextFormField(
                   decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.purple, width: 1.0),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.purple, width: 1.0),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      borderSide: BorderSide(color: Colors.purple, width: 1.0),
+                    ),
                     hintText: 'Enter business address',
                     labelText: 'Business Address',
                   ),
