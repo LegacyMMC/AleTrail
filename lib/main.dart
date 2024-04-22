@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:AleTrail/pages/Account/Login.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -16,7 +17,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MainPage(),
+     home: const LoginPage(title: "Test"),
     );
   }
 }
