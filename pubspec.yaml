@@ -59,6 +59,9 @@ flutter:
     - lib/assets/images/svg/orangeCorner.svg
     - lib/assets/images/svg/yellowCorner.svg
     - lib/assets/images/svg/AleTrailtitle.svg
+    - lib/assets/images/svg/GoogleIcon.svg
+    - lib/assets/images/svg/InstaLogo.svg
+    - lib/assets/images/svg/TwitterIcon.svg
 
   fonts:
     - family: TrainOne

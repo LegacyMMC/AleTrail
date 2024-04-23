@@ -23,6 +23,8 @@ class _RegisterPageState extends State<RegisterPage> {
     final double registerButtonTop = screenHeight * 0.65;
 
     return Scaffold(
+      resizeToAvoidBottomInset:
+          false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -33,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
                 colorFilter:
-                const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -46,46 +48,66 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             Positioned(
-              top: registerButtonTop * 0.7, // Adjust this value according to your layout
+              top: registerButtonTop *
+                  0.65, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
-                child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
+                child: Material(
+                  elevation: 25, // Set the elevation here
+                  borderRadius: BorderRadius.circular(50),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Username',
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                            color: primaryButton), // Orange border when focused
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      contentPadding: const EdgeInsets.fromLTRB(
+                          10, 0, 10, 0), // Adjust height here
                     ),
                   ),
                 ),
               ),
             ),
             Positioned(
-              top: registerButtonTop * 0.85, // Adjust this value according to your layout
+              top: registerButtonTop *
+                  0.8, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Password',
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: const BorderSide(
+                          color: secondaryButton), // Orange border when focused
+                    ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(50),
+                      borderSide: const BorderSide(color: Colors.white),
                     ),
+                    contentPadding: const EdgeInsets.fromLTRB(
+                        10, 0, 10, 0), // Adjust height here
                   ),
                 ),
               ),
             ),
             Positioned(
-              top: registerButtonTop * 1.05,
+              top: registerButtonTop * 1,
               right: screenWidth * 0.09,
               child: ElevatedButton(
                 style: const ButtonStyle(
                   backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () {
-                  Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterPage(title: "")));
+                  // Handle sign-in button press
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.25),
@@ -94,6 +116,32 @@ class _RegisterPageState extends State<RegisterPage> {
                     style: TextStyle(fontSize: 25, color: Colors.white),
                   ),
                 ),
+              ),
+            ),
+            Positioned(
+              top: registerButtonTop * 1.18, // Adjusted position for icons
+              right: 0,
+              left: 0,
+              child: Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceEvenly, // Evenly distribute icons
+                children: [
+                  SvgPicture.asset(
+                    height: 35,
+                    "lib/assets/images/svg/GoogleIcon.svg",
+                    semanticsLabel: 'Yellow Corner SVG',
+                  ),
+                  SvgPicture.asset(
+                    height: 35,
+                    "lib/assets/images/svg/InstaLogo.svg",
+                    semanticsLabel: 'Yellow Corner SVG',
+                  ),
+                  SvgPicture.asset(
+                    height: 35,
+                    "lib/assets/images/svg/TwitterIcon.svg",
+                    semanticsLabel: 'Yellow Corner SVG',
+                  ),
+                ],
               ),
             ),
             Positioned(

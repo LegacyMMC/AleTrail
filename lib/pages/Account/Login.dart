@@ -25,6 +25,8 @@ class _LoginPageState extends State<LoginPage> {
     final double registerButtonTop = screenHeight * 0.65;
 
     return Scaffold(
+      resizeToAvoidBottomInset:
+          false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -34,8 +36,6 @@ class _LoginPageState extends State<LoginPage> {
               left: 0,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
-                colorFilter:
-                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -53,23 +53,6 @@ class _LoginPageState extends State<LoginPage> {
               child: ElevatedButton(
                 style: const ButtonStyle(
                   backgroundColor: MaterialStatePropertyAll(primaryButton),
-                ),
-                onPressed: () {},
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.25),
-                  child: const Text(
-                    "Sign In",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              top: registerButtonTop,
-              right: screenWidth * 0.07,
-              child: ElevatedButton(
-                style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () {
                   Navigator.of(context).push(
@@ -96,6 +79,23 @@ class _LoginPageState extends State<LoginPage> {
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.25),
                   child: const Text(
+                    "Sign In",
+                    style: TextStyle(fontSize: 25, color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: registerButtonTop,
+              right: screenWidth * 0.07,
+              child: ElevatedButton(
+                style: const ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(secondaryButton),
+                ),
+                onPressed: () {},
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.25),
+                  child: const Text(
                     "Register",
                     style: TextStyle(fontSize: 25, color: Colors.white),
                   ),
@@ -110,6 +110,19 @@ class _LoginPageState extends State<LoginPage> {
                 semanticsLabel: 'Yellow Corner SVG',
               ),
             ),
+            Positioned(
+              top: screenHeight * 0.93,
+              right: screenWidth * 0.31,
+              child: TextButton(
+                onPressed: () {},
+                child: const Text(
+                    style: TextStyle(
+                        color: secondaryText,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900),
+                    'I am a business'),
+              ),
+            )
           ],
         ),
       ),
