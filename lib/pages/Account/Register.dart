@@ -18,8 +18,8 @@ class _RegisterPageState extends State<RegisterPage> {
     final double screenHeight = screenSize.height;
 
     // Define relative positions and sizes based on screen dimensions
-    final double orangeCornerBottom = screenHeight * 0.0000001 - 100;
-    final double aleTrailTitleTop = screenHeight * 0.25;
+    final double orangeCornerBottom = screenHeight * 0.0000001 - 110;
+    final double aleTrailTitleTop = screenHeight * 0.2;
     final double registerButtonTop = screenHeight * 0.65;
 
     return Scaffold(
@@ -49,7 +49,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             Positioned(
               top: registerButtonTop *
-                  0.65, // Adjust this value according to your layout
+                  0.57, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
@@ -77,11 +77,14 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             Positioned(
               top: registerButtonTop *
-                  0.8, // Adjust this value according to your layout
+                  0.7, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
-                child: TextField(
+                child: Material(
+                  elevation: 25, // Set the elevation here
+                  borderRadius: BorderRadius.circular(50),
+                  child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Password',
                     focusedBorder: OutlineInputBorder(
@@ -97,23 +100,50 @@ class _RegisterPageState extends State<RegisterPage> {
                         10, 0, 10, 0), // Adjust height here
                   ),
                 ),
-              ),
+              )),
+            ),
+            Positioned(
+              top: registerButtonTop *
+                  0.83, // Adjust this value according to your layout
+              right: screenWidth * 0.085,
+              child: SizedBox(
+                width: screenWidth * 0.85,
+                child: Material(
+                  elevation: 25, // Set the elevation here
+                  borderRadius: BorderRadius.circular(50),
+                  child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Confirm Password',
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: const BorderSide(
+                          color: secondaryButton), // Orange border when focused
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
+                      borderSide: const BorderSide(color: Colors.white),
+                    ),
+                    contentPadding: const EdgeInsets.fromLTRB(
+                        10, 0, 10, 0), // Adjust height here
+                  ),
+                ),
+              )),
             ),
             Positioned(
               top: registerButtonTop * 1,
-              right: screenWidth * 0.09,
+              right: screenWidth * 0.11,
               child: ElevatedButton(
-                style: const ButtonStyle(
+                style: const ButtonStyle(elevation: MaterialStatePropertyAll(15),
                   backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () {
                   // Handle sign-in button press
                 },
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.25),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
                   child: const Text(
-                    "Sign In",
-                    style: TextStyle(fontSize: 25, color: Colors.white),
+                    "Create account",
+                    style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
               ),
@@ -145,7 +175,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             Positioned(
-              top: 0,
+              top: -50,
               right: 0,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/yellowCorner.svg",
