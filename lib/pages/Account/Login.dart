@@ -1,7 +1,7 @@
 import 'package:AleTrail/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:AleTrail/pages/UserMap.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key, required this.title}) : super(key: key);
   final String title;
@@ -111,6 +111,26 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 onPressed: () {
                   // Handle sign-in button press
+                  Navigator.of(context).push(
+                    PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) =>
+                        const UserMapPage(title: ""),
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                          var begin = const Offset(10.0, 0.0);
+                          var end = Offset.zero;
+                          var curve = Curves.ease;
+
+                          var tween = Tween(begin: begin, end: end)
+                              .chain(CurveTween(curve: curve));
+
+                          return SlideTransition(
+                            position: animation.drive(tween),
+                            child: child,
+                          );
+                        },
+                        transitionDuration: const Duration(milliseconds: 800)),
+                  );
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.25),
