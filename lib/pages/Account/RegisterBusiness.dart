@@ -2,15 +2,15 @@ import 'package:AleTrail/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class RegisterPage extends StatefulWidget {
-  const RegisterPage({Key? key, required this.title}) : super(key: key);
+class RegisterBusinessPage extends StatefulWidget {
+  const RegisterBusinessPage({super.key, required this.title});
   final String title;
 
   @override
-  State<RegisterPage> createState() => _RegisterPageState();
+  State<RegisterBusinessPage> createState() => _RegisterBusinessPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class _RegisterBusinessPageState extends State<RegisterBusinessPage> {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -58,7 +58,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Username',
+                      hintText: 'Company Name',
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
                         borderSide: const BorderSide(
@@ -85,6 +85,34 @@ class _RegisterPageState extends State<RegisterPage> {
                   elevation: 25, // Set the elevation here
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Username',
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                            color: primaryButton), // Orange border when focused
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: const BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(50),
+                      ),
+                      contentPadding: const EdgeInsets.fromLTRB(
+                          10, 0, 10, 0), // Adjust height here
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: registerButtonTop *
+                  0.83, // Adjust this value according to your layout
+              right: screenWidth * 0.085,
+              child: SizedBox(
+                width: screenWidth * 0.85,
+                child: Material(
+                  elevation: 25, // Set the elevation here
+                  borderRadius: BorderRadius.circular(50),
+                  child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Password',
                     focusedBorder: OutlineInputBorder(
@@ -104,7 +132,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             Positioned(
               top: registerButtonTop *
-                  0.83, // Adjust this value according to your layout
+                  0.95, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
@@ -130,7 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
               )),
             ),
             Positioned(
-              top: registerButtonTop * 1,
+              top: registerButtonTop * 1.13,
               right: screenWidth * 0.11,
               child: ElevatedButton(
                 style: const ButtonStyle(elevation: MaterialStatePropertyAll(15),
@@ -146,32 +174,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
-              ),
-            ),
-            Positioned(
-              top: registerButtonTop * 1.18, // Adjusted position for icons
-              right: 0,
-              left: 0,
-              child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.spaceEvenly, // Evenly distribute icons
-                children: [
-                  SvgPicture.asset(
-                    height: 35,
-                    "lib/assets/images/svg/GoogleIcon.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
-                  ),
-                  SvgPicture.asset(
-                    height: 35,
-                    "lib/assets/images/svg/InstaLogo.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
-                  ),
-                  SvgPicture.asset(
-                    height: 35,
-                    "lib/assets/images/svg/TwitterIcon.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
-                  ),
-                ],
               ),
             ),
             Positioned(
