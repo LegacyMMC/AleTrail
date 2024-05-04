@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.of(context).push(
                     PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                        const LoginPage(title: ""),
+                        LoginPage(),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           var begin = const Offset(10.0, 0.0);

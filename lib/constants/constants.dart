@@ -8,6 +8,7 @@ const Color mainBackground = Color(0xFFFFFFFF);
 //  TEXT COLOURS
 const Color mainText = Color(0xFFFFFFFF);
 const Color secondaryText = Color(0xFF002128);
+const Color failureText = Color(0xFFC62828);
 
 // BUTTON COLOURS
 const Color primaryButton = Color(0xFFF88601);

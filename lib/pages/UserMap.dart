@@ -92,40 +92,52 @@ class _UserMapPageState extends State<UserMapPage> {
             initialCameraPosition: CameraPosition(
               target: _initialCameraPosition,
               zoom: 55.0,
-            ),
+            ),cloudMapId: "341f3f57546abed8",
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
             },
           ),
           Positioned(
-            top: 10,
+            top: 15,
             left: 0,
             right: 0,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(
-                      20), // Adjust the radius to your preference
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 7,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
-                ),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    focusColor: mainBackground,
-                    hintText: 'Search...',
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(8),
-                    prefixIcon: Icon(Icons.search),
+              child: Row( // Wrap TextField and Icon in a Row
+                children: [
+                   Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0), // Add padding between TextField and Icon
+                    child: IconButton(
+                      icon: Icon(Icons.more_vert, color: Colors.black,), onPressed: () { print("TEST");},
+                    )
+
                   ),
-                ),
+                  Expanded( // Use Expanded to make TextField take remaining space
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20), // Adjust the radius to your preference
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 7,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                      ),
+                      child: const TextField(
+                        decoration: InputDecoration(
+                          focusColor: mainBackground,
+                          hintText: 'Search bars, beers & business',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(8),
+                          prefixIcon: Icon(Icons.search),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

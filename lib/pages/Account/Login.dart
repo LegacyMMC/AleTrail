@@ -2,15 +2,21 @@ import 'package:AleTrail/constants/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:AleTrail/pages/UserMap.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../firebase_api_controller.dart';
+
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key, required this.title}) : super(key: key);
-  final String title;
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // User Define Parameters
+  String clientUserName = ''; // Define as instance variable
+  String clientPassword = ''; // Define as instance variable
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -24,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       resizeToAvoidBottomInset:
-      false, // Prevents resizing when keyboard appears
+          false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -35,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
                 colorFilter:
-                const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -57,6 +63,9 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 25, // Set the elevation here
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
+                    onChanged: (value) {
+                      clientUserName = value;
+                    },
                     decoration: InputDecoration(
                       hintText: 'Username',
                       focusedBorder: OutlineInputBorder(
@@ -80,57 +89,82 @@ class _LoginPageState extends State<LoginPage> {
                   0.8, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: SizedBox(
-                width: screenWidth * 0.85,
-                child: Material(
-                  elevation: 25, // Set the elevation here
-                  borderRadius: BorderRadius.circular(50),
-                  child: TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: const BorderSide(
-                          color: secondaryButton), // Orange border when focused
+                  width: screenWidth * 0.85,
+                  child: Material(
+                    elevation: 25, // Set the elevation here
+                    borderRadius: BorderRadius.circular(50),
+                    child: TextField(obscureText: true,
+                      onChanged: (value) {
+                        clientPassword = value;
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Password',
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: const BorderSide(
+                              color:
+                                  secondaryButton), // Orange border when focused
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(50),
+                          borderSide: const BorderSide(color: Colors.white),
+                        ),
+                        contentPadding: const EdgeInsets.fromLTRB(
+                            10, 0, 10, 0), // Adjust height here
+                      ),
                     ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(50),
-                      borderSide: const BorderSide(color: Colors.white),
-                    ),
-                    contentPadding: const EdgeInsets.fromLTRB(
-                        10, 0, 10, 0), // Adjust height here
-                  ),
-                ),
-              )),
+                  )),
             ),
             Positioned(
               top: registerButtonTop * 1,
               right: screenWidth * 0.09,
               child: ElevatedButton(
-                style: const ButtonStyle(elevation: MaterialStatePropertyAll(15),
+                style: const ButtonStyle(
+                  elevation: MaterialStatePropertyAll(15),
                   backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   // Handle sign-in button press
-                  Navigator.of(context).push(
-                    PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                        const UserMapPage(title: ""),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          var begin = const Offset(10.0, 0.0);
-                          var end = Offset.zero;
-                          var curve = Curves.ease;
+                  if (clientPassword.length > 1 || clientUserName.length > 1) {
+                    final UserCredential? signinResponseCode =
+                        await signInWithEmailAndPassword(
+                      clientUserName,
+                      clientPassword,
+                    );
+                    if (signinResponseCode != null ||
+                        signinResponseCode?.user != null) {
+                      final userId = signinResponseCode?.user!.uid;
+                      if (userId!.isNotEmpty) {
+                        // Navigate away from page
+                        Navigator.of(context).push(
+                          PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      const UserMapPage(title: ""),
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
+                                var begin = const Offset(10.0, 0.0);
+                                var end = Offset.zero;
+                                var curve = Curves.ease;
 
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
+                                var tween = Tween(begin: begin, end: end)
+                                    .chain(CurveTween(curve: curve));
 
-                          return SlideTransition(
-                            position: animation.drive(tween),
-                            child: child,
-                          );
-                        },
-                        transitionDuration: const Duration(milliseconds: 800)),
-                  );
+                                return SlideTransition(
+                                  position: animation.drive(tween),
+                                  child: child,
+                                );
+                              },
+                              transitionDuration:
+                                  const Duration(milliseconds: 800)),
+                        );
+                      } else {
+                        // Handle case where userId is empty
+                      }
+                    } else {
+                      // Handle sign-in failure
+                    }
+                  }
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.25),
@@ -147,7 +181,7 @@ class _LoginPageState extends State<LoginPage> {
               left: 0,
               child: Row(
                 mainAxisAlignment:
-                MainAxisAlignment.spaceEvenly, // Evenly distribute icons
+                    MainAxisAlignment.spaceEvenly, // Evenly distribute icons
                 children: [
                   SvgPicture.asset(
                     height: 35,
