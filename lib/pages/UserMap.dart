@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:AleTrail/constants/constants.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -19,6 +20,7 @@ class _UserMapPageState extends State<UserMapPage> {
   LatLng _initialCameraPosition =
       const LatLng(0, 0); // Default initial position
   late StreamSubscription<Position> _positionStreamSubscription;
+  bool _sideMenuVisible = false;
 
   @override
   void initState() {
@@ -85,6 +87,7 @@ class _UserMapPageState extends State<UserMapPage> {
         children: [
           GoogleMap(
             buildingsEnabled: true,
+            mapType: MapType.normal,
             myLocationEnabled: true,
             myLocationButtonEnabled: true,
             indoorViewEnabled: true,
@@ -92,7 +95,8 @@ class _UserMapPageState extends State<UserMapPage> {
             initialCameraPosition: CameraPosition(
               target: _initialCameraPosition,
               zoom: 55.0,
-            ),cloudMapId: "341f3f57546abed8",
+            ),
+            cloudMapId: "341f3f57546abed8",
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
             },
@@ -103,26 +107,37 @@ class _UserMapPageState extends State<UserMapPage> {
             right: 0,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row( // Wrap TextField and Icon in a Row
+              child: Row(
+                // Wrap TextField and Icon in a Row
                 children: [
-                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0), // Add padding between TextField and Icon
-                    child: IconButton(
-                      icon: Icon(Icons.more_vert, color: Colors.black,), onPressed: () { print("TEST");},
-                    )
-
-                  ),
-                  Expanded( // Use Expanded to make TextField take remaining space
+                  Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                          0, 0, 5, 0), // Add padding between TextField and Icon
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.more_vert,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _sideMenuVisible = true;
+                          });
+                        },
+                      )),
+                  Expanded(
+                    // Use Expanded to make TextField take remaining space
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(20), // Adjust the radius to your preference
+                        borderRadius: BorderRadius.circular(
+                            20), // Adjust the radius to your preference
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.5),
                             spreadRadius: 7,
                             blurRadius: 5,
-                            offset: const Offset(0, 3), // changes position of shadow
+                            offset: const Offset(
+                                0, 3), // changes position of shadow
                           ),
                         ],
                       ),
@@ -141,6 +156,85 @@ class _UserMapPageState extends State<UserMapPage> {
               ),
             ),
           ),
+          Visibility(
+              visible: _sideMenuVisible,
+              child: Positioned(
+                top: 0,
+                bottom: 0,
+                left: 0,
+                child: Container(
+                  width: 200, // Adjust the width as needed
+                  color: primaryButton, // Adjust the color as needed
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.fromLTRB(0, 30, 10, 0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      _sideMenuVisible = false;
+                                    });
+                                  },
+                                  icon: const Icon(
+                                    CupertinoIcons.xmark_circle,
+                                    size: 35,
+                                    color: Colors.black87,
+                                  ),
+                                )
+                              ],
+                            )),
+                        ListTile(
+                          title: const Text(
+                            'Settings',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          onTap: () {
+                            // Handle menu item 1 press
+                          },
+                        ),
+                        ListTile(
+                          title: const Text(
+                            'Profile',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          onTap: () {
+                            // Handle menu item 1 press
+                          },
+                        ),
+                        ListTile(
+                          title: const Text(
+                            'Recent Updates',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          onTap: () {
+                            // Handle menu item 1 press
+                          },
+                        ),
+                        ListTile(
+                          title: const Text(
+                            'Report Issue',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          onTap: () {
+                            // Handle menu item 1 press
+                          },
+                        ),
+                        ListTile(
+                          title: const Text(
+                            'Logout',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          onTap: () {
+                            // Handle menu item 1 press
+                          },
+                        ),
+                      ]),
+                ),
+              )),
         ],
       ),
     );
