@@ -1,6 +1,5 @@
 import 'dart:async';
-
-import 'package:AleTrail/constants/constants.dart';
+import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

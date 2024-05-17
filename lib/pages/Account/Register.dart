@@ -1,7 +1,8 @@
-import 'package:AleTrail/constants/constants.dart';
+import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../constants/AccountType.dart';
 import '../../firebase_api_controller.dart';
 import '../UserMap.dart';
 
@@ -196,10 +197,17 @@ class _RegisterPageState extends State<RegisterPage> {
                       );
                       if (signinResponseCode != null ||
                           signinResponseCode?.user != null) {
-                        final userId = signinResponseCode?.user!.uid;
-                        if (userId!.isNotEmpty) {
+                        final userAccount = signinResponseCode?.user;
+                        if (userAccount?.uid != null &&
+                            userAccount?.email != null) {
+                          // Register User Against Firestore
+                          addNewClientToUserTable(
+                              userAccount!.uid,
+                              userAccount.displayName.toString(),
+                              userAccount.email,
+                              AccountType().generalUser);
                           // Navigate away from page
-                          Navigator.of(context).push(
+                          Navigator.of(context).pushReplacement (
                             PageRouteBuilder(
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
@@ -222,7 +230,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                     const Duration(milliseconds: 800)),
                           );
                         } else {
-                          // HANDLE WHEN USER IS NOT FOUND
+                          // HANDLE WHEN USER IS NOT REGISTERED
                           setState(() {
                             failedToRegister =
                                 true; // Use assignment operator to set the value

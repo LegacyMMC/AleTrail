@@ -1,4 +1,4 @@
-import 'package:AleTrail/constants/constants.dart';
+import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:AleTrail/pages/Account/Login.dart';
 import 'package:AleTrail/pages/Account/Register.dart';
 import 'package:AleTrail/pages/Account/RegisterBusiness.dart';

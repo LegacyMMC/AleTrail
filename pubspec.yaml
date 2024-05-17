@@ -52,6 +52,8 @@ dev_dependencies:
   geolocator: ^11.0.0
   firebase_core: ^2.30.1
   firebase_auth: ^4.19.4
+  cloud_firestore: ^4.17.3
+  provider: ^6.1.2
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -66,6 +68,7 @@ flutter:
     - lib/assets/images/svg/GoogleIcon.svg
     - lib/assets/images/svg/InstaLogo.svg
     - lib/assets/images/svg/TwitterIcon.svg
+    - lib/assets/images/svg/TopRightOrange.svg
 
   fonts:
     - family: TrainOne

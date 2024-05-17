@@ -3,11 +3,18 @@ import 'package:AleTrail/pages/Account/Home.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; // Import Firebase Core
+import 'package:provider/provider.dart';
+import '../classes/UserData.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // Initialize Firebase
-  runApp(const MainApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => UserProvider(),
+      child: MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -20,7 +27,7 @@ class MainApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-     home: const HomePage(title: "Test"),
+      home: const HomePage(title: "Test"),
     );
   }
 }
@@ -67,79 +74,79 @@ class _MyHomePageState extends State<MainPage> {
       extendBody: true,
       bottomNavigationBar: (bottomBarPages.length <= maxCount)
           ? AnimatedNotchBottomBar(
-        /// Provide NotchBottomBarController
-        notchBottomBarController: _controller,
-        color: Colors.white,
-        showLabel: false,
-        shadowElevation: 5,
-        kBottomRadius: 28.0,
-        // notchShader: const SweepGradient(
-        //   startAngle: 0,
-        //   endAngle: pi / 2,
-        //   colors: [Colors.red, Colors.green, Colors.orange],
-        //   tileMode: TileMode.mirror,
-        // ).createShader(Rect.fromCircle(center: Offset.zero, radius: 8.0)),
-        notchColor: Colors.black87,
+              /// Provide NotchBottomBarController
+              notchBottomBarController: _controller,
+              color: Colors.white,
+              showLabel: false,
+              shadowElevation: 5,
+              kBottomRadius: 28.0,
+              // notchShader: const SweepGradient(
+              //   startAngle: 0,
+              //   endAngle: pi / 2,
+              //   colors: [Colors.red, Colors.green, Colors.orange],
+              //   tileMode: TileMode.mirror,
+              // ).createShader(Rect.fromCircle(center: Offset.zero, radius: 8.0)),
+              notchColor: Colors.black87,
 
-        /// restart app if you change removeMargins
-        removeMargins: false,
-        bottomBarWidth: 500,
-        showShadow: false,
-        durationInMilliSeconds: 300,
-        elevation: 1,
-        bottomBarItems: const [
-          BottomBarItem(
-            inActiveItem: Icon(
-              Icons.home_filled,
-              color: Colors.blueGrey,
-            ),
-            activeItem: Icon(
-              Icons.home_filled,
-              color: Colors.blueAccent,
-            ),
-            itemLabel: 'Page 1',
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(
-              Icons.star,
-              color: Colors.blueGrey,
-            ),
-            activeItem: Icon(
-              Icons.star,
-              color: Colors.blueAccent,
-            ),
-            itemLabel: 'Page 2',
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(
-              Icons.settings,
-              color: Colors.blueGrey,
-            ),
-            activeItem: Icon(
-              Icons.settings,
-              color: Colors.pink,
-            ),
-            itemLabel: 'Page 4',
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(
-              Icons.person,
-              color: Colors.blueGrey,
-            ),
-            activeItem: Icon(
-              Icons.person,
-              color: Colors.yellow,
-            ),
-            itemLabel: 'Page 5',
-          ),
-        ],
-        onTap: (index) {
-          /// perform action on tab change and to update pages you can update pages without pages
-          log('current selected index $index');
-          _pageController.jumpToPage(index);
-        },
-        kIconSize: 24.0,
-      )
+              /// restart app if you change removeMargins
+              removeMargins: false,
+              bottomBarWidth: 500,
+              showShadow: false,
+              durationInMilliSeconds: 300,
+              elevation: 1,
+              bottomBarItems: const [
+                BottomBarItem(
+                  inActiveItem: Icon(
+                    Icons.home_filled,
+                    color: Colors.blueGrey,
+                  ),
+                  activeItem: Icon(
+                    Icons.home_filled,
+                    color: Colors.blueAccent,
+                  ),
+                  itemLabel: 'Page 1',
+                ),
+                BottomBarItem(
+                  inActiveItem: Icon(
+                    Icons.star,
+                    color: Colors.blueGrey,
+                  ),
+                  activeItem: Icon(
+                    Icons.star,
+                    color: Colors.blueAccent,
+                  ),
+                  itemLabel: 'Page 2',
+                ),
+                BottomBarItem(
+                  inActiveItem: Icon(
+                    Icons.settings,
+                    color: Colors.blueGrey,
+                  ),
+                  activeItem: Icon(
+                    Icons.settings,
+                    color: Colors.pink,
+                  ),
+                  itemLabel: 'Page 4',
+                ),
+                BottomBarItem(
+                  inActiveItem: Icon(
+                    Icons.person,
+                    color: Colors.blueGrey,
+                  ),
+                  activeItem: Icon(
+                    Icons.person,
+                    color: Colors.yellow,
+                  ),
+                  itemLabel: 'Page 5',
+                ),
+              ],
+              onTap: (index) {
+                /// perform action on tab change and to update pages you can update pages without pages
+                log('current selected index $index');
+                _pageController.jumpToPage(index);
+              },
+              kIconSize: 24.0,
+            )
           : null,
       bottomSheet: Container(height: 0),
     );
