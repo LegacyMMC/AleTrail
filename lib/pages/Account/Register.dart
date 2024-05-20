@@ -207,6 +207,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               userAccount.email,
                               AccountType().generalUser);
                           // Navigate away from page
+
                           Navigator.of(context).pushReplacement (
                             PageRouteBuilder(
                                 pageBuilder:

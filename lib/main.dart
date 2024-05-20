@@ -12,7 +12,7 @@ Future<void> main() async {
   runApp(
     ChangeNotifierProvider(
       create: (context) => UserProvider(),
-      child: MainApp(),
+      child: const MainApp(),
     ),
   );
 }
