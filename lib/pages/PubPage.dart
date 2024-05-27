@@ -161,7 +161,7 @@ class PubInfoPage extends StatelessWidget {
 
   Widget _buildMenuSection(BuildContext context, String pubId) {
     return FutureBuilder<List<Map<String, dynamic>>?>(
-      future: getEstablishmentMenus(),
+      future: getEstablishmentMenus(pubId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -196,12 +196,15 @@ class PubInfoPage extends StatelessWidget {
                     var menuId = menuItems
                         .firstWhere((item) => item.name == category)
                         .menuId;
+                    var menuDesc = menuItems
+                        .firstWhere((item) => item.name == category)
+                        .description;
                     // Ensure the correct MenuId is passed to MenuProductView
                     print("Selected MenuId: $menuId");
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            MenuProductView(menuId: menuId),
+                            MenuProductView(menuId: menuId, menuDesc: menuDesc),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           var begin = const Offset(10.0, 0.0);

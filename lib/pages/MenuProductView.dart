@@ -1,39 +1,75 @@
+import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import '../firebase_api_controller.dart';
 
 class MenuProductView extends StatelessWidget {
   final String menuId;
+  final String menuDesc;
 
-  const MenuProductView({Key? key, required this.menuId}) : super(key: key);
+  const MenuProductView({super.key, required this.menuId, required this.menuDesc});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
-        title: _buildSearchBar(),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: getMenuProducts(menuId), // Call getMenuProducts function
+        future: getMenuProducts(menuId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No products found'));
+            return Center(child: Text('Sorry, no products found.'));
           }
 
           var products = snapshot.data!;
 
           return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Build products list
+                // Category header box
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: primaryButton.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Beers',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: primaryButton,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        menuDesc,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                // Product list
                 for (var product in products)
-                  _buildProductCard(product['ProductName'],
-                      product['ProductDescription'], product['ProductPrice']),
+                  _buildProductCard(
+                    context,
+                    product['ProductName'],
+                    product['ProductDescription'],
+                    product['ProductPrice'],
+                  ),
               ],
             ),
           );
@@ -43,23 +79,62 @@ class MenuProductView extends StatelessWidget {
   }
 
   Widget _buildProductCard(
-      String productName, String productDescription, double productPrice) {
+      BuildContext context,
+      String productName,
+      String productDescription,
+      double productPrice,
+      ) {
     return Card(
       elevation: 10,
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: ListTile(
-        title: Text(productName),
+        title: Text(
+          productName,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: Text(productDescription),
         trailing: Text(
           '£$productPrice',
           style: const TextStyle(fontSize: 15),
-        ), // Assuming product price is in double
+        ),
+        onTap: () {
+          _showProductDetails(context, productName, productDescription, productPrice);
+        },
       ),
     );
   }
 
-  Widget _buildSearchBar() {
-    // Implement your search bar widget here
-    return Container();
+  void _showProductDetails(BuildContext context, String productName, String productDescription, double productPrice) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(productName),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(productDescription),
+              const SizedBox(height: 16),
+              Text(
+                'Price: £$productPrice',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

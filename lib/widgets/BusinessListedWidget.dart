@@ -9,13 +9,13 @@ class BusinessCard extends StatelessWidget {
   final String popularity;
 
   const BusinessCard({
-    Key? key, // Make key nullable
+    super.key, // Make key nullable
     required this.imageUrl,
     required this.pubId,
     required this.title,
     required this.tags,
     required this.popularity,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +43,7 @@ class BusinessCard extends StatelessWidget {
                       ? imageUrl
                       : "https://cdn.pixabay.com/photo/2020/12/29/23/32/house-5871895_1280.jpg",
                 ),
-                backgroundColor:
-                    Colors.transparent,
+                backgroundColor: Colors.transparent,
               ),
               const SizedBox(width: 10),
               Expanded(

@@ -215,88 +215,72 @@ Future<List<Map<String, dynamic>>?> getBusinessEstablishments() async {
   }
 }
 
-Future<List<Map<String, dynamic>>?> getEstablishmentMenus() async {
+Future<List<Map<String, dynamic>>?> getEstablishmentMenus(String pubId) async {
   try {
-    // Fetch the user document
-    DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+    if (pubId.isEmpty) {
+      if (kDebugMode) {
+        print('Pub ID is empty');
+      }
+      return null;
+    }
+
+    List<Map<String, dynamic>> menuInfo = [];
+
+    // Fetch data from "EstablishmentDetailed" collection using establishment ID
+    DocumentSnapshot<Map<String, dynamic>> establishmentSnapshot =
     await FirebaseFirestore.instance
-        .collection("AleTrailUsers")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection("EstablishmentDetailed")
+        .doc(pubId)
         .get();
 
-    if (documentSnapshot.exists) {
-      var userData = documentSnapshot.data();
-      // Ensure the Establishments field is a List<dynamic>
-      List<dynamic>? establishments =
-      userData?['Establishments'] as List<dynamic>?;
+    if (establishmentSnapshot.exists) {
+      Map<String, dynamic>? establishmentData = establishmentSnapshot.data();
+      List<dynamic>? establishmentMenus =
+      establishmentData?['EstablishmentMenus'] as List<dynamic>?;
 
-      if (establishments != null) {
-        List<Map<String, dynamic>> menuInfo = [];
-
-        // Loop through each establishment ID
-        for (var establishmentId in establishments) {
-          if (establishmentId is String) {
-            // Fetch data from "EstablishmentDetailed" collection using establishment ID
-            DocumentSnapshot<Map<String, dynamic>> establishmentSnapshot =
+      if (establishmentMenus != null) {
+        for (var menuId in establishmentMenus) {
+          if (menuId is String) {
+            // Fetch data from "EstablishmentMenus" collection using menu ID
+            DocumentSnapshot<Map<String, dynamic>> menuSnapshot =
             await FirebaseFirestore.instance
-                .collection("EstablishmentDetailed")
-                .doc(establishmentId)
+                .collection("EstablishmentMenus")
+                .doc(menuId)
                 .get();
-
-            if (establishmentSnapshot.exists) {
-              Map<String, dynamic>? establishmentData =
-              establishmentSnapshot.data();
-              List<dynamic>? establishmentMenus =
-              establishmentData?['EstablishmentMenus'] as List<dynamic>?;
-
-              if (establishmentMenus != null) {
-                for (var menuId in establishmentMenus) {
-                  if (menuId is String) {
-                    // Fetch data from "EstablishmentMenus" collection using menu ID
-                    DocumentSnapshot<Map<String, dynamic>> menuSnapshot =
-                    await FirebaseFirestore.instance
-                        .collection("EstablishmentMenus")
-                        .doc(menuId)
-                        .get();
-                    if (menuSnapshot.exists) {
-                      Map<String, dynamic>? menuData = menuSnapshot.data();
-                      if (menuData != null) {
-                        menuInfo.add(menuData);
-                      }
-                    }
-                  }
-                }
+            if (menuSnapshot.exists) {
+              Map<String, dynamic>? menuData = menuSnapshot.data();
+              if (menuData != null) {
+                menuInfo.add(menuData);
               }
             } else {
-              // Handle if establishment document does not exist
+              // Handle if menu document does not exist
               if (kDebugMode) {
-                print(
-                    'Establishment document does not exist for ID: $establishmentId');
+                print('Menu document does not exist for ID: $menuId');
               }
             }
           } else {
-            // Handle the case where establishmentId is not a String
+            // Handle the case where menuId is not a String
             if (kDebugMode) {
-              print('Invalid establishment ID type: $establishmentId');
+              print('Invalid menu ID type: $menuId');
             }
           }
         }
-
-        return menuInfo;
       } else {
         // If Establishments is null or not found, return null or handle as appropriate
         if (kDebugMode) {
-          print('Establishments field is null or not a list');
+          print('EstablishmentMenus field is null or not a list');
         }
         return null;
       }
     } else {
-      // Document does not exist
+      // Handle if establishment document does not exist
       if (kDebugMode) {
-        print('Document does not exist');
+        print('Establishment document does not exist for ID: $pubId');
       }
       return null;
     }
+
+    return menuInfo;
   } catch (e) {
     // Error handling
     if (kDebugMode) {
@@ -306,6 +290,7 @@ Future<List<Map<String, dynamic>>?> getEstablishmentMenus() async {
     throw e;
   }
 }
+
 
 Future<List<Map<String, dynamic>>?> getMenuProducts(String menuId) async {
   try {
