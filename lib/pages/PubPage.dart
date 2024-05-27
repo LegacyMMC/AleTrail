@@ -172,8 +172,6 @@ class PubInfoPage extends StatelessWidget {
 
         List<MenuItem> menuItems = [];
         for (var data in snapshot.data!) {
-          // Print menu item data for debugging
-          print("MenuId: ${data['MenuId']}, Name: ${data['MenuName']}");
           menuItems.add(MenuItem(
             name: data['MenuName'] ?? '',
             description: data['MenuDescription'] ?? '',

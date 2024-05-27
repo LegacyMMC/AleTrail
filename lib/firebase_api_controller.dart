@@ -148,15 +148,16 @@ Future<List<Map<String, dynamic>>?> getBusinessEstablishments() async {
   try {
     // Fetch the user document
     DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-    await FirebaseFirestore.instance
-        .collection("AleTrailUsers")
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
+        await FirebaseFirestore.instance
+            .collection("AleTrailUsers")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get();
 
     if (documentSnapshot.exists) {
       var userData = documentSnapshot.data();
       // Ensure the Establishments field is a List<dynamic>
-      List<dynamic>? establishments = userData?['Establishments'] as List<dynamic>?;
+      List<dynamic>? establishments =
+          userData?['Establishments'] as List<dynamic>?;
 
       if (establishments != null) {
         List<Map<String, dynamic>> establishmentsInfo = [];
@@ -166,20 +167,22 @@ Future<List<Map<String, dynamic>>?> getBusinessEstablishments() async {
           if (establishmentId is String) {
             // Fetch data from "EstablishmentSimple" collection using establishment ID
             DocumentSnapshot<Map<String, dynamic>> establishmentSnapshot =
-            await FirebaseFirestore.instance
-                .collection("EstablishmentSimple")
-                .doc(establishmentId)
-                .get();
+                await FirebaseFirestore.instance
+                    .collection("EstablishmentSimple")
+                    .doc(establishmentId)
+                    .get();
 
             if (establishmentSnapshot.exists) {
-              Map<String, dynamic>? establishmentData = establishmentSnapshot.data();
+              Map<String, dynamic>? establishmentData =
+                  establishmentSnapshot.data();
               if (establishmentData != null) {
                 establishmentsInfo.add(establishmentData);
               }
             } else {
               // Handle if establishment document does not exist
               if (kDebugMode) {
-                print('Establishment document does not exist for ID: $establishmentId');
+                print(
+                    'Establishment document does not exist for ID: $establishmentId');
               }
             }
           } else {
@@ -228,25 +231,25 @@ Future<List<Map<String, dynamic>>?> getEstablishmentMenus(String pubId) async {
 
     // Fetch data from "EstablishmentDetailed" collection using establishment ID
     DocumentSnapshot<Map<String, dynamic>> establishmentSnapshot =
-    await FirebaseFirestore.instance
-        .collection("EstablishmentDetailed")
-        .doc(pubId)
-        .get();
+        await FirebaseFirestore.instance
+            .collection("EstablishmentDetailed")
+            .doc(pubId)
+            .get();
 
     if (establishmentSnapshot.exists) {
       Map<String, dynamic>? establishmentData = establishmentSnapshot.data();
       List<dynamic>? establishmentMenus =
-      establishmentData?['EstablishmentMenus'] as List<dynamic>?;
+          establishmentData?['EstablishmentMenus'] as List<dynamic>?;
 
       if (establishmentMenus != null) {
         for (var menuId in establishmentMenus) {
           if (menuId is String) {
             // Fetch data from "EstablishmentMenus" collection using menu ID
             DocumentSnapshot<Map<String, dynamic>> menuSnapshot =
-            await FirebaseFirestore.instance
-                .collection("EstablishmentMenus")
-                .doc(menuId)
-                .get();
+                await FirebaseFirestore.instance
+                    .collection("EstablishmentMenus")
+                    .doc(menuId)
+                    .get();
             if (menuSnapshot.exists) {
               Map<String, dynamic>? menuData = menuSnapshot.data();
               if (menuData != null) {
@@ -291,21 +294,19 @@ Future<List<Map<String, dynamic>>?> getEstablishmentMenus(String pubId) async {
   }
 }
 
-
 Future<List<Map<String, dynamic>>?> getMenuProducts(String menuId) async {
   try {
     // Fetch the user document
     DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
-    await FirebaseFirestore.instance
-        .collection("EstablishmentMenus")
-        .doc(menuId)
-        .get();
+        await FirebaseFirestore.instance
+            .collection("EstablishmentMenus")
+            .doc(menuId)
+            .get();
 
     if (documentSnapshot.exists) {
       var menuData = documentSnapshot.data();
       // Ensure the Establishments field is a List<dynamic>
-      List<dynamic>? products =
-      menuData?['Products'] as List<dynamic>?;
+      List<dynamic>? products = menuData?['Products'] as List<dynamic>?;
 
       if (products != null) {
         List<Map<String, dynamic>> productInfo = [];
@@ -315,14 +316,13 @@ Future<List<Map<String, dynamic>>?> getMenuProducts(String menuId) async {
           if (productId is String) {
             // Fetch data from "EstablishmentDetailed" collection using establishment ID
             DocumentSnapshot<Map<String, dynamic>> productSnapshot =
-            await FirebaseFirestore.instance
-                .collection("EstablishmentProducts")
-                .doc(productId)
-                .get();
+                await FirebaseFirestore.instance
+                    .collection("EstablishmentProducts")
+                    .doc(productId)
+                    .get();
 
             if (productSnapshot.exists) {
-              Map<String, dynamic>? productData =
-              productSnapshot.data();
+              Map<String, dynamic>? productData = productSnapshot.data();
               if (productData != null) {
                 productInfo.add(productData);
               }
@@ -367,12 +367,13 @@ Future<String> addNewVenueToFirebase(
     Map<String, String> data = {
       'EstablishmentName': establishmentName,
       'EstablishmentAddress': establishmentAddress ?? '',
-      'Image':  '',
-      'Popularity':  ''
+      'Image': '',
+      'Popularity': ''
     };
 
     // Add the data to the specified collection and get the document reference
-    DocumentReference docRef = await firestoreInst.collection('EstablishmentSimple').add(data);
+    DocumentReference docRef =
+        await firestoreInst.collection('EstablishmentSimple').add(data);
 
     // Update the document with its own ID
     await docRef.update({
@@ -381,22 +382,23 @@ Future<String> addNewVenueToFirebase(
 
     // Add EstablishmentDetailed
     // Add the data to the specified collection and get the document reference
-    DocumentReference docRefDet = await firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
+    DocumentReference docRefDet =
+        await firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
 
     //Empty array
     Map<String, String> dataDetailed = {
       'EstablishmentName': establishmentName,
       'Description': establishmentAddress ?? '',
-      'Image':  '',
-      'Popularity':  '',
+      'Image': '',
+      'Popularity': '',
     };
-
 
     await docRefDet.set(dataDetailed);
 
     // Create a new document reference with an auto-generated ID
-    DocumentReference documentReference =
-    firestoreInst.collection('AleTrailUsers').doc(FirebaseAuth.instance.currentUser!.uid);
+    DocumentReference documentReference = firestoreInst
+        .collection('AleTrailUsers')
+        .doc(FirebaseAuth.instance.currentUser!.uid);
 
     await documentReference.set({
       'Establishments': FieldValue.arrayUnion([docRef.id]),
@@ -415,24 +417,21 @@ Future<String> addNewVenueToFirebase(
   }
 }
 
-
 Future<bool?> updateNewVenueImage(
-    String docId, String establishmentTagline,
-io.File? imageFile
-    ) async {
+    String docId, String establishmentTagline, io.File? imageFile) async {
   try {
     // Get a reference to the Firestore instance
     FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
 
     String imageUrl = "";
     // Upload image to Firebase Storage
-    if(imageFile != null)
-      {
-         imageUrl = await uploadImageToStorage(imageFile);
-      }
+    if (imageFile != null) {
+      imageUrl = await uploadImageToStorage(imageFile);
+    }
 
     // Add the data to the specified collection and get the document reference
-    DocumentReference docRef = await firestoreInst.collection('EstablishmentSimple').doc(docId);
+    DocumentReference docRef =
+        await firestoreInst.collection('EstablishmentSimple').doc(docId);
 
     // Update the document with its own ID
     await docRef.update({
@@ -442,7 +441,8 @@ io.File? imageFile
 
     // Add EstablishmentDetailed
     // Add the data to the specified collection and get the document reference
-    DocumentReference docRefDet = await firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
+    DocumentReference docRefDet =
+        await firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
 
     Map<String, dynamic> dataDetailed = {
       'Image': imageUrl,
@@ -465,7 +465,9 @@ Future<String> uploadImageToStorage(io.File imageFile) async {
     // Get a reference to the Firebase Storage instance
     FirebaseStorage storage = FirebaseStorage.instance;
 
-    Reference ref = storage.ref("Users/${FirebaseAuth.instance.currentUser!.uid}").child('Establishments/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    Reference ref = storage
+        .ref("Users/${FirebaseAuth.instance.currentUser!.uid}")
+        .child('Establishments/${DateTime.now().millisecondsSinceEpoch}.jpg');
 
     // Upload the image to Firebase Storage
     UploadTask uploadTask = ref.putFile(imageFile);
