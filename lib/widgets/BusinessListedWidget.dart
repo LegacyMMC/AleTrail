@@ -1,70 +1,87 @@
 import 'package:flutter/material.dart';
+import '../pages/PubPage.dart';
 
-class CustomCard extends StatelessWidget {
+class BusinessCard extends StatelessWidget {
+  final String pubId;
   final String imageUrl;
   final String title;
   final String tags;
   final String popularity;
 
-  const CustomCard({
-    super.key,
+  const BusinessCard({
+    Key? key, // Make key nullable
     required this.imageUrl,
+    required this.pubId,
     required this.title,
     required this.tags,
     required this.popularity,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 10,
-      margin: const EdgeInsets.all(10),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Row(
-          children: [
-            CircleAvatar(
-              radius: 35,
-              backgroundImage: NetworkImage(imageUrl),
-            ),
-            const SizedBox(width: 10),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+    return GestureDetector(
+      onTap: () {
+        // Perform action when the card is clicked
+        // For example, navigate to another screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => PubInfoPage(pubId: pubId)),
+        );
+      },
+      child: Card(
+        color: Colors.white,
+        elevation: 25,
+        margin: const EdgeInsets.fromLTRB(10, 0, 10, 15),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 35,
+                backgroundImage: NetworkImage(
+                  imageUrl.isNotEmpty
+                      ? imageUrl
+                      : "https://cdn.pixabay.com/photo/2020/12/29/23/32/house-5871895_1280.jpg",
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  tags,
-                  style: const TextStyle(
-                    fontSize: 16,
-                  ),
+                backgroundColor:
+                    Colors.transparent,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      tags,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black, // Explicit text color
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      popularity,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.black, // Explicit text color
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 5),
-                Text(
-                  popularity,
-                  style: const TextStyle(
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
-
-// Example usage:
-// CustomCard(
-//   imageUrl: 'https://example.com/image.jpg',
-//   title: 'Title',
-//   subtitle: 'Subtitle',
-// )

@@ -5,12 +5,14 @@ class UserData {
   final String userName;
   final String companyName;
   final String accountType;
+  final String profileImage;
 
   UserData({
     required this.userId,
     required this.userName,
     required this.companyName,
     required this.accountType,
+    this.profileImage = '',
   });
 }
 
