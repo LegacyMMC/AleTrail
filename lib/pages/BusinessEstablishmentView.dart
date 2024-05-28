@@ -19,7 +19,12 @@ class EstablishmentViewPage extends StatefulWidget {
 
 class EstablishmentViewState extends State<EstablishmentViewPage> {
   bool isEditing = false;
-  TextEditingController pubNameController = TextEditingController();
+  TextEditingController pubNameController = TextEditingController(text: "");
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -122,7 +127,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                   Expanded(
                     child: SingleChildScrollView(
                       child:
-                          _buildMenuSection(context, widget.pubId, isEditing),
+                          _buildMenuSection(context, widget.pubId),
                     ),
                   ),
                 ],
@@ -242,12 +247,14 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                                 isEditing = false;
                               } else {
                                 isEditing = true;
+                                pubNameController.text = pubName;
                               }
                             });
                           },
                           child: Text(
                             isEditing ? "Save" : "Edit",
-                            style: const TextStyle(fontSize: 20, color: Colors.white),
+                            style: const TextStyle(
+                                fontSize: 20, color: Colors.white),
                           ),
                         ),
                       ),
@@ -262,7 +269,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context, String pubId, bool isEditing) {
+  Widget _buildMenuSection(BuildContext context, String pubId) {
     return FutureBuilder<List<Map<String, dynamic>>?>(
       future: getEstablishmentMenus(pubId),
       builder: (context, snapshot) {
