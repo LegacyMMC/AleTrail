@@ -126,8 +126,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                   const SizedBox(height: 16),
                   Expanded(
                     child: SingleChildScrollView(
-                      child:
-                          _buildMenuSection(context, widget.pubId),
+                      child: _buildMenuSection(context, widget.pubId),
                     ),
                   ),
                 ],
