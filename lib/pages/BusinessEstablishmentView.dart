@@ -4,13 +4,15 @@ import '../constants/ThemeConstants.dart';
 import '../classes/MenuItem.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/MenuCategories.dart';
+import 'BusinessEstablishmentEdit.dart';
+import 'Menu/CreateMenu.dart';
 import 'MenuProductView.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class PubInfoPage extends StatelessWidget {
+class EstablishmentViewPage extends StatelessWidget {
   final String pubId;
 
-  const PubInfoPage({super.key, required this.pubId});
+  const EstablishmentViewPage({super.key, required this.pubId});
 
   @override
   Widget build(BuildContext context) {
@@ -94,8 +96,8 @@ class PubInfoPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: screenHeight * 0.1),
-              _buildPubCard(
-                  pubImage, pubName, pubDescription, pubTags, pubDistance),
+              _buildPubBusinessCard(
+                  pubImage, pubName, pubDescription, pubTags, pubDistance, context, pubId),
               Padding(
                   padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: Text('Menu',
@@ -114,8 +116,8 @@ class PubInfoPage extends StatelessWidget {
     ]));
   }
 
-  Widget _buildPubCard(String pubImage, String pubName, String pubDescription,
-      String pubTags, String pubDistance) {
+  Widget _buildPubBusinessCard(String pubImage, String pubName,
+      String pubDescription, String pubTags, String pubDistance, BuildContext context, String pubId) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
@@ -144,12 +146,92 @@ class PubInfoPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(pubDescription,
                       style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-                  const SizedBox(height: 8),
-                  Text(pubTags,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-                  const SizedBox(height: 8),
-                  Text(pubDistance,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                  const SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        height: 40,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 15,
+                            backgroundColor: primaryButton,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation,
+                                    secondaryAnimation) =>
+                                    EstablishmentCreateMenuPage(pubId: pubId,),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  var begin = const Offset(10.0, 0.0);
+                                  var end = Offset.zero;
+                                  var curve = Curves.ease;
+
+                                  var tween = Tween(
+                                      begin: begin, end: end)
+                                      .chain(CurveTween(curve: curve));
+
+                                  return SlideTransition(
+                                    position: animation.drive(tween),
+                                    child: child,
+                                  );
+                                },
+                                transitionDuration:
+                                const Duration(milliseconds: 800),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "New Menu",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 150,
+                        height: 40,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 15,
+                            backgroundColor: secondaryButton,
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation,
+                                    secondaryAnimation) =>
+                                    EstablishmentEditPage(pubId: pubId,),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  var begin = const Offset(10.0, 0.0);
+                                  var end = Offset.zero;
+                                  var curve = Curves.ease;
+
+                                  var tween = Tween(
+                                      begin: begin, end: end)
+                                      .chain(CurveTween(curve: curve));
+
+                                  return SlideTransition(
+                                    position: animation.drive(tween),
+                                    child: child,
+                                  );
+                                },
+                                transitionDuration:
+                                const Duration(milliseconds: 800),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            "Edit",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -198,26 +280,15 @@ class PubInfoPage extends StatelessWidget {
                         .firstWhere((item) => item.name == category)
                         .description;
                     // Ensure the correct MenuId is passed to MenuProductView
-                    print("Selected MenuId: $menuId");
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                             MenuProductView(menuId: menuId, menuDesc: menuDesc),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          var begin = const Offset(10.0, 0.0);
-                          var end = Offset.zero;
-                          var curve = Curves.ease;
-
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
-
-                          return SlideTransition(
-                            position: animation.drive(tween),
-                            child: child,
-                          );
+                        transitionDuration: Duration.zero,
+                        reverseTransitionDuration: Duration.zero,
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                          return child;
                         },
-                        transitionDuration: const Duration(milliseconds: 800),
                       ),
                     );
                   },

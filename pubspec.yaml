@@ -45,11 +45,11 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
   animated_notch_bottom_bar: ^1.0.2
   flutter_svg: ^2.0.10+1
   google_maps_flutter: ^2.0.9
-  geolocator: ^11.0.0
+  geolocator: ^12.0.0
   firebase_core: ^2.30.1
   firebase_auth: ^4.19.4
   cloud_firestore: ^4.17.3
@@ -72,6 +72,7 @@ flutter:
     - lib/assets/images/svg/TwitterIcon.svg
     - lib/assets/images/svg/TopRightOrange.svg
     - lib/assets/images/svg/AleTrailNewVenue.svg
+    - lib/assets/images/svg/AleTrailNewMenu.svg
 
   fonts:
     - family: TrainOne

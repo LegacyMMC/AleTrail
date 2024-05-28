@@ -5,9 +5,15 @@ class MenuCategoryWidget extends StatelessWidget {
   final String category;
   final List<MenuItem> items;
   final VoidCallback? onTap;
+  final bool edit;
 
-  const MenuCategoryWidget(
-      {super.key, required this.category, required this.items, this.onTap});
+  const MenuCategoryWidget({
+    super.key,
+    required this.category,
+    required this.items,
+    this.onTap,
+    required this.edit
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +31,19 @@ class MenuCategoryWidget extends StatelessWidget {
               category,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            trailing: const Icon(Icons.arrow_forward_ios), // Add arrow icon
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (edit)
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.redAccent),
+                    onPressed: () {
+                      // Handle delete action
+                    },
+                  ),
+                const Icon(Icons.arrow_forward_ios),
+              ],
+            ),
           ),
         ),
       ),

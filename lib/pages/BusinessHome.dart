@@ -5,7 +5,6 @@ import '../constants/ThemeConstants.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/BusinessListedWidget.dart';
 import 'package:provider/provider.dart';
-
 import 'CreateEstablishments/EstablishmentFirstStep.dart';
 
 class BusinessHomePage extends StatefulWidget {
@@ -251,13 +250,13 @@ class _BusinessHomeState extends State<BusinessHomePage> {
             ),
             Positioned(
                 left: 15,
-                top: screenHeight * 0.55,
+                top: screenHeight * 0.58,
                 child: (const Text(
                   "Establishments",
                   style: TextStyle(fontSize: 24),
                 ))),
             Positioned(
-              top: screenHeight * 0.6,
+              top: screenHeight * 0.63,
               right: 0,
               left: 0,
               child: Container(

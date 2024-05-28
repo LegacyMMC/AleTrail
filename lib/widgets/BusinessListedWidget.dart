@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../pages/BusinessEstablishmentView.dart';
 import '../pages/PubPage.dart';
 
 class BusinessCard extends StatelessWidget {
@@ -25,7 +26,7 @@ class BusinessCard extends StatelessWidget {
         // For example, navigate to another screen
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => PubInfoPage(pubId: pubId)),
+          MaterialPageRoute(builder: (context) => EstablishmentViewPage(pubId: pubId)),
         );
       },
       child: Card(

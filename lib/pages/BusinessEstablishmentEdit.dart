@@ -4,13 +4,14 @@ import '../constants/ThemeConstants.dart';
 import '../classes/MenuItem.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/MenuCategories.dart';
+import 'Menu/CreateMenu.dart';
 import 'MenuProductView.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class PubInfoPage extends StatelessWidget {
+class EstablishmentEditPage extends StatelessWidget {
   final String pubId;
 
-  const PubInfoPage({super.key, required this.pubId});
+  const EstablishmentEditPage({super.key, required this.pubId});
 
   @override
   Widget build(BuildContext context) {
@@ -94,8 +95,8 @@ class PubInfoPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: screenHeight * 0.1),
-              _buildPubCard(
-                  pubImage, pubName, pubDescription, pubTags, pubDistance),
+              _buildPubBusinessCard(
+                  pubImage, pubName, pubDescription, pubTags, pubDistance, context, pubId),
               Padding(
                   padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: Text('Menu',
@@ -114,8 +115,8 @@ class PubInfoPage extends StatelessWidget {
     ]));
   }
 
-  Widget _buildPubCard(String pubImage, String pubName, String pubDescription,
-      String pubTags, String pubDistance) {
+  Widget _buildPubBusinessCard(String pubImage, String pubName,
+      String pubDescription, String pubTags, String pubDistance, BuildContext context, String pubId) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Card(
@@ -144,12 +145,46 @@ class PubInfoPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(pubDescription,
                       style: TextStyle(fontSize: 16, color: Colors.grey[600])),
-                  const SizedBox(height: 8),
-                  Text(pubTags,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-                  const SizedBox(height: 8),
-                  Text(pubDistance,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                  const SizedBox(height: 15),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      SizedBox(
+                        width: 150,
+                        height: 40,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 15,
+                            backgroundColor: Colors.grey,
+                          ),
+                          onPressed: () {
+
+                          },
+                          child: const Text(
+                            "New Menu",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 150,
+                        height: 40,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            elevation: 15,
+                            backgroundColor: primaryButton,
+                          ),
+                          onPressed: () {
+                            // Add your onPressed logic here
+                          },
+                          child: const Text(
+                            "Save",
+                            style: TextStyle(fontSize: 20, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -198,7 +233,6 @@ class PubInfoPage extends StatelessWidget {
                         .firstWhere((item) => item.name == category)
                         .description;
                     // Ensure the correct MenuId is passed to MenuProductView
-                    print("Selected MenuId: $menuId");
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
@@ -221,7 +255,8 @@ class PubInfoPage extends StatelessWidget {
                       ),
                     );
                   },
-                  child: MenuCategoryWidget(edit: false,
+                  child: MenuCategoryWidget(
+                    edit: true,
                     category: category,
                     items: menuItems
                         .where((item) => item.name == category)

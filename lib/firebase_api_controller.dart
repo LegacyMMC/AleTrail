@@ -383,7 +383,7 @@ Future<String> addNewVenueToFirebase(
     // Add EstablishmentDetailed
     // Add the data to the specified collection and get the document reference
     DocumentReference docRefDet =
-        await firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
+        firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
 
     //Empty array
     Map<String, String> dataDetailed = {
@@ -481,4 +481,43 @@ Future<String> uploadImageToStorage(io.File imageFile) async {
     // Handle error
     throw Exception('Failed to upload image: $e');
   }
+}
+
+/// CREATE NEW MENU IN ESTABLISHMENT
+
+Future<bool> createNewMenuInEstablishment(String pubId, String menuName, String menuDesc) async {
+  try {
+    // Get a reference to the Firestore instance
+    FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
+
+    // Define the data you want to add
+    Map<String, String> data = {
+      'MenuName': menuName,
+      'MenuDescription': menuDesc ?? '',
+    };
+
+    // Add the data to the specified collection and get the document reference
+    DocumentReference docRef =
+        await firestoreInst.collection('EstablishmentMenus').add(data);
+
+    // Update the document with its own ID
+    await docRef.update({
+      'MenuId': docRef.id,
+    });
+
+    // Update Establishment Detailed
+    DocumentReference documentReference = firestoreInst
+        .collection('EstablishmentDetailed')
+        .doc(pubId);
+
+    await documentReference.set({
+      'EstablishmentMenus': FieldValue.arrayUnion([docRef.id]),
+    }, SetOptions(merge: true));
+
+    return true;
+  } catch (e) {
+    // Handle error
+    throw Exception('Failed to upload image: $e');
+  }
+  return false;
 }
