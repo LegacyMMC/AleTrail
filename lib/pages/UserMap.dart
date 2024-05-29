@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import '../firebase_api_controller.dart';
+import 'PubPage.dart';
+
 class UserMapPage extends StatefulWidget {
-  const UserMapPage({Key? key, required this.title}) : super(key: key);
+  const UserMapPage({super.key, required this.title});
   final String title;
 
   @override
@@ -16,10 +19,10 @@ class UserMapPage extends StatefulWidget {
 
 class _UserMapPageState extends State<UserMapPage> {
   late GoogleMapController mapController;
-  LatLng _initialCameraPosition =
-      const LatLng(0, 0); // Default initial position
+  LatLng _initialCameraPosition = const LatLng(0, 0); // Default initial position
   late StreamSubscription<Position> _positionStreamSubscription;
   bool _sideMenuVisible = false;
+  final Set<Marker> _markers = {}; // Set to store markers
 
   @override
   void initState() {
@@ -37,16 +40,24 @@ class _UserMapPageState extends State<UserMapPage> {
     try {
       Position position = await _determinePosition();
       _updateCameraPosition(position.latitude, position.longitude);
+      // User location to gather nearby establishments
+      print("GETTING MARKERS:");
+      var nearbyEstablishments = await getNearbyEstablishments(position.latitude, position.longitude);
+
+      for (var establishment in nearbyEstablishments) {
+        var data = establishment.data() as Map<String, dynamic>;
+        double lat = data['Latitude'];
+        double lon = data['Longitude'];
+        String establishmentId = data['EstablishmentId'];
+        String establishmentName = data['EstablishmentName'];
+        _addMarker(establishmentId, establishmentName, lat, lon);
+      }
+
+
       _positionStreamSubscription =
           Geolocator.getPositionStream().listen((Position position) {
-        _updateCameraPosition(position.latitude, position.longitude);
-        if (kDebugMode) {
-          print(position.longitude);
-        }
-        if (kDebugMode) {
-          print(position.latitude);
-        }
-      });
+            _updateCameraPosition(position.latitude, position.longitude);
+          });
     } catch (e) {
       if (kDebugMode) {
         print('Error: $e');
@@ -79,6 +90,45 @@ class _UserMapPageState extends State<UserMapPage> {
     );
   }
 
+  void _addMarker(String establishmentId, String establishmentName,  double latitude, double longitude) {
+    final marker = Marker(
+      onTap: () => {
+        Navigator.of(context).push(
+        PageRouteBuilder(
+        pageBuilder: (context, animation,
+        secondaryAnimation) => PubInfoPage(pubId: establishmentId),
+        transitionsBuilder: (context, animation,
+        secondaryAnimation, child) {
+        var begin = const Offset(10.0, 0.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween = Tween(
+        begin: begin, end: end)
+            .chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+        position: animation.drive(tween),
+        child: child,
+        );
+        },
+        transitionDuration:
+        const Duration(milliseconds: 800),
+        ),
+        )
+      },
+      markerId: MarkerId(establishmentId),
+      position: LatLng(latitude, longitude),
+      infoWindow: InfoWindow(
+        title: establishmentName,
+      ),
+    );
+
+    setState(() {
+      _markers.add(marker);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -93,12 +143,12 @@ class _UserMapPageState extends State<UserMapPage> {
             tiltGesturesEnabled: true,
             initialCameraPosition: CameraPosition(
               target: _initialCameraPosition,
-              zoom: 55.0,
+              zoom: 20.0,
             ),
-            cloudMapId: "341f3f57546abed8",
+            markers: _markers, // Set the markers on the map
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
-            },
+            }, cloudMapId: "341f3f57546abed8",
           ),
           Positioned(
             top: 15,
@@ -110,33 +160,28 @@ class _UserMapPageState extends State<UserMapPage> {
                 // Wrap TextField and Icon in a Row
                 children: [
                   Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                          0, 0, 5, 0), // Add padding between TextField and Icon
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.more_vert,
-                          color: Colors.black,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _sideMenuVisible = true;
-                          });
-                        },
-                      )),
+                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0), // Add padding between TextField and Icon
+                    child: IconButton(
+                      icon: const Icon(Icons.more_vert, color: Colors.black),
+                      onPressed: () {
+                        setState(() {
+                          _sideMenuVisible = true;
+                        });
+                      },
+                    ),
+                  ),
                   Expanded(
                     // Use Expanded to make TextField take remaining space
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                            20), // Adjust the radius to your preference
+                        borderRadius: BorderRadius.circular(20), // Adjust the radius to your preference
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.5),
                             spreadRadius: 7,
                             blurRadius: 5,
-                            offset: const Offset(
-                                0, 3), // changes position of shadow
+                            offset: const Offset(0, 3), // changes position of shadow
                           ),
                         ],
                       ),
@@ -156,84 +201,87 @@ class _UserMapPageState extends State<UserMapPage> {
             ),
           ),
           Visibility(
-              visible: _sideMenuVisible,
-              child: Positioned(
-                top: 0,
-                bottom: 0,
-                left: 0,
-                child: Container(
-                  width: 200, // Adjust the width as needed
-                  color: primaryButton, // Adjust the color as needed
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 30, 10, 0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      _sideMenuVisible = false;
-                                    });
-                                  },
-                                  icon: const Icon(
-                                    CupertinoIcons.xmark_circle,
-                                    size: 35,
-                                    color: Colors.black87,
-                                  ),
-                                )
-                              ],
-                            )),
-                        ListTile(
-                          title: const Text(
-                            'Settings',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+            visible: _sideMenuVisible,
+            child: Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: Container(
+                width: 200, // Adjust the width as needed
+                color: primaryButton, // Adjust the color as needed
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 30, 10, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _sideMenuVisible = false;
+                              });
+                            },
+                            icon: const Icon(
+                              CupertinoIcons.xmark_circle,
+                              size: 35,
+                              color: Colors.black87,
+                            ),
                           ),
-                          onTap: () {
-                            // Handle menu item 1 press
-                          },
-                        ),
-                        ListTile(
-                          title: const Text(
-                            'Profile',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          onTap: () {
-                            // Handle menu item 1 press
-                          },
-                        ),
-                        ListTile(
-                          title: const Text(
-                            'Recent Updates',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          onTap: () {
-                            // Handle menu item 1 press
-                          },
-                        ),
-                        ListTile(
-                          title: const Text(
-                            'Report Issue',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          onTap: () {
-                            // Handle menu item 1 press
-                          },
-                        ),
-                        ListTile(
-                          title: const Text(
-                            'Logout',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          onTap: () {
-                            // Handle menu item 1 press
-                          },
-                        ),
-                      ]),
+                        ],
+                      ),
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Settings',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 1 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Profile',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 2 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Recent Updates',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 3 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Report Issue',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 4 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Logout',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 5 press
+                      },
+                    ),
+                  ],
                 ),
-              )),
+              ),
+            ),
+          ),
         ],
       ),
     );

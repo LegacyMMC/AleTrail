@@ -1,9 +1,11 @@
 import 'dart:io' as io; // Import the IO library explicitly
+import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:AleTrail/classes/UserData.dart';
+import 'package:geolocator/geolocator.dart';
 
 /// FIRE BASE AUTHENTICATION FUNCTIONS
 
@@ -484,8 +486,8 @@ Future<String> uploadImageToStorage(io.File imageFile) async {
 }
 
 /// CREATE NEW MENU IN ESTABLISHMENT
-
-Future<bool> createNewMenuInEstablishment(String pubId, String menuName, String menuDesc) async {
+Future<bool> createNewMenuInEstablishment(
+    String pubId, String menuName, String menuDesc) async {
   try {
     // Get a reference to the Firestore instance
     FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
@@ -506,9 +508,8 @@ Future<bool> createNewMenuInEstablishment(String pubId, String menuName, String 
     });
 
     // Update Establishment Detailed
-    DocumentReference documentReference = firestoreInst
-        .collection('EstablishmentDetailed')
-        .doc(pubId);
+    DocumentReference documentReference =
+        firestoreInst.collection('EstablishmentDetailed').doc(pubId);
 
     await documentReference.set({
       'EstablishmentMenus': FieldValue.arrayUnion([docRef.id]),
@@ -520,4 +521,68 @@ Future<bool> createNewMenuInEstablishment(String pubId, String menuName, String 
     throw Exception('Failed to upload image: $e');
   }
   return false;
+}
+
+// Function to calculate the bounding box
+Map<String, double> calculateBoundingBox(
+    double lat, double lon, double distanceInKm) {
+  const double earthRadius = 6378.1; // Earth's radius in km
+
+  // Calculate the bounding box
+  double minLat = lat - (distanceInKm / earthRadius) * (180 / pi);
+  double maxLat = lat + (distanceInKm / earthRadius) * (180 / pi);
+  double minLon =
+      lon - (distanceInKm / earthRadius) * (180 / pi) / cos(lat * pi / 180);
+  double maxLon =
+      lon + (distanceInKm / earthRadius) * (180 / pi) / cos(lat * pi / 180);
+
+  return {
+    'minLat': minLat,
+    'maxLat': maxLat,
+    'minLon': minLon,
+    'maxLon': maxLon,
+  };
+}
+
+// Function to fetch documents within the bounding box
+Future<List<DocumentSnapshot>> fetchNearbyEstablishments(
+    double userLat, double userLon, double radiusInKm) async {
+  // Calculate the bounding box
+  Map<String, double> boundingBox =
+      calculateBoundingBox(userLat, userLon, radiusInKm);
+
+  // Query Firestore
+  QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+      .collection("EstablishmentSimple")
+      .where("Latitude", isGreaterThanOrEqualTo: boundingBox['minLat'])
+      .where("Latitude", isLessThanOrEqualTo: boundingBox['maxLat'])
+      .where("Longitude", isGreaterThanOrEqualTo: boundingBox['minLon'])
+      .where("Longitude", isLessThanOrEqualTo: boundingBox['maxLon'])
+      .get();
+
+  // Filter the documents to check the actual distance
+  List<DocumentSnapshot> nearbyDocuments = [];
+  for (DocumentSnapshot document in querySnapshot.docs) {
+    Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+    double lat = data['Latitude'];
+    double lon = data['Longitude'];
+
+    // Calculate the distance
+    double distance = Geolocator.distanceBetween(userLat, userLon, lat, lon) /
+        1000; // Convert to km
+    if (distance <= radiusInKm) {
+      nearbyDocuments.add(document);
+    }
+  }
+
+  return nearbyDocuments;
+}
+
+// Usage example
+Future<List<DocumentSnapshot<Object?>>> getNearbyEstablishments(double userLat, double userLon) async {
+  double radiusInKm = 5.0; // Radius of 5km
+  List<DocumentSnapshot> nearbyEstablishments =
+      await fetchNearbyEstablishments(userLat, userLon, radiusInKm);
+
+  return nearbyEstablishments;
 }
