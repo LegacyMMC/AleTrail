@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io' as io; // Import the IO library explicitly
 import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -6,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:AleTrail/classes/UserData.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
 
 /// FIRE BASE AUTHENTICATION FUNCTIONS
 
@@ -357,6 +359,36 @@ Future<List<Map<String, dynamic>>?> getMenuProducts(String menuId) async {
   }
 }
 
+
+Future<Map<String, dynamic>> fetchAddressSuggestions(String input) async {
+  const String apiKey = 'AIzaSyBDu4XIweu_KQN5py0J7U_p-qQkcj2mPkc';
+  const String baseUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
+  final String requestUrl = '$baseUrl?address=$input&key=$apiKey';
+
+  final response = await http.get(Uri.parse(requestUrl));
+
+  if (response.statusCode == 200) {
+    final data = json.decode(response.body);
+    final results = data['results'];
+    if (results.isNotEmpty) {
+      final location = results[0]['geometry']['location'];
+      final formattedAddress = results[0]['formatted_address'];
+      final lat = location['lat'];
+      final lng = location['lng'];
+      print("TEST LOCATION: lat: $lat, lng: $lng");
+      return {
+        'address': formattedAddress,
+        'lat': lat,
+        'lng': lng,
+      };
+    } else {
+      throw Exception('No results found');
+    }
+  } else {
+    throw Exception('Failed to load suggestions');
+  }
+}
+
 /// REGISTER NEW VENUE TO FIREBASE
 Future<String> addNewVenueToFirebase(
     String establishmentName, String establishmentAddress,
@@ -365,12 +397,17 @@ Future<String> addNewVenueToFirebase(
     // Get a reference to the Firestore instance
     FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
 
+    // Gather LAT and LON from PostCode
+    var coords = await fetchAddressSuggestions(establishmentAddress);
+
     // Define the data you want to add
-    Map<String, String> data = {
+    Map<String, Object> data = {
       'EstablishmentName': establishmentName,
-      'EstablishmentAddress': establishmentAddress ?? '',
+      'EstablishmentAddress': coords['address'] ?? '',
       'Image': '',
-      'Popularity': ''
+      'Popularity': '',
+      'Latitude': coords['lat'],
+      'Longitude': coords['lng'],
     };
 
     // Add the data to the specified collection and get the document reference

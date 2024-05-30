@@ -2,6 +2,9 @@ import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../constants/AccountType.dart';
 import '../../firebase_api_controller.dart';
 import '../UserMap.dart';
@@ -20,6 +23,8 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
   String EstablishmentAddress = "";
   String EstablishmentDesc = "";
 
+  final TextEditingController _addressController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -33,7 +38,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
 
     return Scaffold(
       resizeToAvoidBottomInset:
-          false, // Prevents resizing when keyboard appears
+      false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -44,7 +49,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
                 colorFilter:
-                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -64,7 +69,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -79,7 +84,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                          null, // Allows the TextField to support multiple lines
+                      null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         EstablishmentName = value;
                       },
@@ -102,7 +107,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -117,12 +122,12 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                          null, // Allows the TextField to support multiple lines
+                      null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         EstablishmentAddress = value;
                       },
                       decoration: const InputDecoration(
-                        hintText: 'Establishment Address',
+                        hintText: 'Establishment Postcode',
                         border: InputBorder.none, // Remove the internal border
                         contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
                             15), // Adjust padding for multi-line support
@@ -140,7 +145,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -148,7 +153,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     height:
-                        200, // Set the desired height for multi-line support
+                    200, // Set the desired height for multi-line support
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -156,7 +161,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                          null, // Allows the TextField to support multiple lines
+                      null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         EstablishmentDesc = value;
                       },
@@ -191,7 +196,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                         PageRouteBuilder(
                             pageBuilder:
                                 (context, animation, secondaryAnimation) =>
-                                     EstablishmentTwoPage(docId: stepCompleted),
+                                EstablishmentTwoPage(docId: stepCompleted),
                             transitionsBuilder: (context, animation,
                                 secondaryAnimation, child) {
                               var begin = const Offset(10.0, 0.0);
@@ -207,7 +212,7 @@ class _EstablishmentOnePageState extends State<EstablishmentOnePage> {
                               );
                             },
                             transitionDuration:
-                                const Duration(milliseconds: 800)),
+                            const Duration(milliseconds: 800)),
                       );
                     }
                   }
