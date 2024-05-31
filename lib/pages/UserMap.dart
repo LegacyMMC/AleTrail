@@ -94,27 +94,27 @@ class _UserMapPageState extends State<UserMapPage> {
     final marker = Marker(
       onTap: () => {
         Navigator.of(context).push(
-        PageRouteBuilder(
-        pageBuilder: (context, animation,
-        secondaryAnimation) => PubInfoPage(pubId: establishmentId),
-        transitionsBuilder: (context, animation,
-        secondaryAnimation, child) {
-        var begin = const Offset(10.0, 0.0);
-        var end = Offset.zero;
-        var curve = Curves.ease;
+          PageRouteBuilder(
+            pageBuilder: (context, animation,
+                secondaryAnimation) => PubInfoPage(pubId: establishmentId),
+            transitionsBuilder: (context, animation,
+                secondaryAnimation, child) {
+              var begin = const Offset(10.0, 0.0);
+              var end = Offset.zero;
+              var curve = Curves.ease;
 
-        var tween = Tween(
-        begin: begin, end: end)
-            .chain(CurveTween(curve: curve));
+              var tween = Tween(
+                  begin: begin, end: end)
+                  .chain(CurveTween(curve: curve));
 
-        return SlideTransition(
-        position: animation.drive(tween),
-        child: child,
-        );
-        },
-        transitionDuration:
-        const Duration(milliseconds: 800),
-        ),
+              return SlideTransition(
+                position: animation.drive(tween),
+                child: child,
+              );
+            },
+            transitionDuration:
+            const Duration(milliseconds: 800),
+          ),
         )
       },
       markerId: MarkerId(establishmentId),
@@ -281,6 +281,44 @@ class _UserMapPageState extends State<UserMapPage> {
                 ),
               ),
             ),
+          ),
+          DraggableScrollableSheet(
+            initialChildSize: 0.1, // Initial size of the scrollable sheet
+            minChildSize: 0.1, // Minimum size to which the sheet can be dragged down
+            maxChildSize: 0.7, // Maximum size to which the sheet can be dragged up
+            builder: (BuildContext context, ScrollController scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: 5,
+                  itemBuilder: (BuildContext context, int index) {
+                    return ListTile(
+                      leading: Icon(Icons.local_bar),
+                      title: Text('Establishment ${index + 1}'),
+                      subtitle: Text('Details for establishment ${index + 1}'),
+                      onTap: () {
+                        // Handle list item tap
+                      },
+                    );
+                  },
+                ),
+              );
+            },
           ),
         ],
       ),
