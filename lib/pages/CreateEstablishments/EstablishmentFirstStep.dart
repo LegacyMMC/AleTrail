@@ -1,12 +1,7 @@
 import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../../constants/AccountType.dart';
 import '../../firebase_api_controller.dart';
-import '../UserMap.dart';
 import 'EstablishmentSecondStep.dart';
 
 class EstablishmentOnePage extends StatefulWidget {

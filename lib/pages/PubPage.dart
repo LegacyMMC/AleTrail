@@ -221,7 +221,8 @@ class PubInfoPage extends StatelessWidget {
                       ),
                     );
                   },
-                  child: MenuCategoryWidget(edit: false,
+                  child: MenuCategoryWidget(
+                    edit: false,
                     category: category,
                     items: menuItems
                         .where((item) => item.name == category)
