@@ -23,6 +23,8 @@ class _UserMapPageState extends State<UserMapPage> {
   late StreamSubscription<Position> _positionStreamSubscription;
   bool _sideMenuVisible = false;
   final Set<Marker> _markers = {}; // Set to store markers
+  final DraggableScrollableController _scrollableController = DraggableScrollableController();
+  double _previousExtent = 0.1;
 
   @override
   void initState() {
@@ -52,7 +54,6 @@ class _UserMapPageState extends State<UserMapPage> {
         String establishmentName = data['EstablishmentName'];
         _addMarker(establishmentId, establishmentName, lat, lon);
       }
-
 
       _positionStreamSubscription =
           Geolocator.getPositionStream().listen((Position position) {
@@ -148,7 +149,7 @@ class _UserMapPageState extends State<UserMapPage> {
             markers: _markers, // Set the markers on the map
             onMapCreated: (GoogleMapController controller) {
               mapController = controller;
-            }, cloudMapId: "341f3f57546abed8",
+            },
           ),
           Positioned(
             top: 15,
@@ -282,43 +283,67 @@ class _UserMapPageState extends State<UserMapPage> {
               ),
             ),
           ),
-          DraggableScrollableSheet(
-            initialChildSize: 0.1, // Initial size of the scrollable sheet
-            minChildSize: 0.1, // Minimum size to which the sheet can be dragged down
-            maxChildSize: 0.7, // Maximum size to which the sheet can be dragged up
-            builder: (BuildContext context, ScrollController scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.5),
-                      spreadRadius: 5,
-                      blurRadius: 7,
-                      offset: Offset(0, 3), // changes position of shadow
-                    ),
-                  ],
-                ),
-                child: ListView.builder(
-                  controller: scrollController,
-                  itemCount: 5,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      leading: Icon(Icons.local_bar),
-                      title: Text('Establishment ${index + 1}'),
-                      subtitle: Text('Details for establishment ${index + 1}'),
-                      onTap: () {
-                        // Handle list item tap
-                      },
-                    );
-                  },
-                ),
-              );
+          NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              if (notification.extent > _previousExtent) {
+                if (notification.extent >= 0.2) {
+                  _scrollableController.animateTo(
+                    0.7,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              } else {
+                if (notification.extent <= 0.6) {
+                  _scrollableController.animateTo(
+                    0.1,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              }
+              _previousExtent = notification.extent;
+              return true;
             },
+            child: DraggableScrollableSheet(
+              controller: _scrollableController,
+              initialChildSize: 0.1, // Initial size of the scrollable sheet
+              minChildSize: 0.1, // Minimum size to which the sheet can be dragged down
+              maxChildSize: 0.7, // Maximum size to which the sheet can be dragged up
+              builder: (BuildContext context, ScrollController scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: 5,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        leading: const Icon(Icons.local_bar),
+                        title: Text('Establishment ${index + 1}'),
+                        subtitle: Text('Details for establishment ${index + 1}'),
+                        onTap: () {
+                          // Handle list item tap
+                        },
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
