@@ -25,6 +25,8 @@ class _UserMapPageState extends State<UserMapPage> {
       const LatLng(0, 0); // Default initial position
   late StreamSubscription<Position> _positionStreamSubscription;
   final Set<Marker> _markers = {}; // Set to store markers
+  final DraggableScrollableController _scrollableController = DraggableScrollableController();
+  double _previousExtent = 0.1;
   List<DocumentSnapshot<Object?>> nearbyEstablishments = [];
 
   @override
@@ -280,6 +282,109 @@ class _UserMapPageState extends State<UserMapPage> {
               ),
             ),
           ),
+          Visibility(
+            visible: _sideMenuVisible,
+            child: Positioned(
+              top: 0,
+              bottom: 0,
+              left: 0,
+              child: Container(
+                width: 200, // Adjust the width as needed
+                color: primaryButton, // Adjust the color as needed
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 30, 10, 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _sideMenuVisible = false;
+                              });
+                            },
+                            icon: const Icon(
+                              CupertinoIcons.xmark_circle,
+                              size: 35,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Settings',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 1 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Profile',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 2 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Recent Updates',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 3 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Report Issue',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 4 press
+                      },
+                    ),
+                    ListTile(
+                      title: const Text(
+                        'Logout',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      onTap: () {
+                        // Handle menu item 5 press
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              if (notification.extent > _previousExtent) {
+                if (notification.extent >= 0.2) {
+                  _scrollableController.animateTo(
+                    0.7,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              } else {
+                if (notification.extent <= 0.6) {
+                  _scrollableController.animateTo(
+                    0.1,
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                  );
+                }
+              }
+              _previousExtent = notification.extent;
+              return true;
           DraggableScrollableSheet(
             initialChildSize: 0.1, // Initial size of the scrollable sheet
             minChildSize:
@@ -322,6 +427,45 @@ class _UserMapPageState extends State<UserMapPage> {
                 ),
               );
             },
+            child: DraggableScrollableSheet(
+              controller: _scrollableController,
+              initialChildSize: 0.1, // Initial size of the scrollable sheet
+              minChildSize: 0.1, // Minimum size to which the sheet can be dragged down
+              maxChildSize: 0.7, // Maximum size to which the sheet can be dragged up
+              builder: (BuildContext context, ScrollController scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: const Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: 5,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        leading: const Icon(Icons.local_bar),
+                        title: Text('Establishment ${index + 1}'),
+                        subtitle: Text('Details for establishment ${index + 1}'),
+                        onTap: () {
+                          // Handle list item tap
+                        },
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
