@@ -4,6 +4,7 @@ import '../constants/ThemeConstants.dart';
 import '../classes/MenuItem.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/MenuCategories.dart';
+import 'BusinessMenuProductView.dart';
 import 'Menu/CreateMenu.dart';
 import 'MenuProductView.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -310,7 +311,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            MenuProductView(menuId: menuId, menuDesc: menuDesc),
+                            BusinessMenuProductView(menuId: menuId, menuDesc: menuDesc),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                         transitionsBuilder:
