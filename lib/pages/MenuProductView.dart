@@ -6,7 +6,8 @@ class MenuProductView extends StatelessWidget {
   final String menuId;
   final String menuDesc;
 
-  const MenuProductView({super.key, required this.menuId, required this.menuDesc});
+  const MenuProductView(
+      {super.key, required this.menuId, required this.menuDesc});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +19,10 @@ class MenuProductView extends StatelessWidget {
         future: getMenuProducts(menuId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('Sorry, no products found.'));
+            return const Center(child: Text('Sorry, no products found.'));
           }
 
           var products = snapshot.data!;
@@ -42,7 +43,7 @@ class MenuProductView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'Beers',
                         style: TextStyle(
                           fontSize: 24,
@@ -50,10 +51,10 @@ class MenuProductView extends StatelessWidget {
                           color: primaryButton,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         menuDesc,
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black54,
                         ),
@@ -79,11 +80,11 @@ class MenuProductView extends StatelessWidget {
   }
 
   Widget _buildProductCard(
-      BuildContext context,
-      String productName,
-      String productDescription,
-      double productPrice,
-      ) {
+    BuildContext context,
+    String productName,
+    String productDescription,
+    double productPrice,
+  ) {
     return Card(
       elevation: 10,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -101,13 +102,15 @@ class MenuProductView extends StatelessWidget {
           style: const TextStyle(fontSize: 15),
         ),
         onTap: () {
-          _showProductDetails(context, productName, productDescription, productPrice);
+          _showProductDetails(
+              context, productName, productDescription, productPrice);
         },
       ),
     );
   }
 
-  void _showProductDetails(BuildContext context, String productName, String productDescription, double productPrice) {
+  void _showProductDetails(BuildContext context, String productName,
+      String productDescription, double productPrice) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
