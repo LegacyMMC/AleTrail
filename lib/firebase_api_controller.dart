@@ -359,7 +359,6 @@ Future<List<Map<String, dynamic>>?> getMenuProducts(String menuId) async {
   }
 }
 
-
 Future<Map<String, dynamic>> fetchAddressSuggestions(String input) async {
   const String apiKey = 'AIzaSyBDu4XIweu_KQN5py0J7U_p-qQkcj2mPkc';
   const String baseUrl = 'https://maps.googleapis.com/maps/api/geocode/json';
@@ -616,7 +615,8 @@ Future<List<DocumentSnapshot>> fetchNearbyEstablishments(
 }
 
 // Usage example
-Future<List<DocumentSnapshot<Object?>>> getNearbyEstablishments(double userLat, double userLon) async {
+Future<List<DocumentSnapshot<Object?>>> getNearbyEstablishments(
+    double userLat, double userLon) async {
   double radiusInKm = 5.0; // Radius of 5km
   List<DocumentSnapshot> nearbyEstablishments =
       await fetchNearbyEstablishments(userLat, userLon, radiusInKm);

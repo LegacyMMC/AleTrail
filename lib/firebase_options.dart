@@ -54,7 +54,8 @@ class DefaultFirebaseOptions {
     appId: '1:409254426375:android:1249b7ae0bfb62f7d8f7a2',
     messagingSenderId: '409254426375',
     projectId: 'aletrail-d4ee5',
-    databaseURL: 'https://aletrail-d4ee5-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://aletrail-d4ee5-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'aletrail-d4ee5.appspot.com',
   );
 
@@ -63,7 +64,8 @@ class DefaultFirebaseOptions {
     appId: '1:409254426375:ios:c78acc61f00c951ed8f7a2',
     messagingSenderId: '409254426375',
     projectId: 'aletrail-d4ee5',
-    databaseURL: 'https://aletrail-d4ee5-default-rtdb.europe-west1.firebasedatabase.app',
+    databaseURL:
+        'https://aletrail-d4ee5-default-rtdb.europe-west1.firebasedatabase.app',
     storageBucket: 'aletrail-d4ee5.appspot.com',
     iosBundleId: 'com.mmcapplications.aletrail',
   );
