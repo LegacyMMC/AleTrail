@@ -31,3 +31,28 @@ google-services.json
 
 # Android Profiling
 *.hprof
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/.filecache
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/.filecache
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/app.dill
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/app.dill
+/.dart_tool/flutter_build/dart_plugin_registrant.dart
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/debug_android_application.stamp
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/debug_android_application.stamp
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/flutter_assets.d
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/flutter_assets.d
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/gen_dart_plugin_registrant.stamp
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/gen_dart_plugin_registrant.stamp
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/gen_localizations.stamp
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/gen_localizations.stamp
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/kernel_snapshot.d
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/kernel_snapshot.d
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/kernel_snapshot.stamp
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/kernel_snapshot.stamp
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/native_assets.d
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/native_assets.d
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/native_assets.stamp
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/native_assets.stamp
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/native_assets.yaml
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/native_assets.yaml
+/.dart_tool/flutter_build/9271433d16deb702ee410f5b9f6cd453/outputs.json
+/.dart_tool/flutter_build/a1f772747ed7d9270dc7354407276d9d/outputs.json
