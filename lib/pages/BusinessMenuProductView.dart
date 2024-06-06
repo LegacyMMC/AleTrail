@@ -1,14 +1,18 @@
 import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import '../firebase_api_controller.dart';
+import 'Menu/EstablishmentNewProductFirstStep.dart';
 
-class
-BusinessMenuProductView extends StatelessWidget {
+class BusinessMenuProductView extends StatelessWidget {
   final String menuId;
   final String menuDesc;
+  final String menuName;
 
   const BusinessMenuProductView(
-      {super.key, required this.menuId, required this.menuDesc});
+      {super.key,
+      required this.menuId,
+      required this.menuDesc,
+      required this.menuName});
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +27,91 @@ BusinessMenuProductView extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Sorry, no products found.'));
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Category header box
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: primaryButton.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          menuName,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: primaryButton,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          menuDesc,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(
+                            height: 16), // Add space between text and buttons
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                elevation: 15,
+                                backgroundColor: primaryButton,
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  PageRouteBuilder(
+                                    pageBuilder: (context, animation,
+                                            secondaryAnimation) =>
+                                        EstablishmentProductOnePage(
+                                            menuId: menuId),
+                                    transitionDuration: Duration.zero,
+                                    reverseTransitionDuration: Duration.zero,
+                                    transitionsBuilder: (context, animation,
+                                        secondaryAnimation, child) {
+                                      return child;
+                                    },
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                "New Product",
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
+                              ),
+                            ),
+                            const SizedBox(
+                                width: 16), // Add space between buttons
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                elevation: 15,
+                                backgroundColor: secondaryButton,
+                              ),
+                              onPressed: () {},
+                              child: const Text(
+                                "Edit Menu",
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
 
           var products = snapshot.data!;
@@ -45,8 +133,8 @@ BusinessMenuProductView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Beers',
-                        style: TextStyle(
+                        menuName ?? "Menu Name Missing",
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: primaryButton,
@@ -60,7 +148,8 @@ BusinessMenuProductView extends StatelessWidget {
                           color: Colors.black54,
                         ),
                       ),
-                      const SizedBox(height: 16), // Add space between text and buttons
+                      const SizedBox(
+                          height: 16), // Add space between text and buttons
                       Row(
                         children: [
                           ElevatedButton(
@@ -68,14 +157,28 @@ BusinessMenuProductView extends StatelessWidget {
                               elevation: 15,
                               backgroundColor: primaryButton,
                             ),
-                            onPressed: () {},
+                            onPressed: () {Navigator.of(context).push(
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation,
+                                    secondaryAnimation) =>
+                                    EstablishmentProductOnePage(
+                                        menuId: menuId),
+                                transitionDuration: Duration.zero,
+                                reverseTransitionDuration: Duration.zero,
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  return child;
+                                },
+                              ),
+                            );},
                             child: const Text(
                               "New Product",
-                              style: TextStyle(
-                                  fontSize: 20, color: Colors.white),
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
                             ),
                           ),
-                          const SizedBox(width: 16), // Add space between buttons
+                          const SizedBox(
+                              width: 16), // Add space between buttons
                           ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               elevation: 15,
@@ -84,8 +187,8 @@ BusinessMenuProductView extends StatelessWidget {
                             onPressed: () {},
                             child: const Text(
                               "Edit Menu",
-                              style: TextStyle(
-                                  fontSize: 20, color: Colors.white),
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.white),
                             ),
                           ),
                         ],
@@ -111,11 +214,11 @@ BusinessMenuProductView extends StatelessWidget {
   }
 
   Widget _buildProductCard(
-      BuildContext context,
-      String productName,
-      String productDescription,
-      double productPrice,
-      ) {
+    BuildContext context,
+    String productName,
+    String productDescription,
+    dynamic productPrice,
+  ) {
     return Card(
       elevation: 10,
       margin: const EdgeInsets.symmetric(vertical: 8),

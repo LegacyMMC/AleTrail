@@ -1,20 +1,24 @@
 import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../../constants/ProductTypes.dart';
 import '../../firebase_api_controller.dart';
 
 class EstablishmentProductOnePage extends StatefulWidget {
-  const EstablishmentProductOnePage({super.key});
+  final String menuId;
+  const EstablishmentProductOnePage({super.key, required this.menuId});
 
   @override
-  State<EstablishmentProductOnePage> createState() => _EstablishmentOnePageState();
+  State<EstablishmentProductOnePage> createState() =>
+      _EstablishmentOnePageState();
 }
 
 class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
   // User parameters
-  String EstablishmentName = "";
-  String EstablishmentAddress = "";
-  String EstablishmentDesc = "";
+  String ProductName = "";
+  String ProductPrice = "";
+  String ProductDesc = "";
+  String selectedProductType = ""; // New variable for selected product type
 
   final TextEditingController _addressController = TextEditingController();
 
@@ -31,7 +35,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
 
     return Scaffold(
       resizeToAvoidBottomInset:
-      false, // Prevents resizing when keyboard appears
+          false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -42,16 +46,16 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
                 colorFilter:
-                const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
             Positioned(
               top: aleTrailTitleTop,
-              right: screenWidth * 0.125,
+              right: screenWidth * 0.07,
               child: SvgPicture.asset(
-                "lib/assets/images/svg/AleTrailNewVenue.svg",
-                semanticsLabel: 'AleTrail New Venue',
+                "lib/assets/images/svg/AletrailNewProduct.svg",
+                semanticsLabel: 'AleTrail New Product',
               ),
             ),
             Positioned(
@@ -62,7 +66,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                  Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -77,12 +81,12 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                      null, // Allows the TextField to support multiple lines
+                          null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
-                        EstablishmentName = value;
+                        ProductName = value;
                       },
                       decoration: const InputDecoration(
-                        hintText: 'Establishment Name',
+                        hintText: 'Product Name',
                         border: InputBorder.none, // Remove the internal border
                         contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
                             15), // Adjust padding for multi-line support
@@ -100,7 +104,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                  Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -115,16 +119,63 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                      null, // Allows the TextField to support multiple lines
+                          null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
-                        EstablishmentAddress = value;
+                        ProductPrice = value;
                       },
                       decoration: const InputDecoration(
-                        hintText: 'Establishment Postcode',
+                        hintText: 'Product Price',
                         border: InputBorder.none, // Remove the internal border
                         contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
                             15), // Adjust padding for multi-line support
                       ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            // New dropdown for product type
+            Positioned(
+              top: registerButtonTop * 0.75,
+              right: screenWidth * 0.085,
+              child: Container(
+                width: screenWidth * 0.85,
+                decoration: BoxDecoration(
+                  border:
+                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Material(
+                  elevation: 35, // Set the elevation here
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    height: 50, // Set the desired height for the dropdown
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: DropdownButtonFormField<String>(
+                      value: selectedProductType.isEmpty
+                          ? null
+                          : selectedProductType,
+                      onChanged: (value) {
+                        setState(() {
+                          selectedProductType = value!;
+                        });
+                      },
+                      decoration: const InputDecoration(
+                        hintText: 'Select Product Type',
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+                      ),
+                      items: Products()
+                          .productTypes
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                     ),
                   ),
                 ),
@@ -132,13 +183,13 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
             ),
             Positioned(
               top: registerButtonTop *
-                  0.75, // Adjust this value according to your layout
+                  0.90, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: Container(
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                  Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -146,7 +197,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     height:
-                    200, // Set the desired height for multi-line support
+                        200, // Set the desired height for multi-line support
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -154,12 +205,12 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                      null, // Allows the TextField to support multiple lines
+                          null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
-                        EstablishmentDesc = value;
+                        ProductDesc = value;
                       },
                       decoration: const InputDecoration(
-                        hintText: 'Establishment Description',
+                        hintText: 'Product Description',
                         border: InputBorder.none, // Remove the internal border
                         contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
                             15), // Adjust padding for multi-line support
@@ -170,7 +221,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
               ),
             ),
             Positioned(
-              top: registerButtonTop * 1.3,
+              top: registerButtonTop * 1.35,
               right: screenWidth * 0.11,
               child: ElevatedButton(
                 style: const ButtonStyle(
@@ -178,19 +229,26 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                   backgroundColor: WidgetStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () async {
-                  // Check if name or address is empty
-                  if (EstablishmentName != "" && EstablishmentAddress != "") {
+                  // Check if name, price, and product type are not empty
+                  if (ProductName != "" &&
+                      ProductPrice != "" &&
+                      selectedProductType != "") {
                     // Register to backend
-                    String stepCompleted = await addNewVenueToFirebase(
-                        EstablishmentName, EstablishmentAddress);
+                    String stepCompleted = await addNewProductToFirebase(
+                        widget.menuId,
+                        ProductName,
+                        ProductPrice,
+                        ProductDesc,
+                        selectedProductType); // Include product type
                     if (stepCompleted != "") {
+                      Navigator.of(context).pop();
                     }
                   }
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.24),
                   child: const Text(
-                    "Continue",
+                    "Save",
                     style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),

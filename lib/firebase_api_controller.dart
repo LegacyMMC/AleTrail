@@ -623,3 +623,51 @@ Future<List<DocumentSnapshot<Object?>>> getNearbyEstablishments(
 
   return nearbyEstablishments;
 }
+
+/// CREATE NEW PRODUCT IN MENU
+Future<String> addNewProductToFirebase(String menuId,
+    String productName, String productPrice,
+    String? productDescription, String selectedProductType) async {
+  try {
+    // Get a reference to the Firestore instance
+    FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
+
+    // Define the data you want to add
+    Map<String, Object> data = {
+      'ProductName': productName,
+      'ProductDescription': productDescription ?? '',
+      'ProductPrice': productPrice,
+      'ProductType': selectedProductType
+    };
+
+    // Add the data to the specified collection and get the document reference
+    DocumentReference docRef =
+    await firestoreInst.collection('EstablishmentProducts').add(data);
+
+    // Update the document with its own ID
+    await docRef.update({
+      'ProductId': docRef.id,
+    });
+
+    // Add New Product To Menu
+    // Add the data to the specified collection and get the document reference
+    DocumentReference documentReference = firestoreInst
+        .collection('EstablishmentMenus')
+        .doc(menuId);
+
+    await documentReference.set({
+      'Products': FieldValue.arrayUnion([docRef.id]),
+    }, SetOptions(merge: true));
+
+    if (kDebugMode) {
+      print('New product added to Firestore with ID: ${documentReference.id}');
+    }
+
+    return docRef.id; // Operation successful
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error adding product to Firestore: $e');
+    }
+    return ""; // Operation failed
+  }
+}

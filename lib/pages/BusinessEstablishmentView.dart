@@ -304,6 +304,9 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                     var menuId = menuItems
                         .firstWhere((item) => item.name == category)
                         .menuId;
+                    var menuName = menuItems
+                        .firstWhere((item) => item.name == category)
+                        .name;
                     var menuDesc = menuItems
                         .firstWhere((item) => item.name == category)
                         .description;
@@ -311,7 +314,10 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            BusinessMenuProductView(menuId: menuId, menuDesc: menuDesc),
+                            BusinessMenuProductView(
+                                menuId: menuId,
+                                menuDesc: menuDesc,
+                                menuName: menuName),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                         transitionsBuilder:

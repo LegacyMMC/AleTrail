@@ -74,6 +74,7 @@ flutter:
     - lib/assets/images/svg/TopRightOrange.svg
     - lib/assets/images/svg/AleTrailNewVenue.svg
     - lib/assets/images/svg/AleTrailNewMenu.svg
+    - lib/assets/images/svg/AletrailNewProduct.svg
 
   fonts:
     - family: TrainOne
