@@ -625,9 +625,12 @@ Future<List<DocumentSnapshot<Object?>>> getNearbyEstablishments(
 }
 
 /// CREATE NEW PRODUCT IN MENU
-Future<String> addNewProductToFirebase(String menuId,
-    String productName, String productPrice,
-    String? productDescription, String selectedProductType) async {
+Future<String> addNewProductToFirebase(
+    String menuId,
+    String productName,
+    String productPrice,
+    String? productDescription,
+    String selectedProductType) async {
   try {
     // Get a reference to the Firestore instance
     FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
@@ -642,7 +645,7 @@ Future<String> addNewProductToFirebase(String menuId,
 
     // Add the data to the specified collection and get the document reference
     DocumentReference docRef =
-    await firestoreInst.collection('EstablishmentProducts').add(data);
+        await firestoreInst.collection('EstablishmentProducts').add(data);
 
     // Update the document with its own ID
     await docRef.update({
@@ -651,9 +654,8 @@ Future<String> addNewProductToFirebase(String menuId,
 
     // Add New Product To Menu
     // Add the data to the specified collection and get the document reference
-    DocumentReference documentReference = firestoreInst
-        .collection('EstablishmentMenus')
-        .doc(menuId);
+    DocumentReference documentReference =
+        firestoreInst.collection('EstablishmentMenus').doc(menuId);
 
     await documentReference.set({
       'Products': FieldValue.arrayUnion([docRef.id]),
@@ -673,9 +675,9 @@ Future<String> addNewProductToFirebase(String menuId,
 }
 
 /// DELETE MENU FROM FIRESTORE
-Future<void> deleteMenuFromEstablishment(String establishmentId, String menuId) async {
+Future<void> deleteMenuFromEstablishment(
+    String establishmentId, String menuId) async {
   try {
-
     // Remove from menus
     await FirebaseFirestore.instance
         .collection("EstablishmentMenus")
@@ -696,5 +698,73 @@ Future<void> deleteMenuFromEstablishment(String establishmentId, String menuId) 
     if (kDebugMode) {
       print("Error deleting document: $e");
     }
+  }
+}
+
+/// Gather All Users Menus
+
+Future<List<Map<String, dynamic>>?> getAllMenusForBusinessUser() async {
+  try {
+    // Fetch the user document
+    DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
+        await FirebaseFirestore.instance
+            .collection("AleTrailUsers")
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .get();
+
+    if (documentSnapshot.exists) {
+      var menuData = documentSnapshot.data();
+      // Ensure the Establishments field is a List<dynamic>
+      List<dynamic>? products = menuData?['Establishments'] as List<dynamic>?;
+
+      if (products != null) {
+        // Declare a list to hold all establishment menus
+        List<Map<String, dynamic>> allMenus = [];
+
+        // Loop through each establishment ID
+        for (var productId in products) {
+          if (productId is String) {
+            // Fetch data from "EstablishmentDetailed" collection using establishment ID
+            QuerySnapshot<Map<String, dynamic>> menuSnapshots =
+                await FirebaseFirestore.instance
+                    .collection("EstablishmentDetailed")
+                    .doc(productId)
+                    .collection("EstablishmentMenus")
+                    .get();
+
+            // Iterate through menu snapshots and collect menu data
+            menuSnapshots.docs.forEach((menuDoc) {
+              Map<String, dynamic>? menuData = menuDoc.data();
+              if (menuData != null) {
+                allMenus.add(menuData);
+              }
+            });
+          }
+        }
+
+// Now allMenus contains all menus from all EstablishmentDetailed records
+
+        return allMenus;
+      } else {
+        // If Establishments is null or not found, return null or handle as appropriate
+        if (kDebugMode) {
+          print('Establishments field is null or not a list');
+        }
+        return null;
+      }
+    } else {
+      // Document does not exist
+      if (kDebugMode) {
+        print('Document does not exist');
+      }
+      return null;
+    }
+  } catch (e) {
+    // Error handling
+    if (kDebugMode) {
+      print("Error getting document from Firestore: $e");
+    }
+    // Throw an exception so that callers can handle errors
+    throw e;
   }
 }

@@ -5,6 +5,7 @@ import '../constants/ThemeConstants.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/BusinessListedWidget.dart';
 import 'package:provider/provider.dart';
+import 'BusinessAllMenusView.dart';
 import 'CreateEstablishments/EstablishmentFirstStep.dart';
 
 class BusinessHomePage extends StatefulWidget {
@@ -231,7 +232,18 @@ class _BusinessHomeState extends State<BusinessHomePage> {
                                   backgroundColor: secondaryButton,
                                 ),
                                 onPressed: () {
-                                  // Add your onPressed logic here
+                                  Navigator.of(context).push(
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation, secondaryAnimation) =>
+                                          BusinessAllMenusView(),
+                                      transitionDuration: Duration.zero,
+                                      reverseTransitionDuration: Duration.zero,
+                                      transitionsBuilder:
+                                          (context, animation, secondaryAnimation, child) {
+                                        return child;
+                                      },
+                                    ),
+                                  );
                                 },
                                 child: const Text(
                                   "Menus",
