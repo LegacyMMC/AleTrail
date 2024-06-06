@@ -671,3 +671,30 @@ Future<String> addNewProductToFirebase(String menuId,
     return ""; // Operation failed
   }
 }
+
+/// DELETE MENU FROM FIRESTORE
+Future<void> deleteMenuFromEstablishment(String establishmentId, String menuId) async {
+  try {
+
+    // Remove from menus
+    await FirebaseFirestore.instance
+        .collection("EstablishmentMenus")
+        .doc(establishmentId)
+        .delete();
+
+    // Remove from Establishment
+    await FirebaseFirestore.instance
+        .collection("EstablishmentDetailed")
+        .doc(establishmentId)
+        .update({
+      "EstablishmentMenus": FieldValue.arrayRemove([menuId])
+    });
+    if (kDebugMode) {
+      print("Document successfully deleted!");
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print("Error deleting document: $e");
+    }
+  }
+}

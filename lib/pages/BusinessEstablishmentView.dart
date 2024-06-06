@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants/ThemeConstants.dart';
 import '../classes/MenuItem.dart';
 import '../firebase_api_controller.dart';
+import '../widgets/BusinessMenuCategories.dart';
 import '../widgets/MenuCategories.dart';
 import 'BusinessMenuProductView.dart';
 import 'Menu/CreateMenu.dart';
@@ -25,6 +26,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
   @override
   void initState() {
     super.initState();
+    // Initialize pubNameController here if necessary
   }
 
   @override
@@ -59,22 +61,18 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
-                // Wrap TextField and Icon in a Row
                 children: [
                   Expanded(
-                    // Use Expanded to make TextField take remaining space
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                            20), // Adjust the radius to your preference
+                        borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.5),
                             spreadRadius: 7,
                             blurRadius: 5,
-                            offset: const Offset(
-                                0, 3), // changes position of shadow
+                            offset: const Offset(0, 3),
                           ),
                         ],
                       ),
@@ -327,8 +325,9 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                       ),
                     );
                   },
-                  child: MenuCategoryWidget(
+                  child: BusinessMenuCategoryWidget(
                     edit: isEditing,
+                    establishmentId: widget.pubId,
                     category: category,
                     items: menuItems
                         .where((item) => item.name == category)

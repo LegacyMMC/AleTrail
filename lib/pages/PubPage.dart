@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../constants/ThemeConstants.dart';
@@ -198,7 +199,9 @@ class PubInfoPage extends StatelessWidget {
                         .firstWhere((item) => item.name == category)
                         .description;
                     // Ensure the correct MenuId is passed to MenuProductView
-                    print("Selected MenuId: $menuId");
+                    if (kDebugMode) {
+                      print("Selected MenuId: $menuId");
+                    }
                     Navigator.of(context).push(
                       PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
