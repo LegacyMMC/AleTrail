@@ -1,3 +1,4 @@
+import 'package:AleTrail/pages/BusinessMenuProductView.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -57,7 +58,7 @@ class BusinessAllMenusView extends StatelessWidget {
                   child: const TextField(
                     decoration: InputDecoration(
                       focusColor: mainBackground,
-                      hintText: 'Locations & products...',
+                      hintText: 'Menus & products...',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.all(10),
                       prefixIcon: Icon(Icons.search),
@@ -69,55 +70,102 @@ class BusinessAllMenusView extends StatelessWidget {
           ),
         ),
       ),
-          FutureBuilder<List<Map<String, dynamic>>?>(
-            future: getAllMenusForBusinessUser(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(child: Text('No establishment menus found'));
-              }
-
-              // You may need to modify this part based on your data structure
-              List<Map<String, dynamic>> establishments = snapshot.data!;
-
-              return ListView.builder(
-                itemCount: establishments.length,
-                itemBuilder: (context, index) {
-                  var pubData = establishments[index];
-                  var pubId = pubData['id'];
-                  var pubName = pubData['EstablishmentName'] ?? "";
-                  var pubImage = pubData['Image'] ?? "";
-                  var pubDescription = pubData['Description'] ?? '';
-                  var pubTags = pubData['tags'] ?? '';
-                  var pubDistance = pubData['distance'] ?? '<150M';
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: screenHeight * 0.1),
-                      _buildPubCard(
-                          pubImage, pubName, pubDescription, pubTags, pubDistance),
-                      const Padding(
-                          padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
-                          child: Text('Menu',
-                              style: TextStyle(
-                                  fontSize: 24, fontWeight: FontWeight.bold))),
-                      const SizedBox(height: 16),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: _buildMenuSection(context, pubId),
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              );
-            },
+          Positioned(
+            top: 100,
+            right: screenWidth * 0.27,
+            child: SvgPicture.asset(
+              "lib/assets/images/svg/AletrailMenus.svg",
+              semanticsLabel: 'AleTrail Menus',
+            ),
           ),
+      Positioned(
+          top: screenHeight * 0.3,
+          left: 0,
+          right: 0,
+          child: FutureBuilder<List<Map<String, dynamic>>?>(
+        future: getAllMenusForBusinessUser(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No menu items found'));
+          }
 
-        ]));
+          List<MenuItem> menuItems = [];
+          for (var data in snapshot.data!) {
+            menuItems.add(MenuItem(
+              name: data['MenuName'] ?? '',
+              description: data['MenuDescription'] ?? '',
+              menuId:
+                  data['MenuId'] ?? '', // Ensure MenuId is correctly assigned
+            ));
+          }
+
+          // Extract distinct categories from menu items
+          Set<String> categories = menuItems.map((item) => item.name).toSet();
+
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Build menu categories dynamically
+                for (var category in categories)
+                  GestureDetector(
+                    onTap: () {
+                      var menuId = menuItems
+                          .firstWhere((item) => item.name == category)
+                          .menuId;
+                      var menuDesc = menuItems
+                          .firstWhere((item) => item.name == category)
+                          .description;
+
+                      var menuName = menuItems
+                          .firstWhere((item) => item.name == category)
+                          .name;
+                      // Ensure the correct MenuId is passed to MenuProductView
+                      if (kDebugMode) {
+                        print("Selected MenuId: $menuId");
+                      }
+                      Navigator.of(context).push(
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  BusinessMenuProductView(
+                                      menuId: menuId, menuDesc: menuDesc, menuName: menuName,),
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            var begin = const Offset(10.0, 0.0);
+                            var end = Offset.zero;
+                            var curve = Curves.ease;
+
+                            var tween = Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: curve));
+
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
+                          transitionDuration: const Duration(milliseconds: 800),
+                        ),
+                      );
+                    },
+                    child: MenuCategoryWidget(
+                      edit: false,
+                      category: category,
+                      items: menuItems
+                          .where((item) => item.name == category)
+                          .toList(),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ))
+    ]));
   }
 
   Widget _buildPubCard(String pubImage, String pubName, String pubDescription,
@@ -167,7 +215,7 @@ class BusinessAllMenusView extends StatelessWidget {
 
   Widget _buildMenuSection(BuildContext context, String pubId) {
     return FutureBuilder<List<Map<String, dynamic>>?>(
-      future: getEstablishmentMenus(pubId),
+      future: getAllMenusForBusinessUser(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());

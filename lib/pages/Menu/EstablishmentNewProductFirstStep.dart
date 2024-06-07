@@ -9,8 +9,7 @@ class EstablishmentProductOnePage extends StatefulWidget {
   const EstablishmentProductOnePage({super.key, required this.menuId});
 
   @override
-  State<EstablishmentProductOnePage> createState() =>
-      _EstablishmentOnePageState();
+  State<EstablishmentProductOnePage> createState() => _EstablishmentOnePageState();
 }
 
 class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
@@ -35,7 +34,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
 
     return Scaffold(
       resizeToAvoidBottomInset:
-          false, // Prevents resizing when keyboard appears
+      false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -46,7 +45,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
                 colorFilter:
-                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -66,7 +65,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -81,7 +80,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                          null, // Allows the TextField to support multiple lines
+                      null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         ProductName = value;
                       },
@@ -104,7 +103,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -117,9 +116,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: TextField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines:
-                          null, // Allows the TextField to support multiple lines
+                      keyboardType: TextInputType.number, // Ensure number input
                       onChanged: (value) {
                         ProductPrice = value;
                       },
@@ -142,7 +139,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -189,7 +186,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                  Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -197,7 +194,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     height:
-                        200, // Set the desired height for multi-line support
+                    200, // Set the desired height for multi-line support
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -205,7 +202,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                          null, // Allows the TextField to support multiple lines
+                      null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         ProductDesc = value;
                       },
@@ -225,23 +222,33 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
               right: screenWidth * 0.11,
               child: ElevatedButton(
                 style: const ButtonStyle(
-                  elevation: WidgetStatePropertyAll(15),
-                  backgroundColor: WidgetStatePropertyAll(secondaryButton),
+                  elevation: MaterialStatePropertyAll(15),
+                  backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () async {
                   // Check if name, price, and product type are not empty
                   if (ProductName != "" &&
                       ProductPrice != "" &&
                       selectedProductType != "") {
-                    // Register to backend
-                    String stepCompleted = await addNewProductToFirebase(
-                        widget.menuId,
-                        ProductName,
-                        ProductPrice,
-                        ProductDesc,
-                        selectedProductType); // Include product type
-                    if (stepCompleted != "") {
-                      Navigator.of(context).pop();
+                    // Validate ProductPrice to be a number
+                    if (double.tryParse(ProductPrice) != null) {
+                      // Register to backend
+                      String stepCompleted = await addNewProductToFirebase(
+                          widget.menuId,
+                          ProductName,
+                          ProductPrice,
+                          ProductDesc,
+                          selectedProductType); // Include product type
+                      if (stepCompleted != "") {
+                        Navigator.of(context).pop();
+                      }
+                    } else {
+                      // Show error message if ProductPrice is not a valid number
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please enter a valid price'),
+                        ),
+                      );
                     }
                   }
                 },

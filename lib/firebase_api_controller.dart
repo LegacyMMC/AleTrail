@@ -635,11 +635,13 @@ Future<String> addNewProductToFirebase(
     // Get a reference to the Firestore instance
     FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
 
+    double? setPrice = double.tryParse(productPrice);
+
     // Define the data you want to add
     Map<String, Object> data = {
       'ProductName': productName,
       'ProductDescription': productDescription ?? '',
-      'ProductPrice': productPrice,
+      'ProductPrice': setPrice ?? "00.00",
       'ProductType': selectedProductType
     };
 
@@ -702,9 +704,11 @@ Future<void> deleteMenuFromEstablishment(
 }
 
 /// Gather All Users Menus
-
 Future<List<Map<String, dynamic>>?> getAllMenusForBusinessUser() async {
   try {
+    // List Of Menu Ids To Get
+    List<dynamic> menuIds = [];
+
     // Fetch the user document
     DocumentSnapshot<Map<String, dynamic>> documentSnapshot =
         await FirebaseFirestore.instance
@@ -713,37 +717,52 @@ Future<List<Map<String, dynamic>>?> getAllMenusForBusinessUser() async {
             .get();
 
     if (documentSnapshot.exists) {
-      var menuData = documentSnapshot.data();
+      var userData = documentSnapshot.data();
       // Ensure the Establishments field is a List<dynamic>
-      List<dynamic>? products = menuData?['Establishments'] as List<dynamic>?;
+      List<dynamic>? establishments =
+          userData?['Establishments'] as List<dynamic>?;
 
-      if (products != null) {
-        // Declare a list to hold all establishment menus
-        List<Map<String, dynamic>> allMenus = [];
-
+      if (establishments != null) {
         // Loop through each establishment ID
-        for (var productId in products) {
-          if (productId is String) {
+        for (var establishmentId in establishments) {
+          if (establishmentId is String) {
             // Fetch data from "EstablishmentDetailed" collection using establishment ID
-            QuerySnapshot<Map<String, dynamic>> menuSnapshots =
+            DocumentSnapshot<Map<String, dynamic>> establishmentSnapshot =
                 await FirebaseFirestore.instance
                     .collection("EstablishmentDetailed")
-                    .doc(productId)
-                    .collection("EstablishmentMenus")
+                    .doc(establishmentId)
                     .get();
 
-            // Iterate through menu snapshots and collect menu data
-            menuSnapshots.docs.forEach((menuDoc) {
-              Map<String, dynamic>? menuData = menuDoc.data();
-              if (menuData != null) {
-                allMenus.add(menuData);
+            if (establishmentSnapshot.exists) {
+              var establishmentData = establishmentSnapshot.data();
+              if (establishmentData != null &&
+                  establishmentData.containsKey('EstablishmentMenus')) {
+                // Ensure MenuIds is a list
+                List<dynamic>? establishmentMenuIds =
+                    establishmentData['EstablishmentMenus'] as List<dynamic>?;
+                if (establishmentMenuIds != null) {
+                  menuIds.addAll(establishmentMenuIds);
+                }
               }
-            });
+            }
           }
         }
 
-// Now allMenus contains all menus from all EstablishmentDetailed records
-
+        // Now menuIds contains all menus from all EstablishmentDetailed records
+        // Declare a list to hold all establishment menus
+        List<Map<String, dynamic>> allMenus = [];
+        for (var menuId in menuIds) {
+          if (menuId is String) {
+            DocumentSnapshot<Map<String, dynamic>> menuSnapshot =
+                await FirebaseFirestore.instance
+                    .collection("EstablishmentMenus")
+                    .doc(menuId)
+                    .get();
+            if (menuSnapshot.exists) {
+              allMenus.add(menuSnapshot.data()!);
+            }
+          }
+        }
         return allMenus;
       } else {
         // If Establishments is null or not found, return null or handle as appropriate
