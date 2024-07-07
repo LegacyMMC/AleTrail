@@ -56,7 +56,41 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             Positioned(
-              top: screenHeight * 0.7,
+              top: screenHeight * 0.4,
+              right: screenWidth * 0.085,
+              child: SizedBox(
+                width: screenWidth * 0.85,
+                child: Material(
+                  elevation: 25,
+                  borderRadius: BorderRadius.circular(50),
+                  child: TextField(
+                    obscureText: false,
+                    onChanged: (value) {
+                      clientUserName = value;
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Email Address',
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                          color: secondaryButton,
+                        ),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                          color: Colors.white,
+                        ),
+                      ),
+                      contentPadding:
+                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: screenHeight * 0.5,
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
@@ -90,7 +124,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             Positioned(
-              top: screenHeight * 0.83,
+              top: screenHeight * 0.6,
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
@@ -152,7 +186,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             Positioned(
-              top: screenHeight * 1,
+              top: screenHeight * 0.75,
               right: screenWidth * 0.11,
               child: ElevatedButton(
                 style: ButtonStyle(
