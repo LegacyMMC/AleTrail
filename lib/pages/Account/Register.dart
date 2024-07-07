@@ -1,8 +1,8 @@
-import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../constants/AccountType.dart';
+import '../../constants/ThemeConstants.dart';
 import '../../firebase_api_controller.dart';
 import '../UserMap.dart';
 
@@ -16,9 +16,9 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   // User Define Parameters
-  String clientUserName = ''; // Define as instance variable
-  String clientPassword = ''; // Define as instance variable
-  String clientConfirmPassword = ''; // Define as instance variable
+  String clientUserName = '';
+  String clientPassword = '';
+  String clientConfirmPassword = '';
 
   bool passwordMatch = false;
   bool failedToRegister = false;
@@ -29,30 +29,26 @@ class _RegisterPageState extends State<RegisterPage> {
     final double screenWidth = screenSize.width;
     final double screenHeight = screenSize.height;
 
-    // Define relative positions and sizes based on screen dimensions
-    final double orangeCornerBottom = screenHeight * 0.0000001 - 110;
-    final double aleTrailTitleTop = screenHeight * 0.2;
-    final double registerButtonTop = screenHeight * 0.65;
-
     return Scaffold(
-      resizeToAvoidBottomInset:
-          false, // Prevents resizing when keyboard appears
+      resizeToAvoidBottomInset: false,
       body: Container(
         color: Colors.white,
         child: Stack(
           children: [
             Positioned(
-              bottom: orangeCornerBottom,
+              bottom: screenHeight * 0.0000001 - 110,
               left: 0,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
-                colorFilter:
-                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(
+                  Colors.orange,
+                  BlendMode.srcIn,
+                ),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
             Positioned(
-              top: aleTrailTitleTop,
+              top: screenHeight * 0.2,
               right: screenWidth * 0.17,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/AleTrailtitle.svg",
@@ -60,236 +56,260 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
             ),
             Positioned(
-              top: registerButtonTop *
-                  0.57, // Adjust this value according to your layout
+              top: screenHeight * 0.4,
               right: screenWidth * 0.085,
               child: SizedBox(
                 width: screenWidth * 0.85,
                 child: Material(
-                  elevation: 25, // Set the elevation here
+                  elevation: 25,
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
+                    obscureText: false,
                     onChanged: (value) {
                       clientUserName = value;
                     },
                     decoration: InputDecoration(
-                      hintText: 'Email address',
+                      hintText: 'Email Address',
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
                         borderSide: const BorderSide(
-                            color: primaryButton), // Orange border when focused
+                          color: secondaryButton,
+                        ),
                       ),
                       border: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Colors.white),
                         borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                          color: Colors.white,
+                        ),
                       ),
-                      contentPadding: const EdgeInsets.fromLTRB(
-                          10, 0, 10, 0), // Adjust height here
+                      contentPadding:
+                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     ),
                   ),
                 ),
               ),
             ),
             Positioned(
-              top: registerButtonTop *
-                  0.7, // Adjust this value according to your layout
+              top: screenHeight * 0.5,
               right: screenWidth * 0.085,
               child: SizedBox(
-                  width: screenWidth * 0.85,
-                  child: Material(
-                    elevation: 25, // Set the elevation here
-                    borderRadius: BorderRadius.circular(50),
-                    child: TextField(
-                      obscureText: true,
-                      onChanged: (value) {
-                        clientPassword = value;
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: const BorderSide(
-                              color:
-                                  secondaryButton), // Orange border when focused
+                width: screenWidth * 0.85,
+                child: Material(
+                  elevation: 25,
+                  borderRadius: BorderRadius.circular(50),
+                  child: TextField(
+                    obscureText: true,
+                    onChanged: (value) {
+                      clientPassword = value;
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Password',
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                          color: secondaryButton,
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: const BorderSide(color: Colors.white),
-                        ),
-                        contentPadding: const EdgeInsets.fromLTRB(
-                            10, 0, 10, 0), // Adjust height here
                       ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                          color: Colors.white,
+                        ),
+                      ),
+                      contentPadding:
+                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     ),
-                  )),
+                  ),
+                ),
+              ),
             ),
             Positioned(
-              top: registerButtonTop *
-                  0.83, // Adjust this value according to your layout
+              top: screenHeight * 0.6,
               right: screenWidth * 0.085,
               child: SizedBox(
-                  width: screenWidth * 0.85,
-                  child: Material(
-                    elevation: 25, // Set the elevation here
-                    borderRadius: BorderRadius.circular(50),
-                    child: TextField(
-                      obscureText: true,
-                      onChanged: (value) {
-                        clientConfirmPassword = value;
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Confirm Password',
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: const BorderSide(
-                              color:
-                                  secondaryButton), // Orange border when focused
+                width: screenWidth * 0.85,
+                child: Material(
+                  elevation: 25,
+                  borderRadius: BorderRadius.circular(50),
+                  child: TextField(
+                    obscureText: true,
+                    onChanged: (value) {
+                      clientConfirmPassword = value;
+                    },
+                    decoration: InputDecoration(
+                      hintText: 'Confirm Password',
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                          color: secondaryButton,
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(50),
-                          borderSide: const BorderSide(color: Colors.white),
-                        ),
-                        contentPadding: const EdgeInsets.fromLTRB(
-                            10, 0, 10, 0), // Adjust height here
                       ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(50),
+                        borderSide: const BorderSide(
+                          color: Colors.white,
+                        ),
+                      ),
+                      contentPadding:
+                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     ),
-                  )),
+                  ),
+                ),
+              ),
             ),
             Positioned(
-                top: registerButtonTop *
-                    0.94, // Adjust this value according to your layout
-                right: screenWidth * 0.52,
-                child: Visibility(
-                    visible: passwordMatch,
-                    child: const Text(
-                      "Passwords don't match!",
-                      style: TextStyle(
-                          color: failureText, fontWeight: FontWeight.bold),
-                    ))),
+              top: screenHeight * 0.94,
+              right: screenWidth * 0.52,
+              child: Visibility(
+                visible: passwordMatch,
+                child: const Text(
+                  "Passwords don't match!",
+                  style: TextStyle(
+                    color: failureText,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
             Positioned(
-                top: registerButtonTop *
-                    0.94, // Adjust this value according to your layout
-                right: screenWidth * 0.52,
-                child: Visibility(
-                    visible: passwordMatch,
-                    child: const Text(
-                      "Failed to register account!",
-                      style: TextStyle(
-                          color: failureText, fontWeight: FontWeight.bold),
-                    ))),
+              top: screenHeight * 0.94,
+              right: screenWidth * 0.52,
+              child: Visibility(
+                visible: failedToRegister,
+                child: const Text(
+                  "Failed to register account!",
+                  style: TextStyle(
+                    color: failureText,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
             Positioned(
-              top: registerButtonTop * 1,
+              top: screenHeight * 0.75,
               right: screenWidth * 0.11,
               child: ElevatedButton(
-                style: const ButtonStyle(
-                  elevation: MaterialStatePropertyAll(15),
-                  backgroundColor: MaterialStatePropertyAll(secondaryButton),
+                style: ButtonStyle(
+                  elevation: MaterialStateProperty.all(15),
+                  backgroundColor: MaterialStateProperty.all(
+                    secondaryButton,
+                  ),
                 ),
                 onPressed: () async {
-                  // Handle register button press
                   if (clientPassword.isNotEmpty &&
                       clientUserName.isNotEmpty &&
                       clientConfirmPassword.isNotEmpty) {
                     if (clientPassword == clientConfirmPassword) {
-                      final UserCredential? signinResponseCode =
-                          await registerWithEmailAndPassword(
-                        clientUserName,
-                        clientConfirmPassword,
-                      );
-                      if (signinResponseCode != null ||
-                          signinResponseCode?.user != null) {
-                        final userAccount = signinResponseCode?.user;
-                        if (userAccount?.uid != null &&
-                            userAccount?.email != null) {
-                          // Register User Against Firestore
-                          addNewClientToUserTable(
+                      if (_isPasswordSecure(clientPassword)) {
+                        final UserCredential? signInResponseCode =
+                        await registerWithEmailAndPassword(
+                          clientUserName,
+                          clientConfirmPassword,
+                        );
+                        if (signInResponseCode != null ||
+                            signInResponseCode?.user != null) {
+                          final userAccount = signInResponseCode?.user;
+                          if (userAccount?.uid != null &&
+                              userAccount?.email != null) {
+                            addNewClientToUserTable(
                               userAccount!.uid,
                               userAccount.displayName.toString(),
                               userAccount.email,
-                              AccountType().generalUser);
-                          // Navigate away from page
-
-                          Navigator.of(context).pushReplacement (
-                            PageRouteBuilder(
-                                pageBuilder:
-                                    (context, animation, secondaryAnimation) =>
-                                        const UserMapPage(title: ""),
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  var begin = const Offset(10.0, 0.0);
-                                  var end = Offset.zero;
-                                  var curve = Curves.ease;
-
-                                  var tween = Tween(begin: begin, end: end)
-                                      .chain(CurveTween(curve: curve));
-
+                              AccountType().generalUser,
+                            );
+                            Navigator.of(context).pushReplacement(
+                              PageRouteBuilder(
+                                pageBuilder: (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    ) =>
+                                const UserMapPage(title: ""),
+                                transitionsBuilder: (
+                                    context,
+                                    animation,
+                                    secondaryAnimation,
+                                    child,
+                                    ) {
+                                  final begin = const Offset(10.0, 0.0);
+                                  final end = Offset.zero;
+                                  final curve = Curves.easeInOutCubic;
+                                  final tween = Tween(
+                                    begin: begin,
+                                    end: end,
+                                  ).chain(
+                                    CurveTween(curve: curve),
+                                  );
                                   return SlideTransition(
                                     position: animation.drive(tween),
                                     child: child,
                                   );
                                 },
                                 transitionDuration:
-                                    const Duration(milliseconds: 800)),
-                          );
+                                const Duration(milliseconds: 800),
+                              ),
+                            );
+                          } else {
+                            setState(() {
+                              failedToRegister = true;
+                            });
+                          }
                         } else {
-                          // HANDLE WHEN USER IS NOT REGISTERED
                           setState(() {
-                            failedToRegister =
-                                true; // Use assignment operator to set the value
+                            failedToRegister = true;
                           });
                         }
                       } else {
-                        // HANDLE GENERAL SIGN IN FAILURES
                         setState(() {
-                          failedToRegister =
-                              true; // Use assignment operator to set the value
+                          failedToRegister = true;
                         });
                       }
                     } else {
-                      // HANDLE WHEN THE PASSWORD AND CONFIRM PASSWORD DON'T MATCH
                       setState(() {
-                        passwordMatch =
-                            true; // Use assignment operator to set the value
+                        passwordMatch = true;
                       });
                     }
                   } else {
-                    // HANDLE WHEN THE PASSWORD AND CONFIRM PASSWORD DON'T MATCH
                     setState(() {
-                      failedToRegister =
-                          true; // Use assignment operator to set the value
+                      failedToRegister = true;
                     });
                   }
                 },
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth * 0.15,
+                  ),
                   child: const Text(
                     "Create account",
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
             ),
             Positioned(
-              top: registerButtonTop * 1.18, // Adjusted position for icons
+              top: screenHeight * 1.18,
               right: 0,
               left: 0,
               child: Row(
-                mainAxisAlignment:
-                    MainAxisAlignment.spaceEvenly, // Evenly distribute icons
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   SvgPicture.asset(
-                    height: 35,
                     "lib/assets/images/svg/GoogleIcon.svg",
                     semanticsLabel: 'Yellow Corner SVG',
+                    height: 35,
                   ),
                   SvgPicture.asset(
-                    height: 35,
                     "lib/assets/images/svg/InstaLogo.svg",
                     semanticsLabel: 'Yellow Corner SVG',
+                    height: 35,
                   ),
                   SvgPicture.asset(
-                    height: 35,
                     "lib/assets/images/svg/TwitterIcon.svg",
                     semanticsLabel: 'Yellow Corner SVG',
+                    height: 35,
                   ),
                 ],
               ),
@@ -306,5 +326,32 @@ class _RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+  bool _isPasswordSecure(String password) {
+    // Validate password criteria: at least 7 characters, one uppercase letter, one special character
+    if (password.length < 7) {
+      return false;
+    }
+
+    bool hasUppercase = false;
+    bool hasSpecialChar = false;
+
+    for (int i = 0; i < password.length; i++) {
+      final char = password[i];
+      if (char.toUpperCase() != char) {
+        hasUppercase = true;
+      }
+      if (!_isAlphaNumeric(char)) {
+        hasSpecialChar = true;
+      }
+    }
+
+    return hasUppercase && hasSpecialChar;
+  }
+
+  bool _isAlphaNumeric(String char) {
+    final alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
+    return alphanumeric.hasMatch(char);
   }
 }
