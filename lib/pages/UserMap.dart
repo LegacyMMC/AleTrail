@@ -27,6 +27,9 @@ class _UserMapPageState extends State<UserMapPage> {
   double _previousExtent = 0.1;
   bool _isAtMinExtent = true;
   List<DocumentSnapshot<Object?>> nearbyEstablishments = [];
+  bool mapTracker = true;
+  late Timer _timer; // Declare a Timer variable
+  bool _timerActive = false; // Flag to track if timer is active
 
   @override
   void initState() {
@@ -37,6 +40,7 @@ class _UserMapPageState extends State<UserMapPage> {
   @override
   void dispose() {
     _positionStreamSubscription.cancel();
+    _timer.cancel(); // Cancel the timer when the widget is disposed
     super.dispose();
   }
 
@@ -83,6 +87,7 @@ class _UserMapPageState extends State<UserMapPage> {
   }
 
   void _updateCameraPosition(double latitude, double longitude) {
+    if (mapTracker){
     setState(() {
       _initialCameraPosition = LatLng(latitude, longitude);
     });
@@ -94,6 +99,7 @@ class _UserMapPageState extends State<UserMapPage> {
         ),
       ),
     );
+    }
   }
 
   void _addMarker(String establishmentId, String establishmentName,  double latitude, double longitude) {
@@ -135,6 +141,22 @@ class _UserMapPageState extends State<UserMapPage> {
     });
   }
 
+
+  void startTimer() {
+    const duration = Duration(seconds: 3);
+    _timer = Timer(duration, () {
+      // Code to execute when timer completes
+      setState(() {
+        _timerActive = false; // Update timer active status
+        mapTracker = true;
+      });
+    });
+
+    setState(() {
+      _timerActive = true; // Update timer active status
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,9 +164,8 @@ class _UserMapPageState extends State<UserMapPage> {
         children: [
           GoogleMap(
             buildingsEnabled: true,
-            mapType: MapType.normal,
             myLocationEnabled: true,
-            myLocationButtonEnabled: true,
+            myLocationButtonEnabled: false,
             indoorViewEnabled: true,
             tiltGesturesEnabled: true,
             initialCameraPosition: CameraPosition(
@@ -165,17 +186,6 @@ class _UserMapPageState extends State<UserMapPage> {
               child: Row(
                 // Wrap TextField and Icon in a Row
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 0, 5, 0), // Add padding between TextField and Icon
-                    child: IconButton(
-                      icon: const Icon(Icons.more_vert, color: Colors.black),
-                      onPressed: () {
-                        setState(() {
-                          _sideMenuVisible = true;
-                        });
-                      },
-                    ),
-                  ),
                   Expanded(
                     // Use Expanded to make TextField take remaining space
                     child: Container(
@@ -206,90 +216,19 @@ class _UserMapPageState extends State<UserMapPage> {
               ),
             ),
           ),
-          Visibility(
-            visible: _sideMenuVisible,
-            child: Positioned(
-              top: 0,
-              bottom: 0,
-              left: 0,
-              child: Container(
-                width: 200, // Adjust the width as needed
-                color: primaryButton, // Adjust the color as needed
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 30, 10, 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _sideMenuVisible = false;
-                              });
-                            },
-                            icon: const Icon(
-                              CupertinoIcons.xmark_circle,
-                              size: 35,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    ListTile(
-                      title: const Text(
-                        'Settings',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {
-                        // Handle menu item 1 press
-                      },
-                    ),
-                    ListTile(
-                      title: const Text(
-                        'Profile',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {
-                        // Handle menu item 2 press
-                      },
-                    ),
-                    ListTile(
-                      title: const Text(
-                        'Recent Updates',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {
-                        // Handle menu item 3 press
-                      },
-                    ),
-                    ListTile(
-                      title: const Text(
-                        'Report Issue',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {
-                        // Handle menu item 4 press
-                      },
-                    ),
-                    ListTile(
-                      title: const Text(
-                        'Logout',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      onTap: () {
-                        // Handle menu item 5 press
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
           NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
+              if(mapTracker == false)
+              {
+                _scrollableController.animateTo(
+                  0.1,
+                  duration: const Duration(milliseconds: 40),
+                  curve: Curves.easeInOut,
+                );
+                setState(() {
+                  _isAtMinExtent = true;
+                });
+              }
               if (notification.extent > _previousExtent) {
                 if (notification.extent >= 0.2) {
                   _scrollableController.animateTo(
@@ -346,7 +285,7 @@ class _UserMapPageState extends State<UserMapPage> {
                         return Column(
                           children: [
                             Container(
-                              margin: const EdgeInsets.symmetric(vertical: 10),
+                              margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                               width: 50,
                               height: 5,
                               decoration: BoxDecoration(
@@ -354,9 +293,9 @@ class _UserMapPageState extends State<UserMapPage> {
                                 borderRadius: BorderRadius.circular(2.5),
                               ),
                             ),
-                            Center(
+                            const Center(
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: EdgeInsets.fromLTRB(10, 9, 10, 10),
                                 child: Text(
                                   "Top 5 locations",
                                   style: TextStyle(
@@ -375,7 +314,14 @@ class _UserMapPageState extends State<UserMapPage> {
                           title: Text(establishment['EstablishmentName'] ?? 'Unnamed'),
                           subtitle: Text(establishment['Tags'] ?? 'No details available'),
                           onTap: () {
-                            // Handle list item tap
+                            // Toggle Map Auto move
+                            setState(() {
+                              // Navigate to location on map
+                              _updateCameraPosition(establishment['Latitude'], establishment['Longitude']);
+                              mapTracker = false;
+                              // Start timer
+                              startTimer();
+                            });
                           },
                         );
                       }
@@ -390,3 +336,4 @@ class _UserMapPageState extends State<UserMapPage> {
     );
   }
 }
+

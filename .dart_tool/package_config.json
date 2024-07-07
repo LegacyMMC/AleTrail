@@ -231,9 +231,9 @@
     },
     {
       "name": "flutter_plugin_android_lifecycle",
-      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.19",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.20",
       "packageUri": "lib/",
-      "languageVersion": "3.2"
+      "languageVersion": "3.4"
     },
     {
       "name": "flutter_svg",
@@ -303,15 +303,15 @@
     },
     {
       "name": "google_maps_flutter",
-      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/google_maps_flutter-2.6.1",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/google_maps_flutter-2.7.0",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.4"
     },
     {
       "name": "google_maps_flutter_android",
-      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/google_maps_flutter_android-2.8.0",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/google_maps_flutter_android-2.12.0",
       "packageUri": "lib/",
-      "languageVersion": "3.1"
+      "languageVersion": "3.4"
     },
     {
       "name": "google_maps_flutter_ios",
@@ -357,9 +357,9 @@
     },
     {
       "name": "image_picker_android",
-      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.12+1",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.12+3",
       "packageUri": "lib/",
-      "languageVersion": "3.3"
+      "languageVersion": "3.4"
     },
     {
       "name": "image_picker_for_web",
@@ -638,7 +638,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-07-07T06:43:21.915850Z",
+  "generated": "2024-07-07T11:23:11.944826Z",
   "generator": "pub",
   "generatorVersion": "3.4.3",
   "flutterRoot": "file:///C:/flutter",
