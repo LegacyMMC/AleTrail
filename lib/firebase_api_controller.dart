@@ -39,7 +39,8 @@ Future<UserData?> signInWithEmailAndPassword(
   }
 }
 
-Future<UserData?> signInWithUserToken(String accessToken, String idToken) async {
+Future<UserData?> signInWithUserToken(
+    String accessToken, String idToken) async {
   try {
     final credential = GoogleAuthProvider.credential(
       accessToken: accessToken,

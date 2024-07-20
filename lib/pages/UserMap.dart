@@ -1,11 +1,12 @@
 import 'dart:async';
-import 'package:AleTrail/constants/ThemeConstants.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
+import '../classes/SearchedItem.dart';
+import '../constants/ThemeConstants.dart';
 import '../firebase_api_controller.dart';
 import 'PubPage.dart';
 
@@ -17,13 +18,16 @@ class UserMapPage extends StatefulWidget {
   State<UserMapPage> createState() => _UserMapPageState();
 }
 
-class _UserMapPageState extends State<UserMapPage> {
+class _UserMapPageState extends State<UserMapPage>
+    with SingleTickerProviderStateMixin {
   late GoogleMapController mapController;
-  LatLng _initialCameraPosition = const LatLng(0, 0); // Default initial position
+  LatLng _initialCameraPosition =
+  const LatLng(0, 0); // Default initial position
   late StreamSubscription<Position> _positionStreamSubscription;
-  bool _sideMenuVisible = false;
+
   final Set<Marker> _markers = {}; // Set to store markers
-  final DraggableScrollableController _scrollableController = DraggableScrollableController();
+  final DraggableScrollableController _scrollableController =
+  DraggableScrollableController();
   double _previousExtent = 0.1;
   bool _isAtMinExtent = true;
   List<DocumentSnapshot<Object?>> nearbyEstablishments = [];
@@ -31,16 +35,40 @@ class _UserMapPageState extends State<UserMapPage> {
   late Timer _timer; // Declare a Timer variable
   bool _timerActive = false; // Flag to track if timer is active
 
+  final TextEditingController _searchController = TextEditingController();
+  List<SearchedItem> _searchResults = [];
+  Timer? _debounce; // Debounce timer
+
+  bool _showSearchResults = false; // Boolean to track the visibility of the search results
+
   @override
   void initState() {
     super.initState();
     _initUserLocation();
+
+    // Add listener to searchController to perform search on text change with debouncing
+    _searchController.addListener(() {
+      final query = _searchController.text;
+      if (_debounce?.isActive ?? false) _debounce!.cancel();
+      _debounce = Timer(const Duration(milliseconds: 300), () {
+        if (query.isNotEmpty) {
+          _performSearch(query);
+        } else {
+          setState(() {
+            _searchResults = [];
+            _showSearchResults = false; // Hide the search results list
+          });
+        }
+      });
+    });
   }
 
   @override
   void dispose() {
     _positionStreamSubscription.cancel();
     _timer.cancel(); // Cancel the timer when the widget is disposed
+    _searchController.dispose(); // Dispose the search controller
+    _debounce?.cancel(); // Cancel the debounce timer if active
     super.dispose();
   }
 
@@ -48,8 +76,8 @@ class _UserMapPageState extends State<UserMapPage> {
     try {
       Position position = await _determinePosition();
       _updateCameraPosition(position.latitude, position.longitude);
-      // User location to gather nearby establishments
-      var nearbyEstablishments = await getNearbyEstablishments(position.latitude, position.longitude);
+      var nearbyEstablishments =
+      await getNearbyEstablishments(position.latitude, position.longitude);
       setState(() {
         this.nearbyEstablishments = nearbyEstablishments;
       });
@@ -86,45 +114,47 @@ class _UserMapPageState extends State<UserMapPage> {
   }
 
   void _updateCameraPosition(double latitude, double longitude) {
-    if (mapTracker){
-    setState(() {
-      _initialCameraPosition = LatLng(latitude, longitude);
-    });
-    mapController.animateCamera(
-      CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: LatLng(latitude, longitude),
-          zoom: 20.0,
+    if (mapTracker) {
+      setState(() {
+        _initialCameraPosition = LatLng(latitude, longitude);
+      });
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(latitude, longitude),
+            zoom: 20.0,
+          ),
         ),
-      ),
-    );
+      );
     }
   }
 
-  void _addMarker(String establishmentId, String establishmentName,  double latitude, double longitude) {
+  void _addMarker(String establishmentId, String establishmentName,
+      double latitude, double longitude) {
     final marker = Marker(
       onTap: () => {
         Navigator.of(context).push(
           PageRouteBuilder(
-            pageBuilder: (context, animation,
-                secondaryAnimation) => PubInfoPage(pubId: establishmentId, long: longitude, latitude: latitude),
-            transitionsBuilder: (context, animation,
-                secondaryAnimation, child) {
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                PubInfoPage(
+                    pubId: establishmentId,
+                    long: longitude,
+                    latitude: latitude),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
               var begin = const Offset(10.0, 0.0);
               var end = Offset.zero;
               var curve = Curves.ease;
 
-              var tween = Tween(
-                  begin: begin, end: end)
-                  .chain(CurveTween(curve: curve));
+              var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
               return SlideTransition(
                 position: animation.drive(tween),
                 child: child,
               );
             },
-            transitionDuration:
-            const Duration(milliseconds: 800),
+            transitionDuration: const Duration(milliseconds: 800),
           ),
         )
       },
@@ -140,6 +170,33 @@ class _UserMapPageState extends State<UserMapPage> {
     });
   }
 
+  Future<void> _performSearch(String searchTerm) async {
+    final searchTermLower = searchTerm.toLowerCase();
+
+    // Query the search_indexes collection
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('SearchIndex')
+        .where('Terms', arrayContains: searchTermLower)
+        .get();
+
+    // Fetch the document references and get the full documents
+    List<SearchedItem> results = [];
+    for (var doc in querySnapshot.docs) {
+      // Form new searched item
+      SearchedItem gatheredItem = SearchedItem(
+          searchName: doc['ActualName'],
+          searchType: doc['Type'],
+          searchRef: doc['Ref']);
+
+      // Add to results
+      results.add(gatheredItem);
+    }
+
+    setState(() {
+      _searchResults = results;
+      _showSearchResults = results.isNotEmpty; // Show the search results list if there are results
+    });
+  }
 
   void startTimer() {
     const duration = Duration(seconds: 3);
@@ -164,6 +221,7 @@ class _UserMapPageState extends State<UserMapPage> {
           GoogleMap(
             onTap: (argument) {
               setState(() {
+                _searchController.text = '';
                 _scrollableController.animateTo(
                   0.1,
                   duration: const Duration(milliseconds: 40),
@@ -171,6 +229,7 @@ class _UserMapPageState extends State<UserMapPage> {
                 );
                 setState(() {
                   _isAtMinExtent = true;
+                  _showSearchResults = false; // Hide the search results list
                 });
               });
             },
@@ -195,37 +254,71 @@ class _UserMapPageState extends State<UserMapPage> {
             right: 0,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Row(
-                // Wrap TextField and Icon in a Row
+              child: Column(
                 children: [
-                  Expanded(
-                    // Use Expanded to make TextField take remaining space
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(
-                            20), // Adjust the radius to your preference
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 7,
-                            blurRadius: 5,
-                            offset:
-                            const Offset(0, 3), // changes position of shadow
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 7,
+                                blurRadius: 5,
+                                offset: const Offset(0, 3),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          focusColor: mainBackground,
-                          hintText: ''
-                              'Search bars, beers & businesses...',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(10),
-                          prefixIcon: Icon(Icons.search),
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              hintText: 'Search bars, beers & businesses...',
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(10),
+                              prefixIcon: Icon(Icons.search),
+                            ),
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 500),
+                    height: _showSearchResults ? 300 : 0, // Animate the height of the container
+                    margin: const EdgeInsets.only(top: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 7,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
+                    child: _showSearchResults
+                        ? ListView.builder(
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        var result = _searchResults[index];
+                        return ListTile(
+                          leading: const Icon(Icons.local_bar),
+                          title: Text(result.searchName ?? 'Unnamed'),
+                          subtitle:
+                          Text(result.searchType ?? 'No details available'),
+                          onTap: () {
+                            // Handle search result tap, e.g., navigate to details
+                            // Note: Add your logic for search result tap here.
+                          },
+                        );
+                      },
+                    )
+                        : null,
                   ),
                 ],
               ),
@@ -233,8 +326,7 @@ class _UserMapPageState extends State<UserMapPage> {
           ),
           NotificationListener<DraggableScrollableNotification>(
             onNotification: (notification) {
-              if(mapTracker == false)
-              {
+              if (mapTracker == false) {
                 _scrollableController.animateTo(
                   0.05,
                   duration: const Duration(milliseconds: 40),
@@ -272,10 +364,13 @@ class _UserMapPageState extends State<UserMapPage> {
             },
             child: DraggableScrollableSheet(
               controller: _scrollableController,
-              initialChildSize: 0.05, // Reduced initial size of the scrollable sheet
-              minChildSize: 0.05, // Reduced minimum size to which the sheet can be dragged down
+              initialChildSize:
+              0.05, // Reduced initial size of the scrollable sheet
+              minChildSize:
+              0.05, // Reduced minimum size to which the sheet can be dragged down
               maxChildSize: 0.7, // Keeping the maximum size as is
-              builder: (BuildContext context, ScrollController scrollController) {
+              builder:
+                  (BuildContext context, ScrollController scrollController) {
                 return Column(
                   children: [
                     // Top part with orange color
@@ -310,7 +405,8 @@ class _UserMapPageState extends State<UserMapPage> {
                               color: Colors.grey.withOpacity(0.5),
                               spreadRadius: 5,
                               blurRadius: 7,
-                              offset: const Offset(0, 3), // changes position of shadow
+                              offset: const Offset(
+                                  0, 3), // changes position of shadow
                             ),
                           ],
                         ),
@@ -319,11 +415,12 @@ class _UserMapPageState extends State<UserMapPage> {
                           itemCount: nearbyEstablishments.length + 1,
                           itemBuilder: (BuildContext context, int index) {
                             if (index == 0) {
-                              return Column(
+                              return const Column(
                                 children: [
-                                  const Center(
+                                  Center(
                                     child: Padding(
-                                      padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                      padding:
+                                      EdgeInsets.fromLTRB(10, 0, 10, 10),
                                       child: Text(
                                         "Top 5 locations",
                                         style: TextStyle(
@@ -336,16 +433,22 @@ class _UserMapPageState extends State<UserMapPage> {
                                 ],
                               );
                             } else {
-                              var establishment = nearbyEstablishments[index - 1];
+                              var establishment =
+                              nearbyEstablishments[index - 1];
                               return ListTile(
                                 leading: const Icon(Icons.local_bar),
-                                title: Text(establishment['EstablishmentName'] ?? 'Unnamed'),
-                                subtitle: Text(establishment['Tags'] ?? 'No details available'),
+                                title: Text(
+                                    establishment['EstablishmentName'] ??
+                                        'Unnamed'),
+                                subtitle: Text(establishment['Tags'] ??
+                                    'No details available'),
                                 onTap: () {
                                   // Toggle Map Auto move
                                   setState(() {
                                     // Navigate to location on map
-                                    _updateCameraPosition(establishment['Latitude'], establishment['Longitude']);
+                                    _updateCameraPosition(
+                                        establishment['Latitude'],
+                                        establishment['Longitude']);
                                     mapTracker = false;
                                     // Start timer
                                     startTimer();
@@ -360,11 +463,11 @@ class _UserMapPageState extends State<UserMapPage> {
                   ],
                 );
               },
-            )
+            ),
           ),
         ],
       ),
     );
   }
 }
-
+stk
