@@ -59,6 +59,8 @@ dev_dependencies:
   flutter_typeahead: ^5.2.0
   url_launcher: ^6.3.0
   flutter_image_compress: ^2.3.0
+  shared_preferences: ^2.2.3
+  google_sign_in: ^6.2.1
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 

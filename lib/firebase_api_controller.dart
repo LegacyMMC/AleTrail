@@ -8,6 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:AleTrail/classes/UserData.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// FIRE BASE AUTHENTICATION FUNCTIONS
 
@@ -37,6 +39,40 @@ Future<UserData?> signInWithEmailAndPassword(
   }
 }
 
+Future<UserData?> signInWithUserToken(String accessToken, String idToken) async {
+  try {
+    final credential = GoogleAuthProvider.credential(
+      accessToken: accessToken,
+      idToken: idToken,
+    );
+
+    await FirebaseAuth.instance.signInWithCredential(credential);
+
+    // Get UserData And Store Globally
+    UserData? userData = await getUserDataFromFirestore();
+
+    if (kDebugMode) {
+      print('User Successfully SignedIn');
+    }
+    if (userData?.userId != null) {
+      // Cache Login
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('access_token', credential.accessToken ?? "");
+      await prefs.setString('id_token', credential.idToken ?? "");
+      if (kDebugMode) {
+        print('User Login Cached');
+      }
+    }
+    return userData;
+  } catch (e) {
+    // Handle sign-in errors
+    if (kDebugMode) {
+      print('Error signing in: $e');
+    }
+    return null; // Or throw an exception if you prefer
+  }
+}
+
 // Register New User With Email and Password To Firebase Authentication
 Future<UserCredential?> registerWithEmailAndPassword(
     String email, String password) async {
@@ -54,6 +90,70 @@ Future<UserCredential?> registerWithEmailAndPassword(
     }
     return null; // Or throw an exception if you prefer
   }
+}
+
+// Sign in with google account
+Future<UserData?> signInWithGoogle() async {
+  try {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    if (googleUser == null) {
+      // The user canceled the sign-in
+      return null;
+    }
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+    final credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    await FirebaseAuth.instance.signInWithCredential(credential);
+
+    // Check if user already sign in before (to add to user table)
+
+    CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('AletrailUsers');
+
+    // Check if the document exists
+    DocumentSnapshot userDoc =
+        await usersCollection.doc(FirebaseAuth.instance.currentUser!.uid).get();
+
+    // Create document
+    if (userDoc.exists == false) {
+      await addNewClientToUserTable(
+          FirebaseAuth.instance.currentUser!.uid,
+          FirebaseAuth.instance.currentUser?.displayName ?? "",
+          FirebaseAuth.instance.currentUser?.email,
+          "General");
+    }
+
+    // Gather User Data
+    UserData? userData = await getUserDataFromFirestore();
+
+    // Cache Login
+    if (userData?.userId != null) {
+      // Cache Login
+      final prefs = await SharedPreferences.getInstance();
+
+      await prefs.setString('access_token', credential.accessToken ?? "");
+      await prefs.setString('id_token', credential.idToken ?? "");
+      if (kDebugMode) {
+        print('User Login Cached');
+      }
+    }
+
+    if (kDebugMode) {
+      print('User Successfully SignedIn');
+    }
+    return userData;
+  } catch (error) {
+    if (kDebugMode) {
+      print('Error signing in with Google: $error');
+    }
+  }
+  return null;
 }
 
 /// Firebase Firestore Database Updates

@@ -5,6 +5,8 @@ import 'package:AleTrail/pages/Account/RegisterBusiness.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../firebase_api_controller.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
   final String title;
@@ -60,7 +62,7 @@ class _HomePageState extends State<HomePage> {
                   Navigator.of(context).push(
                     PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                        LoginPage(),
+                        const LoginPage(),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           var begin = const Offset(10.0, 0.0);

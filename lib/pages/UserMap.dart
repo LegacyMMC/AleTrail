@@ -236,7 +236,7 @@ class _UserMapPageState extends State<UserMapPage> {
               if(mapTracker == false)
               {
                 _scrollableController.animateTo(
-                  0.1,
+                  0.05,
                   duration: const Duration(milliseconds: 40),
                   curve: Curves.easeInOut,
                 );
@@ -258,7 +258,7 @@ class _UserMapPageState extends State<UserMapPage> {
               } else {
                 if (notification.extent <= 0.6) {
                   _scrollableController.animateTo(
-                    0.1,
+                    0.05,
                     duration: const Duration(milliseconds: 40),
                     curve: Curves.easeInOut,
                   );
@@ -272,79 +272,95 @@ class _UserMapPageState extends State<UserMapPage> {
             },
             child: DraggableScrollableSheet(
               controller: _scrollableController,
-              initialChildSize: 0.1, // Initial size of the scrollable sheet
-              minChildSize: 0.1, // Minimum size to which the sheet can be dragged down
-              maxChildSize: 0.7, // Maximum size to which the sheet can be dragged up
+              initialChildSize: 0.05, // Reduced initial size of the scrollable sheet
+              minChildSize: 0.05, // Reduced minimum size to which the sheet can be dragged down
+              maxChildSize: 0.7, // Keeping the maximum size as is
               builder: (BuildContext context, ScrollController scrollController) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(20),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset: const Offset(0, 3), // changes position of shadow
+                return Column(
+                  children: [
+                    // Top part with orange color
+                    Container(
+                      height: 20, // Adjust the height as needed
+                      decoration: const BoxDecoration(
+                        color: Colors.orange,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
                       ),
-                    ],
-                  ),
-                  child: ListView.builder(
-                    controller: scrollController,
-                    itemCount: nearbyEstablishments.length + 1,
-                    itemBuilder: (BuildContext context, int index) {
-                      if (index == 0) {
-                        return Column(
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                              width: 50,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(2.5),
-                              ),
-                            ),
-                            const Center(
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(10, 9, 10, 10),
-                                child: Text(
-                                  "Top 5 locations",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                      child: Center(
+                        child: Container(
+                          margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          width: 50,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            borderRadius: BorderRadius.circular(2.5),
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Rest of the draggable sheet
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 5,
+                              blurRadius: 7,
+                              offset: const Offset(0, 3), // changes position of shadow
                             ),
                           ],
-                        );
-                      } else {
-                        var establishment = nearbyEstablishments[index - 1];
-                        return ListTile(
-                          leading: const Icon(Icons.local_bar),
-                          title: Text(establishment['EstablishmentName'] ?? 'Unnamed'),
-                          subtitle: Text(establishment['Tags'] ?? 'No details available'),
-                          onTap: () {
-                            // Toggle Map Auto move
-                            setState(() {
-                              // Navigate to location on map
-                              _updateCameraPosition(establishment['Latitude'], establishment['Longitude']);
-                              mapTracker = false;
-                              // Start timer
-                              startTimer();
-                            });
+                        ),
+                        child: ListView.builder(
+                          controller: scrollController,
+                          itemCount: nearbyEstablishments.length + 1,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (index == 0) {
+                              return Column(
+                                children: [
+                                  const Center(
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                      child: Text(
+                                        "Top 5 locations",
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              var establishment = nearbyEstablishments[index - 1];
+                              return ListTile(
+                                leading: const Icon(Icons.local_bar),
+                                title: Text(establishment['EstablishmentName'] ?? 'Unnamed'),
+                                subtitle: Text(establishment['Tags'] ?? 'No details available'),
+                                onTap: () {
+                                  // Toggle Map Auto move
+                                  setState(() {
+                                    // Navigate to location on map
+                                    _updateCameraPosition(establishment['Latitude'], establishment['Longitude']);
+                                    mapTracker = false;
+                                    // Start timer
+                                    startTimer();
+                                  });
+                                },
+                              );
+                            }
                           },
-                        );
-                      }
-                    },
-                  ),
+                        ),
+                      ),
+                    ),
+                  ],
                 );
               },
-            ),
+            )
           ),
         ],
       ),

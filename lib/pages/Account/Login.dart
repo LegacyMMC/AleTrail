@@ -201,31 +201,74 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-            Positioned(
-              top: screenHeight * 0.65 * 1.18,
-              right: 0,
-              left: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SvgPicture.asset(
-                    height: 35,
-                    "lib/assets/images/svg/GoogleIcon.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
-                  ),
-                  SvgPicture.asset(
-                    height: 35,
-                    "lib/assets/images/svg/InstaLogo.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
-                  ),
-                  SvgPicture.asset(
-                    height: 35,
-                    "lib/assets/images/svg/TwitterIcon.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
-                  ),
-                ],
+        Positioned(
+          top: screenHeight * 0.65 * 1.18,
+          right: 0,
+          left: 0,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              GestureDetector(
+                onTap: () async {
+                  // Start Google SignIn
+                  UserData? userData = await signInWithGoogle();
+                  if (userData?.userId != null)
+                    {
+                      // Navigate through
+                      Navigator.of(context).pushReplacement (
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                          const UserMapPage(title: ""),
+                          transitionsBuilder: (context, animation,
+                              secondaryAnimation, child) {
+                            var begin = const Offset(10.0, 0.0);
+                            var end = Offset.zero;
+                            var curve = Curves.ease;
+                            var tween = Tween(begin: begin, end: end)
+                                .chain(CurveTween(curve: curve));
+                            return SlideTransition(
+                              position: animation.drive(tween),
+                              child: child,
+                            );
+                          },
+                          transitionDuration:
+                          const Duration(milliseconds: 800),
+                        ),
+                      );
+                    }
+                },
+                child: SvgPicture.asset(
+                  height: 35,
+                  "lib/assets/images/svg/GoogleIcon.svg",
+                  semanticsLabel: 'Google Icon',
+                ),
               ),
-            ),
+              GestureDetector(
+                onTap: () {
+                  // Add your action here
+                  print('Instagram Icon clicked');
+                },
+                child: SvgPicture.asset(
+                  height: 35,
+                  "lib/assets/images/svg/InstaLogo.svg",
+                  semanticsLabel: 'Instagram Icon',
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  // Add your action here
+                  print('Twitter Icon clicked');
+                },
+                child: SvgPicture.asset(
+                  height: 35,
+                  "lib/assets/images/svg/TwitterIcon.svg",
+                  semanticsLabel: 'Twitter Icon',
+                ),
+              ),
+            ],
+          ),
+        ),
             Positioned(
               top: -50,
               right: 0,
