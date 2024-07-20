@@ -49,7 +49,6 @@ class _UserMapPageState extends State<UserMapPage> {
       Position position = await _determinePosition();
       _updateCameraPosition(position.latitude, position.longitude);
       // User location to gather nearby establishments
-      print("GETTING MARKERS:");
       var nearbyEstablishments = await getNearbyEstablishments(position.latitude, position.longitude);
       setState(() {
         this.nearbyEstablishments = nearbyEstablishments;
@@ -108,7 +107,7 @@ class _UserMapPageState extends State<UserMapPage> {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation,
-                secondaryAnimation) => PubInfoPage(pubId: establishmentId),
+                secondaryAnimation) => PubInfoPage(pubId: establishmentId, long: longitude, latitude: latitude),
             transitionsBuilder: (context, animation,
                 secondaryAnimation, child) {
               var begin = const Offset(10.0, 0.0);
@@ -163,10 +162,23 @@ class _UserMapPageState extends State<UserMapPage> {
       body: Stack(
         children: [
           GoogleMap(
+            onTap: (argument) {
+              setState(() {
+                _scrollableController.animateTo(
+                  0.1,
+                  duration: const Duration(milliseconds: 40),
+                  curve: Curves.easeInOut,
+                );
+                setState(() {
+                  _isAtMinExtent = true;
+                });
+              });
+            },
             buildingsEnabled: true,
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             indoorViewEnabled: true,
+            style: mapStyle,
             tiltGesturesEnabled: true,
             initialCameraPosition: CameraPosition(
               target: _initialCameraPosition,
@@ -191,22 +203,25 @@ class _UserMapPageState extends State<UserMapPage> {
                     child: Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(20), // Adjust the radius to your preference
+                        borderRadius: BorderRadius.circular(
+                            20), // Adjust the radius to your preference
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.5),
                             spreadRadius: 7,
                             blurRadius: 5,
-                            offset: const Offset(0, 3), // changes position of shadow
+                            offset:
+                            const Offset(0, 3), // changes position of shadow
                           ),
                         ],
                       ),
                       child: const TextField(
                         decoration: InputDecoration(
                           focusColor: mainBackground,
-                          hintText: 'Search bars, beers & business',
+                          hintText: ''
+                              'Search bars, beers & businesses...',
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(8),
+                          contentPadding: EdgeInsets.all(10),
                           prefixIcon: Icon(Icons.search),
                         ),
                       ),

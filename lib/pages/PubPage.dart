@@ -7,11 +7,28 @@ import '../firebase_api_controller.dart';
 import '../widgets/MenuCategories.dart';
 import 'MenuProductView.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PubInfoPage extends StatelessWidget {
   final String pubId;
+  final double long;
+  final double latitude;
 
-  const PubInfoPage({super.key, required this.pubId});
+  const PubInfoPage({super.key, required this.pubId, required this.long, required this.latitude});
+
+  // This will launch google maps navigation
+  Future<void> _launchNavigation(double latitude, double longitude, String establishmentName) async {
+    final googleMapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude&travelmode=driving';
+    final appleMapsUrl = 'https://maps.apple.com/?daddr=$latitude,$longitude&dirflg=d';
+
+    if (await canLaunch(googleMapsUrl)) {
+      await launch(googleMapsUrl);
+    } else if (await canLaunch(appleMapsUrl)) {
+      await launch(appleMapsUrl);
+    } else {
+      throw 'Could not launch maps';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +114,7 @@ class PubInfoPage extends StatelessWidget {
               SizedBox(height: screenHeight * 0.1),
               _buildPubCard(
                   pubImage, pubName, pubDescription, pubTags, pubDistance),
-              Padding(
+              const Padding(
                   padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
                   child: Text('Menu',
                       style: TextStyle(
@@ -151,6 +168,17 @@ class PubInfoPage extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(pubDistance,
                       style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                  const SizedBox(height: 15,),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.orangeAccent)),
+                      onPressed: () {
+                        _launchNavigation(latitude, long, pubName);
+                      },
+                      child: const Text('Navigate', style: TextStyle(color: Colors.black),),
+                    ),
+                  ),
                 ],
               ),
             ),

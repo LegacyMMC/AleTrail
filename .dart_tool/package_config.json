@@ -188,6 +188,42 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "flutter_image_compress",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_image_compress-2.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_image_compress_common",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_image_compress_common-1.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_image_compress_macos",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_image_compress_macos-1.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_image_compress_ohos",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_image_compress_ohos-0.0.3",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_image_compress_platform_interface",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_image_compress_platform_interface-1.0.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_image_compress_web",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_image_compress_web-0.1.4+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.16"
+    },
+    {
       "name": "flutter_keyboard_visibility",
       "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_keyboard_visibility-6.0.0",
       "packageUri": "lib/",
@@ -339,7 +375,7 @@
     },
     {
       "name": "http",
-      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/http-1.2.1",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/http-1.2.2",
       "packageUri": "lib/",
       "languageVersion": "3.3"
     },
@@ -584,6 +620,54 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "url_launcher",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher-6.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "url_launcher_android",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_android-6.3.5",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "url_launcher_ios",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_ios-6.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "url_launcher_linux",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_linux-3.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
+      "name": "url_launcher_macos",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_macos-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "url_launcher_platform_interface",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_platform_interface-2.3.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
+      "name": "url_launcher_web",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_web-2.3.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "url_launcher_windows",
+      "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/url_launcher_windows-3.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "uuid",
       "rootUri": "file:///C:/Users/44779/AppData/Local/Pub/Cache/hosted/pub.dev/uuid-4.4.0",
       "packageUri": "lib/",
@@ -638,7 +722,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-07-07T11:28:16.665349Z",
+  "generated": "2024-07-20T00:47:28.107315Z",
   "generator": "pub",
   "generatorVersion": "3.4.3",
   "flutterRoot": "file:///C:/flutter",
