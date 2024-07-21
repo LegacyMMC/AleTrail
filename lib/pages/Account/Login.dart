@@ -8,24 +8,21 @@ import 'package:AleTrail/pages/BusinessHome.dart';
 import 'package:AleTrail/pages/UserMap.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key});
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String clientUserName = '';
-  String clientPassword = '';
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
     final double screenWidth = screenSize.width;
     final double screenHeight = screenSize.height;
-
-    UserData? clientProfileData =
-        Provider.of<UserProvider>(context, listen: true).user;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -38,8 +35,7 @@ class _LoginPageState extends State<LoginPage> {
               left: 0,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
-                colorFilter:
-                const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -60,9 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 25,
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
-                    onChanged: (value) {
-                      clientUserName = value;
-                    },
+                    controller: _usernameController,
                     decoration: InputDecoration(
                       hintText: 'Username',
                       focusedBorder: OutlineInputBorder(
@@ -88,10 +82,8 @@ class _LoginPageState extends State<LoginPage> {
                   elevation: 25,
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
+                    controller: _passwordController,
                     obscureText: true,
-                    onChanged: (value) {
-                      clientPassword = value;
-                    },
                     decoration: InputDecoration(
                       hintText: 'Password',
                       focusedBorder: OutlineInputBorder(
@@ -117,71 +109,69 @@ class _LoginPageState extends State<LoginPage> {
                   backgroundColor: MaterialStateProperty.all(secondaryButton),
                 ),
                 onPressed: () async {
-                  if (!clientUserName.contains('@')) {
+                  String username = _usernameController.text.trim();
+                  String password = _passwordController.text.trim();
+
+                  if (username.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Username cannot be empty.')),
+                    );
+                    return;
+                  }
+                  if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(username)) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Please enter a valid email address.')),
                     );
                     return;
                   }
-                  if (clientPassword.isEmpty || clientPassword.length < 7) {
+                  if (password.isEmpty || password.length < 7) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Password must be at least 7 characters long.')),
                     );
                     return;
                   }
-                  final UserData? signinResponseCode =
-                  await signInWithEmailAndPassword(
-                    clientUserName,
-                    clientPassword,
-                  );
+
+                  final UserData? signinResponseCode = await signInWithEmailAndPassword(username, password);
+
                   if (signinResponseCode != null && signinResponseCode.userId != null) {
                     final userId = signinResponseCode.userId;
                     if (userId.isNotEmpty) {
-                      Provider.of<UserProvider>(context, listen: false)
-                          .setUser(signinResponseCode);
+                      Provider.of<UserProvider>(context, listen: false).setUser(signinResponseCode);
                       if (signinResponseCode.accountType == "Business") {
-                        Navigator.of(context).pushReplacement (
+                        Navigator.of(context).pushReplacement(
                           PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
+                            pageBuilder: (context, animation, secondaryAnimation) =>
                             const BusinessHomePage(title: ""),
-                            transitionsBuilder: (context, animation,
-                                secondaryAnimation, child) {
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
                               var begin = const Offset(10.0, 0.0);
                               var end = Offset.zero;
                               var curve = Curves.ease;
-                              var tween = Tween(begin: begin, end: end)
-                                  .chain(CurveTween(curve: curve));
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                               return SlideTransition(
                                 position: animation.drive(tween),
                                 child: child,
                               );
                             },
-                            transitionDuration:
-                            const Duration(milliseconds: 800),
+                            transitionDuration: const Duration(milliseconds: 800),
                           ),
                         );
                       }
                       if (signinResponseCode.accountType == "General") {
-                        Navigator.of(context).pushReplacement (
+                        Navigator.of(context).pushReplacement(
                           PageRouteBuilder(
-                            pageBuilder:
-                                (context, animation, secondaryAnimation) =>
+                            pageBuilder: (context, animation, secondaryAnimation) =>
                             const UserMapPage(title: ""),
-                            transitionsBuilder: (context, animation,
-                                secondaryAnimation, child) {
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
                               var begin = const Offset(10.0, 0.0);
                               var end = Offset.zero;
                               var curve = Curves.ease;
-                              var tween = Tween(begin: begin, end: end)
-                                  .chain(CurveTween(curve: curve));
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
                               return SlideTransition(
                                 position: animation.drive(tween),
                                 child: child,
                               );
                             },
-                            transitionDuration:
-                            const Duration(milliseconds: 800),
+                            transitionDuration: const Duration(milliseconds: 800),
                           ),
                         );
                       }
@@ -201,74 +191,65 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-        Positioned(
-          top: screenHeight * 0.65 * 1.18,
-          right: 0,
-          left: 0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              GestureDetector(
-                onTap: () async {
-                  // Start Google SignIn
-                  UserData? userData = await signInWithGoogle();
-                  if (userData?.userId != null)
-                    {
-                      // Navigate through
-                      Navigator.of(context).pushReplacement (
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                          const UserMapPage(title: ""),
-                          transitionsBuilder: (context, animation,
-                              secondaryAnimation, child) {
-                            var begin = const Offset(10.0, 0.0);
-                            var end = Offset.zero;
-                            var curve = Curves.ease;
-                            var tween = Tween(begin: begin, end: end)
-                                .chain(CurveTween(curve: curve));
-                            return SlideTransition(
-                              position: animation.drive(tween),
-                              child: child,
-                            );
-                          },
-                          transitionDuration:
-                          const Duration(milliseconds: 800),
-                        ),
-                      );
-                    }
-                },
-                child: SvgPicture.asset(
-                  height: 35,
-                  "lib/assets/images/svg/GoogleIcon.svg",
-                  semanticsLabel: 'Google Icon',
-                ),
+            Positioned(
+              top: screenHeight * 0.65 * 1.18,
+              right: 0,
+              left: 0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  GestureDetector(
+                    onTap: () async {
+                      UserData? userData = await signInWithGoogle();
+                      if (userData?.userId != null) {
+                        Navigator.of(context).pushReplacement(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                            const UserMapPage(title: ""),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              var begin = const Offset(10.0, 0.0);
+                              var end = Offset.zero;
+                              var curve = Curves.ease;
+                              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                            transitionDuration: const Duration(milliseconds: 800),
+                          ),
+                        );
+                      }
+                    },
+                    child: SvgPicture.asset(
+                      height: 35,
+                      "lib/assets/images/svg/GoogleIcon.svg",
+                      semanticsLabel: 'Google Icon',
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      print('Instagram Icon clicked');
+                    },
+                    child: SvgPicture.asset(
+                      height: 35,
+                      "lib/assets/images/svg/InstaLogo.svg",
+                      semanticsLabel: 'Instagram Icon',
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      print('Twitter Icon clicked');
+                    },
+                    child: SvgPicture.asset(
+                      height: 35,
+                      "lib/assets/images/svg/TwitterIcon.svg",
+                      semanticsLabel: 'Twitter Icon',
+                    ),
+                  ),
+                ],
               ),
-              GestureDetector(
-                onTap: () {
-                  // Add your action here
-                  print('Instagram Icon clicked');
-                },
-                child: SvgPicture.asset(
-                  height: 35,
-                  "lib/assets/images/svg/InstaLogo.svg",
-                  semanticsLabel: 'Instagram Icon',
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  // Add your action here
-                  print('Twitter Icon clicked');
-                },
-                child: SvgPicture.asset(
-                  height: 35,
-                  "lib/assets/images/svg/TwitterIcon.svg",
-                  semanticsLabel: 'Twitter Icon',
-                ),
-              ),
-            ],
-          ),
-        ),
+            ),
             Positioned(
               top: -50,
               right: 0,

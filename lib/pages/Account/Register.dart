@@ -15,13 +15,12 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // User Define Parameters
-  String clientUserName = '';
-  String clientPassword = '';
-  String clientConfirmPassword = '';
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
-  bool passwordMatch = false;
-  bool failedToRegister = false;
+  bool _passwordMatch = false;
+  bool _failedToRegister = false;
 
   @override
   Widget build(BuildContext context) {
@@ -64,26 +63,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   elevation: 25,
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
-                    obscureText: false,
-                    onChanged: (value) {
-                      clientUserName = value;
-                    },
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: 'Email Address',
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          color: secondaryButton,
-                        ),
+                        borderSide: const BorderSide(color: secondaryButton),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          color: Colors.white,
-                        ),
+                        borderSide: const BorderSide(color: Colors.white),
                       ),
-                      contentPadding:
-                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     ),
                   ),
                 ),
@@ -98,26 +90,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   elevation: 25,
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
+                    controller: _passwordController,
                     obscureText: true,
-                    onChanged: (value) {
-                      clientPassword = value;
-                    },
                     decoration: InputDecoration(
                       hintText: 'Password',
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          color: secondaryButton,
-                        ),
+                        borderSide: const BorderSide(color: secondaryButton),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          color: Colors.white,
-                        ),
+                        borderSide: const BorderSide(color: Colors.white),
                       ),
-                      contentPadding:
-                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     ),
                   ),
                 ),
@@ -132,26 +117,19 @@ class _RegisterPageState extends State<RegisterPage> {
                   elevation: 25,
                   borderRadius: BorderRadius.circular(50),
                   child: TextField(
+                    controller: _confirmPasswordController,
                     obscureText: true,
-                    onChanged: (value) {
-                      clientConfirmPassword = value;
-                    },
                     decoration: InputDecoration(
                       hintText: 'Confirm Password',
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          color: secondaryButton,
-                        ),
+                        borderSide: const BorderSide(color: secondaryButton),
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(50),
-                        borderSide: const BorderSide(
-                          color: Colors.white,
-                        ),
+                        borderSide: const BorderSide(color: Colors.white),
                       ),
-                      contentPadding:
-                      const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                      contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     ),
                   ),
                 ),
@@ -161,7 +139,7 @@ class _RegisterPageState extends State<RegisterPage> {
               top: screenHeight * 0.94,
               right: screenWidth * 0.52,
               child: Visibility(
-                visible: passwordMatch,
+                visible: _passwordMatch,
                 child: const Text(
                   "Passwords don't match!",
                   style: TextStyle(
@@ -175,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
               top: screenHeight * 0.94,
               right: screenWidth * 0.52,
               child: Visibility(
-                visible: failedToRegister,
+                visible: _failedToRegister,
                 child: const Text(
                   "Failed to register account!",
                   style: TextStyle(
@@ -191,100 +169,92 @@ class _RegisterPageState extends State<RegisterPage> {
               child: ElevatedButton(
                 style: ButtonStyle(
                   elevation: MaterialStateProperty.all(15),
-                  backgroundColor: MaterialStateProperty.all(
-                    secondaryButton,
-                  ),
+                  backgroundColor: MaterialStateProperty.all(secondaryButton),
                 ),
                 onPressed: () async {
-                  if (clientPassword.isNotEmpty &&
-                      clientUserName.isNotEmpty &&
-                      clientConfirmPassword.isNotEmpty) {
-                    if (clientPassword == clientConfirmPassword) {
-                      if (_isPasswordSecure(clientPassword)) {
-                        final UserCredential? signInResponseCode =
-                        await registerWithEmailAndPassword(
-                          clientUserName,
-                          clientConfirmPassword,
+                  String email = _emailController.text.trim();
+                  String password = _passwordController.text.trim();
+                  String confirmPassword = _confirmPasswordController.text.trim();
+
+                  if (email.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Email address cannot be empty.')),
+                    );
+                    return;
+                  }
+                  if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter a valid email address.')),
+                    );
+                    return;
+                  }
+                  if (password.isEmpty || password.length < 7) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password must be at least 7 characters long and include an uppercase letter and a special character.')),
+                    );
+                    return;
+                  }
+                  if (password != confirmPassword) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Passwords do not match')),
+                    );
+                    return;
+                  }
+
+                  if (_isPasswordSecure(password)) {
+                    final UserCredential? signInResponseCode =
+                    await registerWithEmailAndPassword(email, password);
+                    if (signInResponseCode != null && signInResponseCode.user != null) {
+                      final userAccount = signInResponseCode.user;
+                      if (userAccount?.uid != null && userAccount?.email != null) {
+                        addNewClientToUserTable(
+                          userAccount!.uid,
+                          userAccount.displayName ?? '',
+                          userAccount.email!,
+                          AccountType().generalUser,
                         );
-                        if (signInResponseCode != null ||
-                            signInResponseCode?.user != null) {
-                          final userAccount = signInResponseCode?.user;
-                          if (userAccount?.uid != null &&
-                              userAccount?.email != null) {
-                            addNewClientToUserTable(
-                              userAccount!.uid,
-                              userAccount.displayName.toString(),
-                              userAccount.email,
-                              AccountType().generalUser,
-                            );
-                            Navigator.of(context).pushReplacement(
-                              PageRouteBuilder(
-                                pageBuilder: (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    ) =>
-                                const UserMapPage(title: ""),
-                                transitionsBuilder: (
-                                    context,
-                                    animation,
-                                    secondaryAnimation,
-                                    child,
-                                    ) {
-                                  final begin = const Offset(10.0, 0.0);
-                                  final end = Offset.zero;
-                                  final curve = Curves.easeInOutCubic;
-                                  final tween = Tween(
-                                    begin: begin,
-                                    end: end,
-                                  ).chain(
-                                    CurveTween(curve: curve),
-                                  );
-                                  return SlideTransition(
-                                    position: animation.drive(tween),
-                                    child: child,
-                                  );
-                                },
-                                transitionDuration:
-                                const Duration(milliseconds: 800),
-                              ),
-                            );
-                          } else {
-                            setState(() {
-                              failedToRegister = true;
-                            });
-                          }
-                        } else {
-                          setState(() {
-                            failedToRegister = true;
-                          });
-                        }
+                        Navigator.of(context).pushReplacement(
+                          PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) =>
+                            const UserMapPage(title: ""),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              const begin = Offset(10.0, 0.0);
+                              const end = Offset.zero;
+                              const curve = Curves.easeInOutCubic;
+                              final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                              return SlideTransition(
+                                position: animation.drive(tween),
+                                child: child,
+                              );
+                            },
+                            transitionDuration: const Duration(milliseconds: 800),
+                          ),
+                        );
                       } else {
                         setState(() {
-                          failedToRegister = true;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Sorry! Account failed to register. This account might already been registered')),
+                          );
                         });
                       }
                     } else {
                       setState(() {
-                        passwordMatch = true;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Sorry! Account failed to register. This account might already been registered')),
+                        );
                       });
                     }
                   } else {
-                    setState(() {
-                      failedToRegister = true;
-                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password must include an uppercase letter and a special character.')),
+                    );
                   }
                 },
                 child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: screenWidth * 0.15,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.15),
                   child: const Text(
                     "Create account",
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
+                    style: TextStyle(fontSize: 20, color: Colors.white),
                   ),
                 ),
               ),
@@ -298,17 +268,17 @@ class _RegisterPageState extends State<RegisterPage> {
                 children: [
                   SvgPicture.asset(
                     "lib/assets/images/svg/GoogleIcon.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
+                    semanticsLabel: 'Google Icon',
                     height: 35,
                   ),
                   SvgPicture.asset(
                     "lib/assets/images/svg/InstaLogo.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
+                    semanticsLabel: 'Instagram Logo',
                     height: 35,
                   ),
                   SvgPicture.asset(
                     "lib/assets/images/svg/TwitterIcon.svg",
-                    semanticsLabel: 'Yellow Corner SVG',
+                    semanticsLabel: 'Twitter Icon',
                     height: 35,
                   ),
                 ],
@@ -329,7 +299,6 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   bool _isPasswordSecure(String password) {
-    // Validate password criteria: at least 7 characters, one uppercase letter, one special character
     if (password.length < 7) {
       return false;
     }
