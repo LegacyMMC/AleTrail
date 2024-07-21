@@ -9,14 +9,14 @@ class EstablishmentCreateMenuPage extends StatefulWidget {
   const EstablishmentCreateMenuPage({super.key, required this.pubId});
 
   @override
-  State<EstablishmentCreateMenuPage> createState() => _EstablishmentCreateMenuState();
+  State<EstablishmentCreateMenuPage> createState() =>
+      _EstablishmentCreateMenuState();
 }
 
 class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
   // User parameters
-  String establishmentName = "";
   String menuName = "";
-  String MenuDesc = "";
+  String menuDesc = "";
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,8 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
     final double registerButtonTop = screenHeight * 0.65;
 
     return Scaffold(
-      resizeToAvoidBottomInset: false, // Prevents resizing when keyboard appears
+      resizeToAvoidBottomInset:
+          false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -40,7 +41,8 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
               left: 0,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
-                colorFilter: const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                colorFilter:
+                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -53,12 +55,14 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
               ),
             ),
             Positioned(
-              top: registerButtonTop * 0.5, // Adjust this value according to your layout
+              top: registerButtonTop *
+                  0.5, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: Container(
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 2), // Outer border
+                  border:
+                      Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -72,7 +76,8 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                     ),
                     child: TextField(
                       keyboardType: TextInputType.multiline,
-                      maxLines: null, // Allows the TextField to support multiple lines
+                      maxLines:
+                          null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         setState(() {
                           menuName = value;
@@ -81,7 +86,8 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                       decoration: const InputDecoration(
                         hintText: 'Menu Name',
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15), // Adjust padding for multi-line support
+                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
+                            15), // Adjust padding for multi-line support
                       ),
                     ),
                   ),
@@ -89,35 +95,40 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
               ),
             ),
             Positioned(
-              top: registerButtonTop * 0.65, // Adjust this value according to your layout
+              top: registerButtonTop *
+                  0.65, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: Container(
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey, width: 2), // Outer border
+                  border:
+                      Border.all(color: Colors.grey, width: 2), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
                   elevation: 35, // Set the elevation here
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
-                    height: 200, // Set the desired height for multi-line support
+                    height:
+                        200, // Set the desired height for multi-line support
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: TextField(
                       keyboardType: TextInputType.multiline,
-                      maxLines: null, // Allows the TextField to support multiple lines
+                      maxLines:
+                          null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         setState(() {
-                          MenuDesc = value;
+                          menuDesc = value;
                         });
                       },
                       decoration: const InputDecoration(
                         hintText: 'Menu Description',
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15), // Adjust padding for multi-line support
+                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
+                            15), // Adjust padding for multi-line support
                       ),
                     ),
                   ),
@@ -133,23 +144,28 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                   backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () async {
-                  // Your logic to use pubId and other parameters
-                  print("PubId: ${widget.pubId}");
-                  print("Menu Name: $menuName");
-                  print("Menu Description: $MenuDesc");
-
                   // Call firebase function
-                  var response = await createNewMenuInEstablishment(widget.pubId, menuName, MenuDesc);
+                  if (menuName.length > 2) {
+                    var response = await createNewMenuInEstablishment(
+                        widget.pubId, menuName, menuDesc);
 
-                  if(response == false)
-                    {
-                      // FAILED TO ADD NEW MENU TO FIREBASE
-                    }
-                  else
-                    {
+                    if (response == false) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content:
+                                Text('Failed to add menu to establishment!')),
+                      );
+                    } else {
                       // Navigate back
                       Navigator.of(context).pop(true);
                     }
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              'Menu name needs to be great than 2 characters!')),
+                    );
+                  }
                 },
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.24),

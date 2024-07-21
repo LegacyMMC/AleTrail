@@ -108,7 +108,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
               var pubName = pubData['EstablishmentName'] ?? "";
               var pubImage = pubData['Image'] ?? "";
               var pubDescription = pubData['Description'] ?? '';
-              var pubTags = pubData['tags'] ?? '';
+              var pubTags = pubData['Tags'] ?? '';
               var pubDistance = pubData['distance'] ?? '<150M';
 
               return Column(

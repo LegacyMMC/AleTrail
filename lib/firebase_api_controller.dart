@@ -622,6 +622,60 @@ Future<String> uploadImageToStorage(io.File imageFile) async {
   }
 }
 
+// Upload image to storage for users profile photo
+Future<String> uploadProfileImageToStorage(io.File imageFile) async {
+  try {
+    // Get a reference to the Firebase Storage instance
+    FirebaseStorage storage = FirebaseStorage.instance;
+
+    Reference ref = storage
+        .ref("Users/${FirebaseAuth.instance.currentUser!.uid}")
+        .child('ProfilePhoto/${DateTime.now().millisecondsSinceEpoch}.jpg');
+
+    // Upload the image to Firebase Storage
+    UploadTask uploadTask = ref.putFile(imageFile);
+
+    // Wait for the upload to complete and get the download URL
+    TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+    String imageUrl = await snapshot.ref.getDownloadURL();
+
+    return imageUrl;
+  } catch (e) {
+    // Handle error
+    throw Exception('Failed to upload image: $e');
+  }
+}
+
+// Update Firebase database with user profile photo
+Future<bool?> updateProfileImage(io.File? imageFile) async {
+  try {
+    // Get a reference to the Firestore instance
+    FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
+
+    String imageUrl = "";
+    // Upload image to Firebase Storage
+    if (imageFile != null) {
+      imageUrl = await uploadImageToStorage(imageFile);
+    }
+
+    // Add the data to the specified collection and get the document reference
+    DocumentReference docRef =
+    firestoreInst.collection('AleTrailUsers').doc(FirebaseAuth.instance.currentUser?.uid);
+
+    // Update the document with its own ID
+    await docRef.update({
+      'ProfileImage': imageUrl, // Add the image URL
+    });
+
+    return true; // Operation successful
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error adding image to Firestore: $e');
+    }
+    return false; // Operation failed
+  }
+}
+
 /// CREATE NEW MENU IN ESTABLISHMENT
 Future<bool> createNewMenuInEstablishment(
     String pubId, String menuName, String menuDesc) async {

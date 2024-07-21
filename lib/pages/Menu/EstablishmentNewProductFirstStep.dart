@@ -1,3 +1,4 @@
+import 'package:AleTrail/classes/BusinessProduct.dart';
 import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -240,7 +241,8 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                           ProductDesc,
                           selectedProductType); // Include product type
                       if (stepCompleted != "") {
-                        Navigator.of(context).pop();
+                        // Build Business Product To Return
+                        Navigator.of(context).pop(BusinessProduct(productName: ProductName, productDescription: ProductDesc, productPrice: double.tryParse(ProductPrice) ?? 0.00));
                       }
                     } else {
                       // Show error message if ProductPrice is not a valid number

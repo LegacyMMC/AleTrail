@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../classes/UserData.dart';
@@ -7,6 +8,7 @@ import '../widgets/BusinessListedWidget.dart';
 import 'package:provider/provider.dart';
 import 'BusinessAllMenusView.dart';
 import 'CreateEstablishments/EstablishmentFirstStep.dart';
+import 'package:image_picker/image_picker.dart';
 
 class BusinessHomePage extends StatefulWidget {
   const BusinessHomePage({super.key, required this.title});
@@ -18,6 +20,17 @@ class BusinessHomePage extends StatefulWidget {
 
 class _BusinessHomeState extends State<BusinessHomePage> {
   late List<Map<String, dynamic>> dataList;
+
+  File? _imageFile;
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await ImagePicker().pickImage(source: source);
+    setState(() {
+      if (pickedFile != null) {
+        _imageFile = File(pickedFile.path);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -43,67 +56,40 @@ class _BusinessHomeState extends State<BusinessHomePage> {
               ),
             ),
             Positioned(
-              top: screenHeight * 0.04,
-              left: 0,
-              right: 0,
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  // Wrap TextField and Icon in a Row
-                  children: [
-                    Expanded(
-                      // Use Expanded to make TextField take remaining space
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(
-                              20), // Adjust the radius to your preference
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 7,
-                              blurRadius: 5,
-                              offset: const Offset(
-                                  0, 3), // changes position of shadow
-                            ),
-                          ],
-                        ),
-                        child: const TextField(
-                          decoration: InputDecoration(
-                            focusColor: mainBackground,
-                            hintText: 'Locations & products...',
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.all(10),
-                            prefixIcon: Icon(Icons.search),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 70,
+              top: 40,
               left: 10,
               child: SizedBox(
                 height: 200,
-                child: Row(
+                child: GestureDetector(
+                  onTap: () async {
+                    final pickedImage = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (pickedImage != null) {
+                      setState(()  {
+                        // Set file
+                        _imageFile = File(pickedImage.path);
+
+                        // Upload
+                        updateProfileImage(_imageFile);
+                      });
+                    }
+                  },
+                  child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     CircleAvatar(
                       radius: 70,
-                      backgroundImage: clientProfileData != null
-                          ? NetworkImage(clientProfileData.profileImage)
-                          : const NetworkImage(
-                              'https://th.bing.com/th/id/R.89b03ac4a277e619f490764482e65b96?rik=zGIq7bmU6dsPBg&pid=ImgRaw&r=0'),
-                    ),
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile!) as ImageProvider<Object>
+                          : (clientProfileData != null
+                          ? NetworkImage(clientProfileData.profileImage) as ImageProvider<Object> : null
+                    )),
                     const SizedBox(width: 10),
                     Material(
                       elevation: 15.0, // Add elevation here
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
-                        height: 80,
+                        height: 60,
                         width: screenWidth * 0.56,
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -130,10 +116,10 @@ class _BusinessHomeState extends State<BusinessHomePage> {
                     ),
                   ],
                 ),
-              ),
+              )),
             ),
             Positioned(
-              top: 260,
+              top: 240,
               left: 15,
               child: Material(
                 elevation: 20.0,
@@ -187,7 +173,7 @@ class _BusinessHomeState extends State<BusinessHomePage> {
                               height: 40,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  elevation: 15,
+                                  elevation: 1,
                                   backgroundColor: primaryButton,
                                 ),
                                 onPressed: () {
@@ -228,18 +214,19 @@ class _BusinessHomeState extends State<BusinessHomePage> {
                               height: 40,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  elevation: 15,
+                                  elevation: 1,
                                   backgroundColor: secondaryButton,
                                 ),
                                 onPressed: () {
                                   Navigator.of(context).push(
                                     PageRouteBuilder(
-                                      pageBuilder: (context, animation, secondaryAnimation) =>
-                                          BusinessAllMenusView(),
+                                      pageBuilder: (context, animation,
+                                              secondaryAnimation) =>
+                                          const BusinessAllMenusView(),
                                       transitionDuration: Duration.zero,
                                       reverseTransitionDuration: Duration.zero,
-                                      transitionsBuilder:
-                                          (context, animation, secondaryAnimation, child) {
+                                      transitionsBuilder: (context, animation,
+                                          secondaryAnimation, child) {
                                         return child;
                                       },
                                     ),
@@ -265,10 +252,10 @@ class _BusinessHomeState extends State<BusinessHomePage> {
                 top: screenHeight * 0.58,
                 child: (const Text(
                   "Establishments",
-                  style: TextStyle(fontSize: 24),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ))),
             Positioned(
-              top: screenHeight * 0.63,
+              top: screenHeight * 0.65,
               right: 0,
               left: 0,
               child: Container(

@@ -1,9 +1,13 @@
 import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
+import '../classes/BusinessProduct.dart';
 import '../firebase_api_controller.dart';
 import 'Menu/EstablishmentNewProductFirstStep.dart';
 
-class BusinessMenuProductView extends StatelessWidget {
+// Init List Of Additional Products If They Get Added
+List<BusinessProduct> newProducts = [];
+
+class BusinessMenuProductView extends StatefulWidget {
   final String menuId;
   final String menuDesc;
   final String menuName;
@@ -15,13 +19,28 @@ class BusinessMenuProductView extends StatelessWidget {
       required this.menuName});
 
   @override
+  _BusinessMenuProductViewState createState() =>
+      _BusinessMenuProductViewState();
+}
+
+class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
+  late Future<List<Map<String, dynamic>>?> futureProducts;
+  List<Map<String, dynamic>> products = [];
+
+  @override
+  void initState() {
+    super.initState();
+    futureProducts = getMenuProducts(widget.menuId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
       ),
       body: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: getMenuProducts(menuId),
+        future: futureProducts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -44,7 +63,7 @@ class BusinessMenuProductView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          menuName,
+                          widget.menuName,
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -53,7 +72,7 @@ class BusinessMenuProductView extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          menuDesc,
+                          widget.menuDesc,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.black54,
@@ -68,13 +87,14 @@ class BusinessMenuProductView extends StatelessWidget {
                                 elevation: 15,
                                 backgroundColor: primaryButton,
                               ),
-                              onPressed: () {
-                                Navigator.of(context).push(
+                              onPressed: () async {
+                                BusinessProduct gatheredProduct =
+                                    await Navigator.of(context).push(
                                   PageRouteBuilder(
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
                                         EstablishmentProductOnePage(
-                                            menuId: menuId),
+                                            menuId: widget.menuId),
                                     transitionDuration: Duration.zero,
                                     reverseTransitionDuration: Duration.zero,
                                     transitionsBuilder: (context, animation,
@@ -83,6 +103,21 @@ class BusinessMenuProductView extends StatelessWidget {
                                     },
                                   ),
                                 );
+                                if (gatheredProduct != null) {
+                                  setState(() {
+                                    // Build new product
+                                    Map<String, dynamic> newProduct = {
+                                      'ProductName':
+                                          gatheredProduct.productName,
+                                      'ProductDescription':
+                                          gatheredProduct.productDescription,
+                                      'ProductPrice':
+                                          gatheredProduct.productPrice
+                                    };
+                                    // Add to list
+                                    products.add(newProduct);
+                                  });
+                                }
                               },
                               child: const Text(
                                 "New Product",
@@ -114,7 +149,7 @@ class BusinessMenuProductView extends StatelessWidget {
             );
           }
 
-          var products = snapshot.data!;
+          products = snapshot.data!;
 
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -133,7 +168,7 @@ class BusinessMenuProductView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        menuName ?? "Menu Name Missing",
+                        widget.menuName,
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -142,7 +177,7 @@ class BusinessMenuProductView extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        menuDesc,
+                        widget.menuDesc,
                         style: const TextStyle(
                           fontSize: 16,
                           color: Colors.black54,
@@ -157,20 +192,36 @@ class BusinessMenuProductView extends StatelessWidget {
                               elevation: 15,
                               backgroundColor: primaryButton,
                             ),
-                            onPressed: () {Navigator.of(context).push(
-                              PageRouteBuilder(
-                                pageBuilder: (context, animation,
-                                    secondaryAnimation) =>
-                                    EstablishmentProductOnePage(
-                                        menuId: menuId),
-                                transitionDuration: Duration.zero,
-                                reverseTransitionDuration: Duration.zero,
-                                transitionsBuilder: (context, animation,
-                                    secondaryAnimation, child) {
-                                  return child;
-                                },
-                              ),
-                            );},
+                            onPressed: () async {
+                              BusinessProduct gatheredProduct =
+                                  await Navigator.of(context).push(
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      EstablishmentProductOnePage(
+                                          menuId: widget.menuId),
+                                  transitionDuration: Duration.zero,
+                                  reverseTransitionDuration: Duration.zero,
+                                  transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) {
+                                    return child;
+                                  },
+                                ),
+                              );
+                              if (gatheredProduct != null) {
+                                setState(() {
+                                  // Build new product
+                                  Map<String, dynamic> newProduct = {
+                                    'ProductName': gatheredProduct.productName,
+                                    'ProductDescription':
+                                        gatheredProduct.productDescription,
+                                    'ProductPrice': gatheredProduct.productPrice
+                                  };
+                                  // Add to list
+                                  products.add(newProduct);
+                                });
+                              }
+                            },
                             child: const Text(
                               "New Product",
                               style:
