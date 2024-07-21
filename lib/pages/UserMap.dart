@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -22,12 +23,12 @@ class _UserMapPageState extends State<UserMapPage>
     with SingleTickerProviderStateMixin {
   late GoogleMapController mapController;
   LatLng _initialCameraPosition =
-  const LatLng(0, 0); // Default initial position
+      const LatLng(0, 0); // Default initial position
   late StreamSubscription<Position> _positionStreamSubscription;
 
   final Set<Marker> _markers = {}; // Set to store markers
   final DraggableScrollableController _scrollableController =
-  DraggableScrollableController();
+      DraggableScrollableController();
   double _previousExtent = 0.1;
   bool _isAtMinExtent = true;
   List<DocumentSnapshot<Object?>> nearbyEstablishments = [];
@@ -39,7 +40,10 @@ class _UserMapPageState extends State<UserMapPage>
   List<SearchedItem> _searchResults = [];
   Timer? _debounce; // Debounce timer
 
-  bool _showSearchResults = false; // Boolean to track the visibility of the search results
+  bool _showSearchResults =
+      false; // Boolean to track the visibility of the search results
+
+  List<String> establishentDistances = [];
 
   @override
   void initState() {
@@ -72,12 +76,45 @@ class _UserMapPageState extends State<UserMapPage>
     super.dispose();
   }
 
+  // Calculate distance in KM or meters between users location and establishments
+  Future<String> calculateDistance(double lat2, double lon2) async {
+    const double earthRadiusKm = 6371.0;
+
+    // Users pos
+    Position position = await _determinePosition();
+
+    // Gather distance
+    double dLat = _degreesToRadians(lat2 - position.latitude);
+    double dLon = _degreesToRadians(lon2 - position.longitude);
+
+    double a = sin(dLat / 2) * sin(dLat / 2) +
+        cos(_degreesToRadians(position.latitude)) *
+            cos(_degreesToRadians(lat2)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+
+    double distanceKm = earthRadiusKm * c;
+    double distanceMeters = distanceKm * 1000;
+
+    if (distanceMeters > 999) {
+      return '${distanceKm.toStringAsFixed(2)} km';
+    } else {
+      return '${distanceMeters.toStringAsFixed(0)} meters';
+    }
+  }
+
+  double _degreesToRadians(double degrees) {
+    return degrees * pi / 180;
+  }
+
   Future<void> _initUserLocation() async {
     try {
       Position position = await _determinePosition();
       _updateCameraPosition(position.latitude, position.longitude);
       var nearbyEstablishments =
-      await getNearbyEstablishments(position.latitude, position.longitude);
+          await getNearbyEstablishments(position.latitude, position.longitude);
       setState(() {
         this.nearbyEstablishments = nearbyEstablishments;
       });
@@ -88,13 +125,21 @@ class _UserMapPageState extends State<UserMapPage>
         double lon = data['Longitude'];
         String establishmentId = data['EstablishmentId'];
         String establishmentName = data['EstablishmentName'];
+
+        // Add distance from user to establishment
+        String distance = await calculateDistance(
+            establishment['Latitude'], establishment['Longitude']);
+
+        // Collection is used in the list builder for top 5 location menus
+        establishentDistances.add(distance);
+
         _addMarker(establishmentId, establishmentName, lat, lon);
       }
 
       _positionStreamSubscription =
           Geolocator.getPositionStream().listen((Position position) {
-            _updateCameraPosition(position.latitude, position.longitude);
-          });
+        _updateCameraPosition(position.latitude, position.longitude);
+      });
     } catch (e) {
       if (kDebugMode) {
         print('Error: $e');
@@ -147,7 +192,7 @@ class _UserMapPageState extends State<UserMapPage>
               var curve = Curves.ease;
 
               var tween =
-              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
               return SlideTransition(
                 position: animation.drive(tween),
@@ -194,7 +239,8 @@ class _UserMapPageState extends State<UserMapPage>
 
     setState(() {
       _searchResults = results;
-      _showSearchResults = results.isNotEmpty; // Show the search results list if there are results
+      _showSearchResults = results
+          .isNotEmpty; // Show the search results list if there are results
     });
   }
 
@@ -239,9 +285,14 @@ class _UserMapPageState extends State<UserMapPage>
             indoorViewEnabled: true,
             style: mapStyle,
             tiltGesturesEnabled: true,
+            compassEnabled: false,
+            trafficEnabled: false,
+            fortyFiveDegreeImageryEnabled: true,
+            mapToolbarEnabled: false,
+            zoomControlsEnabled: false,
             initialCameraPosition: CameraPosition(
               target: _initialCameraPosition,
-              zoom: 20.0,
+              zoom: 10.0,
             ),
             markers: _markers, // Set the markers on the map
             onMapCreated: (GoogleMapController controller) {
@@ -287,7 +338,9 @@ class _UserMapPageState extends State<UserMapPage>
                   ),
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
-                    height: _showSearchResults ? 300 : 0, // Animate the height of the container
+                    height: _showSearchResults
+                        ? 300
+                        : 0, // Animate the height of the container
                     margin: const EdgeInsets.only(top: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -303,21 +356,21 @@ class _UserMapPageState extends State<UserMapPage>
                     ),
                     child: _showSearchResults
                         ? ListView.builder(
-                      itemCount: _searchResults.length,
-                      itemBuilder: (context, index) {
-                        var result = _searchResults[index];
-                        return ListTile(
-                          leading: const Icon(Icons.local_bar),
-                          title: Text(result.searchName ?? 'Unnamed'),
-                          subtitle:
-                          Text(result.searchType ?? 'No details available'),
-                          onTap: () {
-                            // Handle search result tap, e.g., navigate to details
-                            // Note: Add your logic for search result tap here.
-                          },
-                        );
-                      },
-                    )
+                            itemCount: _searchResults.length,
+                            itemBuilder: (context, index) {
+                              var result = _searchResults[index];
+                              return ListTile(
+                                leading: const Icon(Icons.local_bar),
+                                title: Text(result.searchName ?? 'Unnamed'),
+                                subtitle: Text(result.searchType ??
+                                    'No details available'),
+                                onTap: () {
+                                  // Handle search result tap, e.g., navigate to details
+                                  // Note: Add your logic for search result tap here.
+                                },
+                              );
+                            },
+                          )
                         : null,
                   ),
                 ],
@@ -365,9 +418,9 @@ class _UserMapPageState extends State<UserMapPage>
             child: DraggableScrollableSheet(
               controller: _scrollableController,
               initialChildSize:
-              0.05, // Reduced initial size of the scrollable sheet
+                  0.05, // Reduced initial size of the scrollable sheet
               minChildSize:
-              0.05, // Reduced minimum size to which the sheet can be dragged down
+                  0.05, // Reduced minimum size to which the sheet can be dragged down
               maxChildSize: 0.7, // Keeping the maximum size as is
               builder:
                   (BuildContext context, ScrollController scrollController) {
@@ -420,7 +473,7 @@ class _UserMapPageState extends State<UserMapPage>
                                   Center(
                                     child: Padding(
                                       padding:
-                                      EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                          EdgeInsets.fromLTRB(10, 0, 10, 10),
                                       child: Text(
                                         "Top 5 locations",
                                         style: TextStyle(
@@ -434,26 +487,65 @@ class _UserMapPageState extends State<UserMapPage>
                               );
                             } else {
                               var establishment =
-                              nearbyEstablishments[index - 1];
-                              return ListTile(
-                                leading: const Icon(Icons.local_bar),
-                                title: Text(
+                                  nearbyEstablishments[index - 1];
+
+                              return Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                elevation: 5,
+                                child: ListTile(
+                                  leading: const Icon(
+                                    Icons.local_bar,
+                                    color:
+                                        Colors.orange, // Change the icon color
+                                  ),
+                                  title: Text(
                                     establishment['EstablishmentName'] ??
-                                        'Unnamed'),
-                                subtitle: Text(establishment['Tags'] ??
-                                    'No details available'),
-                                onTap: () {
-                                  // Toggle Map Auto move
-                                  setState(() {
-                                    // Navigate to location on map
-                                    _updateCameraPosition(
-                                        establishment['Latitude'],
-                                        establishment['Longitude']);
-                                    mapTracker = false;
-                                    // Start timer
-                                    startTimer();
-                                  });
-                                },
+                                        'Unnamed',
+                                    style: const TextStyle(
+                                      color:
+                                          Colors.black, // Change the text color
+                                      fontWeight: FontWeight
+                                          .bold, // Optional: Make the text bold
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment
+                                        .start, // Aligns the texts to the start
+                                    children: [
+                                      Text(
+                                        establishment['Tags'] ?? '',
+                                        style: const TextStyle(
+                                          color: Colors
+                                              .grey, // Change the subtitle color
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                          height:
+                                              4), // Adds space between the texts
+                                      Text(
+                                        establishentDistances[index - 1] ?? "",
+                                        style: const TextStyle(
+                                          color: Colors
+                                              .blueGrey, // Customize this color as needed
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  onTap: () {
+                                    // Toggle Map Auto move
+                                    setState(() {
+                                      // Navigate to location on map
+                                      _updateCameraPosition(
+                                          establishment['Latitude'],
+                                          establishment['Longitude']);
+                                      mapTracker = false;
+                                      // Start timer
+                                      startTimer();
+                                    });
+                                  },
+                                ),
                               );
                             }
                           },
@@ -470,4 +562,3 @@ class _UserMapPageState extends State<UserMapPage>
     );
   }
 }
-stk
