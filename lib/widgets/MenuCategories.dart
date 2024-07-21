@@ -7,13 +7,12 @@ class MenuCategoryWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final bool edit;
 
-  const MenuCategoryWidget({
-    super.key,
-    required this.category,
-    required this.items,
-    this.onTap,
-    required this.edit
-  });
+  const MenuCategoryWidget(
+      {super.key,
+      required this.category,
+      required this.items,
+      this.onTap,
+      required this.edit});
 
   @override
   Widget build(BuildContext context) {

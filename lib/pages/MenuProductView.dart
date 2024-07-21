@@ -1,6 +1,7 @@
 import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import '../firebase_api_controller.dart';
+import '../widgets/BusinessProductWidget.dart';
 
 class MenuProductView extends StatelessWidget {
   final String menuId;
@@ -65,45 +66,16 @@ class MenuProductView extends StatelessWidget {
                 const SizedBox(height: 16),
                 // Product list
                 for (var product in products)
-                  _buildProductCard(
-                    context,
-                    product['ProductName'],
-                    product['ProductDescription'],
-                    product['ProductPrice'],
+                  BusinessProductCard(
+                    edit: false,
+                    productDescription: product['ProductDescription'] ,
+                    productPrice: product['ProductPrice'] ,
+                    productName: product['ProductName'] ,
+                    context
                   ),
               ],
             ),
           );
-        },
-      ),
-    );
-  }
-
-  Widget _buildProductCard(
-    BuildContext context,
-    String productName,
-    String productDescription,
-    double productPrice,
-  ) {
-    return Card(
-      elevation: 10,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        title: Text(
-          productName,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(productDescription),
-        trailing: Text(
-          '£$productPrice',
-          style: const TextStyle(fontSize: 15),
-        ),
-        onTap: () {
-          _showProductDetails(
-              context, productName, productDescription, productPrice);
         },
       ),
     );

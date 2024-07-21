@@ -54,43 +54,6 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
               semanticsLabel: 'Orange Corner SVG',
             ),
           ),
-          Positioned(
-            top: 30,
-            left: 0,
-            right: 0,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 7,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: const TextField(
-                        decoration: InputDecoration(
-                          focusColor: mainBackground,
-                          hintText: 'Locations & products...',
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(10),
-                          prefixIcon: Icon(Icons.search),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
           FutureBuilder<DocumentSnapshot>(
             future: FirebaseFirestore.instance
                 .collection('EstablishmentDetailed')
@@ -114,7 +77,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: screenHeight * 0.1),
+                  SizedBox(height: screenHeight * 0.05),
                   _buildPubBusinessCard(pubImage, pubName, pubDescription,
                       pubTags, pubDistance, context, widget.pubId),
                   const Padding(
@@ -189,7 +152,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                         height: 40,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            elevation: 15,
+                            elevation: 1,
                             backgroundColor: primaryButton,
                           ),
                           onPressed: () async {
@@ -236,7 +199,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                         height: 40,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            elevation: 15,
+                            elevation: 1,
                             backgroundColor: secondaryButton,
                           ),
                           onPressed: () {

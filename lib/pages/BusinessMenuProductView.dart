@@ -2,10 +2,12 @@ import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import '../classes/BusinessProduct.dart';
 import '../firebase_api_controller.dart';
+import '../widgets/BusinessProductWidget.dart';
 import 'Menu/EstablishmentNewProductFirstStep.dart';
 
 // Init List Of Additional Products If They Get Added
 List<BusinessProduct> newProducts = [];
+bool isEditing = false;
 
 class BusinessMenuProductView extends StatefulWidget {
   final String menuId;
@@ -30,7 +32,13 @@ class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
   @override
   void initState() {
     super.initState();
-    futureProducts = getMenuProducts(widget.menuId);
+    fetchProducts();
+  }
+
+  void fetchProducts() {
+    setState(() {
+      futureProducts = getMenuProducts(widget.menuId);
+    });
   }
 
   @override
@@ -127,18 +135,28 @@ class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
                             ),
                             const SizedBox(
                                 width: 16), // Add space between buttons
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                elevation: 15,
-                                backgroundColor: secondaryButton,
-                              ),
-                              onPressed: () {},
-                              child: const Text(
-                                "Edit Menu",
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
-                              ),
-                            ),
+                            SizedBox(
+                                width: 145,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    elevation: 15,
+                                    backgroundColor: secondaryButton,
+                                  ),
+                                  onPressed: () {
+                                    // Edit Menu
+                                    setState(() {
+                                      isEditing = !isEditing;
+                                    });
+                                    if (!isEditing) {
+                                      fetchProducts(); // Refresh the products
+                                    }
+                                  },
+                                  child: Text(
+                                    isEditing ? "Save" : "Edit",
+                                    style: const TextStyle(
+                                        fontSize: 20, color: Colors.white),
+                                  ),
+                                )),
                           ],
                         )
                       ],
@@ -230,18 +248,28 @@ class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
                           ),
                           const SizedBox(
                               width: 16), // Add space between buttons
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              elevation: 15,
-                              backgroundColor: secondaryButton,
-                            ),
-                            onPressed: () {},
-                            child: const Text(
-                              "Edit Menu",
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.white),
-                            ),
-                          ),
+                          SizedBox(
+                              width: 145,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  elevation: 15,
+                                  backgroundColor: secondaryButton,
+                                ),
+                                onPressed: () {
+                                  // Edit Menu
+                                  setState(() {
+                                    isEditing = !isEditing;
+                                  });
+                                  if (!isEditing) {
+                                    fetchProducts(); // Refresh the products
+                                  }
+                                },
+                                child: Text(
+                                  isEditing ? "Save" : "Edit",
+                                  style: const TextStyle(
+                                      fontSize: 20, color: Colors.white),
+                                ),
+                              )),
                         ],
                       )
                     ],
@@ -250,79 +278,20 @@ class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
                 const SizedBox(height: 16),
                 // Product list
                 for (var product in products)
-                  _buildProductCard(
+                  BusinessProductCard(
                     context,
-                    product['ProductName'],
-                    product['ProductDescription'],
-                    product['ProductPrice'],
-                  ),
+                    edit: isEditing,
+                    productId: product['ProductId'],
+                    menuId: widget.menuId,
+                    productName: product['ProductName'],
+                    productDescription: product['ProductDescription'],
+                    productPrice: product['ProductPrice'],
+                  )
               ],
             ),
           );
         },
       ),
-    );
-  }
-
-  Widget _buildProductCard(
-    BuildContext context,
-    String productName,
-    String productDescription,
-    dynamic productPrice,
-  ) {
-    return Card(
-      elevation: 10,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: ListTile(
-        title: Text(
-          productName,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text(productDescription),
-        trailing: Text(
-          '£$productPrice',
-          style: const TextStyle(fontSize: 15),
-        ),
-        onTap: () {
-          _showProductDetails(
-              context, productName, productDescription, productPrice);
-        },
-      ),
-    );
-  }
-
-  void _showProductDetails(BuildContext context, String productName,
-      String productDescription, double productPrice) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(productName),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(productDescription),
-              const SizedBox(height: 16),
-              Text(
-                'Price: £$productPrice',
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Close'),
-            ),
-          ],
-        );
-      },
     );
   }
 }

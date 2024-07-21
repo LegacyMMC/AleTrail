@@ -26,7 +26,8 @@ class BusinessCard extends StatelessWidget {
         // For example, navigate to another screen
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => EstablishmentViewPage(pubId: pubId)),
+          MaterialPageRoute(
+              builder: (context) => EstablishmentViewPage(pubId: pubId)),
         );
       },
       child: Card(

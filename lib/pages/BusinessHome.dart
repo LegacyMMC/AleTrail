@@ -56,68 +56,70 @@ class _BusinessHomeState extends State<BusinessHomePage> {
               ),
             ),
             Positioned(
-              top: 40,
-              left: 10,
-              child: SizedBox(
-                height: 200,
-                child: GestureDetector(
-                  onTap: () async {
-                    final pickedImage = await ImagePicker()
-                        .pickImage(source: ImageSource.gallery);
-                    if (pickedImage != null) {
-                      setState(()  {
-                        // Set file
-                        _imageFile = File(pickedImage.path);
-
-                        // Upload
-                        updateProfileImage(_imageFile);
-                      });
-                    }
-                  },
+                top: 40,
+                left: 10,
+                child: SizedBox(
+                  height: 200,
                   child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundImage: _imageFile != null
-                          ? FileImage(_imageFile!) as ImageProvider<Object>
-                          : (clientProfileData != null
-                          ? NetworkImage(clientProfileData.profileImage) as ImageProvider<Object> : null
-                    )),
-                    const SizedBox(width: 10),
-                    Material(
-                      elevation: 15.0, // Add elevation here
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        height: 60,
-                        width: screenWidth * 0.56,
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white, // Example background color
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Text(
-                              clientProfileData != null
-                                  ? clientProfileData.companyName
-                                  : 'N/A',
-                              style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryButton,
-                                  letterSpacing: 2.75),
-                            ),
-                          ],
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      GestureDetector(
+                          onTap: () async {
+                            final pickedImage = await ImagePicker()
+                                .pickImage(source: ImageSource.gallery);
+                            if (pickedImage != null) {
+                              setState(() {
+                                // Set file
+                                _imageFile = File(pickedImage.path);
+
+                                // Upload
+                                updateProfileImage(_imageFile);
+                              });
+                            }
+                          },
+                          child: CircleAvatar(
+                              radius: 70,
+                              backgroundImage: _imageFile != null
+                                  ? FileImage(_imageFile!)
+                                      as ImageProvider<Object>
+                                  : (clientProfileData != null
+                                      ? NetworkImage(
+                                              clientProfileData.profileImage)
+                                          as ImageProvider<Object>
+                                      : null))),
+                      const SizedBox(width: 10),
+                      Material(
+                        elevation: 15.0, // Add elevation here
+                        borderRadius: BorderRadius.circular(10),
+                        child: Container(
+                          height: 60,
+                          width: screenWidth * 0.56,
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white, // Example background color
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                clientProfileData != null
+                                    ? clientProfileData.companyName
+                                    : 'Your Account',
+                                style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: primaryButton,
+                                    letterSpacing: 2.75),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )),
-            ),
+                    ],
+                  ),
+                )),
             Positioned(
               top: 240,
               left: 15,

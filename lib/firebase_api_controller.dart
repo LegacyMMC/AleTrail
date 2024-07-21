@@ -659,8 +659,9 @@ Future<bool?> updateProfileImage(io.File? imageFile) async {
     }
 
     // Add the data to the specified collection and get the document reference
-    DocumentReference docRef =
-    firestoreInst.collection('AleTrailUsers').doc(FirebaseAuth.instance.currentUser?.uid);
+    DocumentReference docRef = firestoreInst
+        .collection('AleTrailUsers')
+        .doc(FirebaseAuth.instance.currentUser?.uid);
 
     // Update the document with its own ID
     await docRef.update({
@@ -848,6 +849,28 @@ Future<void> deleteMenuFromEstablishment(
         .update({
       "EstablishmentMenus": FieldValue.arrayRemove([menuId])
     });
+    if (kDebugMode) {
+      print("Document successfully deleted!");
+    }
+  } catch (e) {
+    if (kDebugMode) {
+      print("Error deleting document: $e");
+    }
+  }
+}
+
+/// DELETE MENU FROM FIRESTORE
+Future<void> deleteProductFromMenu(String menuId, String productId) async {
+  try {
+    // Remove from menus
+    DocumentReference docRef =
+        FirebaseFirestore.instance.collection("EstablishmentMenus").doc(menuId);
+
+    // Update the document by removing the item from the array
+    await docRef.update({
+      'Products': FieldValue.arrayRemove([productId])
+    });
+
     if (kDebugMode) {
       print("Document successfully deleted!");
     }
