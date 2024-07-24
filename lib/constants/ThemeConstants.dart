@@ -5,6 +5,10 @@ import 'package:flutter/material.dart';
 //// LIGHT MODE ////
 // STYLE COLOURS
 const Color mainBackground = Color(0xFFFFFFFF);
+const Color secondaryBackground = Color(0xFFF4C314);
+const Color redAccentButton = Color(0xFFFF9289);
+const Color selectedYellowAccentButton = Color(0xFFEAB90C);
+const Color notSelectedGreyAccentButton = Color(0xFFF2EEEE);
 //  TEXT COLOURS
 const Color mainText = Color(0xFFFFFFFF);
 const Color secondaryText = Color(0xFF002128);

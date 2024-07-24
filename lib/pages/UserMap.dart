@@ -10,6 +10,7 @@ import '../classes/SearchedItem.dart';
 import '../constants/ThemeConstants.dart';
 import '../firebase_api_controller.dart';
 import 'PubPage.dart';
+import 'PubPageV2.dart';
 
 class UserMapPage extends StatefulWidget {
   const UserMapPage({super.key, required this.title});
@@ -181,7 +182,7 @@ class _UserMapPageState extends State<UserMapPage>
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
-                PubInfoPage(
+                UserEstablishmentViewPage(
                     pubId: establishmentId,
                     long: longitude,
                     latitude: latitude),
