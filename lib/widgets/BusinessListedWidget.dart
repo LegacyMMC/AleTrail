@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../pages/BusinessEstablishmentView.dart';
-import '../pages/PubPage.dart';
+import '../pages/PubPage[LEGACY].dart';
 
 class BusinessCard extends StatelessWidget {
   final String pubId;

@@ -9,8 +9,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../classes/SearchedItem.dart';
 import '../constants/ThemeConstants.dart';
 import '../firebase_api_controller.dart';
-import 'PubPage.dart';
-import 'PubPageV2.dart';
+import 'PubPage[LEGACY].dart';
+import 'UserEstablishmentViewPage.dart';
 
 class UserMapPage extends StatefulWidget {
   const UserMapPage({super.key, required this.title});
