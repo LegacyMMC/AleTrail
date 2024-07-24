@@ -11,6 +11,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import 'classes/BusinessProduct.dart';
+import 'classes/MenuProduct.dart';
+
 /// FIRE BASE AUTHENTICATION FUNCTIONS
 
 // SignIn New User With Email and Password To Firebase Authentication
@@ -475,11 +478,20 @@ Future<Map<String, dynamic>> fetchAddressSuggestions(String input) async {
       final formattedAddress = results[0]['formatted_address'];
       final lat = location['lat'];
       final lng = location['lng'];
-      print("TEST LOCATION: lat: $lat, lng: $lng");
+
+      String? city;
+      for (var component in results[0]['address_components']) {
+        if (component['types'].contains('locality')) {
+          city = component['long_name'];
+          break;
+        }
+      }
+
       return {
         'address': formattedAddress,
         'lat': lat,
         'lng': lng,
+        'city': city,
       };
     } else {
       throw Exception('No results found');
@@ -488,7 +500,6 @@ Future<Map<String, dynamic>> fetchAddressSuggestions(String input) async {
     throw Exception('Failed to load suggestions');
   }
 }
-
 /// REGISTER NEW VENUE TO FIREBASE
 Future<String> addNewVenueToFirebase(
     String establishmentName, String establishmentAddress,
@@ -504,6 +515,7 @@ Future<String> addNewVenueToFirebase(
     Map<String, Object> data = {
       'EstablishmentName': establishmentName,
       'EstablishmentAddress': coords['address'] ?? '',
+      'EstablishmentCity': coords['city'] ?? '',
       'Image': '',
       'Popularity': '',
       'Latitude': coords['lat'],
@@ -858,6 +870,47 @@ Future<void> deleteMenuFromEstablishment(
     }
   }
 }
+
+// Grab products based on id list
+Future<List<Menuproduct>> getProductsBasedOnId(List<String> ids) async {
+  if (ids.isEmpty) {
+    return []; // No IDs to fetch
+  }
+
+  // Split the IDs into smaller batches if necessary, Firestore has a limit of 10 IDs per 'in' query.
+  const int batchSize = 10;
+  List<List<String>> batches = [];
+  for (int i = 0; i < ids.length; i += batchSize) {
+    batches.add(ids.sublist(i, i + batchSize > ids.length ? ids.length : i + batchSize));
+  }
+
+  List<Menuproduct> products = [];
+  for (List<String> batch in batches) {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('EstablishmentProducts')
+          .where(FieldPath.documentId, whereIn: batch)
+          .get();
+
+      for (DocumentSnapshot doc in querySnapshot.docs) {
+        // Extract data from each document
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+        // gather list of products
+        Menuproduct newProduct = Menuproduct(productName: data['ProductName'], productDescription: data['ProductDescription'], productPrice: data['ProductPrice']);
+        products.add(newProduct); // or add productData if you extract specific fields
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error fetching documents: $e');
+      }
+      // Optionally: handle the error or retry
+    }
+  }
+
+  return products;
+}
+
 
 /// DELETE MENU FROM FIRESTORE
 Future<void> deleteProductFromMenu(String menuId, String productId) async {
