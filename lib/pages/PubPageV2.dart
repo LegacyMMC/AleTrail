@@ -43,15 +43,19 @@ class _UserEstablishmentViewPageState extends State<UserEstablishmentViewPage> {
 
   Future<void> _fetchMenuItems() async {
     try {
-      List<Map<String, dynamic>>? data = await getEstablishmentMenus(widget.pubId);
+      List<Map<String, dynamic>>? data =
+          await getEstablishmentMenus(widget.pubId);
       if (data != null && data.isNotEmpty) {
-        menuItems = data.map((data) => MenuItem(
-          menuProducts: [],
-          name: data['MenuName'] ?? '',
-          productIds: data['Products'],
-          description: data['MenuDescription'] ?? '',
-          menuId: data['MenuId'] ?? '', // Ensure MenuId is correctly assigned
-        )).toList();
+        menuItems = data
+            .map((data) => MenuItem(
+                  menuProducts: [],
+                  name: data['MenuName'] ?? '',
+                  productIds: data['Products'],
+                  description: data['MenuDescription'] ?? '',
+                  menuId: data['MenuId'] ??
+                      '', // Ensure MenuId is correctly assigned
+                ))
+            .toList();
 
         // Extract Products From That Menu
         await _extractProductsFromMenu(menuItems);
@@ -97,7 +101,7 @@ class _UserEstablishmentViewPageState extends State<UserEstablishmentViewPage> {
     } else {
       // Find the first matching menu item
       MenuItem? matchingItem =
-      menuItems.firstWhere((item) => item.name == selectedCategory);
+          menuItems.firstWhere((item) => item.name == selectedCategory);
       return matchingItem?.menuProducts?.length ?? 0;
     }
   }
@@ -126,29 +130,34 @@ class _UserEstablishmentViewPageState extends State<UserEstablishmentViewPage> {
                     child: _isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 2.0,
-                        mainAxisSpacing: 0.0,
-                      ),
-                      itemCount: getMenuItemCount(menuItems, selectedCategory),
-                      itemBuilder: (context, index) {
-                        MenuItem? matchingItem = menuItems
-                            .firstWhere((item) => item.name == selectedCategory);
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              crossAxisSpacing: 2.0,
+                              mainAxisSpacing: 0.0,
+                            ),
+                            itemCount:
+                                getMenuItemCount(menuItems, selectedCategory),
+                            itemBuilder: (context, index) {
+                              MenuItem? matchingItem = menuItems.firstWhere(
+                                  (item) => item.name == selectedCategory);
 
-                        if (matchingItem?.menuProducts != null) {
-                          Menuproduct product = matchingItem!.menuProducts![index];
-                          return MenuProductWidget(
-                            productName: product.productName,
-                            productPrice: '£${product.productPrice}',
-                            productDesc: product.productDescription,
-                            productImage: 'Item $index', // Use actual image URL or placeholder
-                          );
-                        } else {
-                          return const Center(child: Text('No products available.'));
-                        }
-                      },
-                    ),
+                              if (matchingItem?.menuProducts != null) {
+                                Menuproduct product =
+                                    matchingItem!.menuProducts![index];
+                                return MenuProductWidget(
+                                  productName: product.productName,
+                                  productPrice: '£${product.productPrice}',
+                                  productDesc: product.productDescription,
+                                  productImage:
+                                      'Item $index', // Use actual image URL or placeholder
+                                );
+                              } else {
+                                return const Center(
+                                    child: Text('No products available.'));
+                              }
+                            },
+                          ),
                   ),
                 ),
               ],
@@ -182,7 +191,8 @@ class _UserEstablishmentViewPageState extends State<UserEstablishmentViewPage> {
                 child: MenuButtonWidget(
                   edit: false,
                   category: category,
-                  items: menuItems.where((item) => item.name == category).toList(),
+                  items:
+                      menuItems.where((item) => item.name == category).toList(),
                   isSelected: selectedCategory == category,
                 ),
               ),
@@ -251,7 +261,8 @@ class PubInfoWidget extends StatelessWidget {
                       style: const TextStyle(
                           fontSize: 20,
                           color: Colors.white,
-                          fontWeight: FontWeight.w400, letterSpacing: 5),
+                          fontWeight: FontWeight.w400,
+                          letterSpacing: 5),
                     ),
                   ],
                 ),
@@ -259,7 +270,8 @@ class PubInfoWidget extends StatelessWidget {
             ),
             Positioned(
               top: 150,
-              height: 150, // screenHeight - screenHeight + 130 simplifies to 130
+              height:
+                  150, // screenHeight - screenHeight + 130 simplifies to 130
               width: 400, // screenWidth - screenWidth + 400 simplifies to 400
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 30, 0),
@@ -274,88 +286,92 @@ class PubInfoWidget extends StatelessWidget {
                         children: [
                           promotion
                               ? Padding(
-                            padding: const EdgeInsets.fromLTRB(10, 10, 0, 0),
-                            child: Container(
-                              width: screenWidth * 0.2,
-                              decoration: BoxDecoration(
-                                color: redAccentButton,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: const Center(
-                                // Center widget to center the child
-                                child: Padding(
-                                  padding: EdgeInsets.all(5),
-                                  child: Text(
-                                    "Promo",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 10, 0, 0),
+                                  child: Container(
+                                    width: screenWidth * 0.2,
+                                    decoration: BoxDecoration(
+                                      color: redAccentButton,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: const Center(
+                                      // Center widget to center the child
+                                      child: Padding(
+                                        padding: EdgeInsets.all(5),
+                                        child: Text(
+                                          "Promo",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          )
+                                )
                               : const SizedBox(
-                            height: 0,
-                          ), // Needed something here or else error
+                                  height: 0,
+                                ), // Needed something here or else error
                         ],
                       ),
                       promotion
                           ? Row(
-                        children: [
-                          Stack(
-                            children: [
-                              Positioned(
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(15, 20, 0, 0),
-                                  child: Container(
-                                    width: screenWidth * 0.6,
-                                    height: 25,
-                                    color: Colors.black,
-                                  ),
+                              children: [
+                                Stack(
+                                  children: [
+                                    Positioned(
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(15, 20, 0, 0),
+                                        child: Container(
+                                          width: screenWidth * 0.6,
+                                          height: 25,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(15, 62, 0, 0),
+                                        child: Container(
+                                          width: screenWidth * 0.4,
+                                          height: 25,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
+                                    const Positioned(
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.fromLTRB(15, 0, 0, 0),
+                                        child: Text(
+                                          "Buy One Get \nOne Free",
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 30,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 2),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Positioned(
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(15, 62, 0, 0),
-                                  child: Container(
-                                    width: screenWidth * 0.4,
-                                    height: 25,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ),
-                              const Positioned(
-                                child: Padding(
-                                  padding: EdgeInsets.fromLTRB(15, 0, 0, 0),
-                                  child: Text(
-                                    "Buy One Get \nOne Free",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 30,
-                                        fontWeight: FontWeight.bold,
-                                        letterSpacing: 2),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
+                              ],
+                            )
                           : Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.network(
-                              pubImage ?? '',
-                              height: screenHeight * 0.191,
-                              width: screenWidth *
-                                  0.89, // Match the height of the container
-                              fit: BoxFit.cover,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Image.network(
+                                    pubImage ?? '',
+                                    height: screenHeight * 0.191,
+                                    width: screenWidth *
+                                        0.89, // Match the height of the container
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
