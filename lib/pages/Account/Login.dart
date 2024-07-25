@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../classes/UserData.dart';
 import '../../firebase_api_controller.dart';
 import 'package:AleTrail/constants/ThemeConstants.dart';
-import 'package:AleTrail/pages/BusinessHome.dart';
+import 'package:AleTrail/pages/BusinessHome[LEGACY].dart';
 import 'package:AleTrail/pages/UserMap.dart';
+
+import '../BusinessHome.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -141,7 +143,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.of(context).pushReplacement(
                           PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                            const BusinessHomePage(title: ""),
+                            const BusinessHomePage(),
                             transitionsBuilder: (context, animation, secondaryAnimation, child) {
                               var begin = const Offset(10.0, 0.0);
                               var end = Offset.zero;

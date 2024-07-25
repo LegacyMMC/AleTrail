@@ -1,11 +1,11 @@
 import 'dart:developer';
+import 'package:AleTrail/pages/BusinessHome.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:AleTrail/pages/Account/Home.dart';
-import 'package:AleTrail/pages/BusinessHome.dart';
 import 'package:AleTrail/pages/UserMap.dart';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import '../classes/UserData.dart';
@@ -42,7 +42,7 @@ class MainApp extends StatelessWidget {
     if (cachedUser != null) {
       switch (cachedUser.accountType) {
         case "Business":
-          return const BusinessHomePage(title: 'AleTrail Business');
+          return const BusinessHomePage();
         case "General":
           return const UserMapPage(title: 'AleTrail General');
         default:

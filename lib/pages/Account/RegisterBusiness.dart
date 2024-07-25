@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../constants/AccountType.dart';
 import '../../firebase_api_controller.dart';
+import '../BusinessHome[LEGACY].dart';
 import '../BusinessHome.dart';
 
 class RegisterBusinessPage extends StatefulWidget {
@@ -218,7 +219,7 @@ class _RegisterBusinessPageState extends State<RegisterBusinessPage> {
                         Navigator.of(context).pushReplacement(
                           PageRouteBuilder(
                             pageBuilder: (context, animation, secondaryAnimation) =>
-                            const BusinessHomePage(title: ""),
+                            const BusinessHomePage(),
                             transitionsBuilder: (context, animation, secondaryAnimation, child) {
                               final begin = const Offset(10.0, 0.0);
                               final end = Offset.zero;

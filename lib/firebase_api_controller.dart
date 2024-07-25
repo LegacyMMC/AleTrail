@@ -14,7 +14,16 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'classes/BusinessProduct.dart';
 import 'classes/MenuProduct.dart';
 
+/// GETTER FUNCTIONS FOR GLOBAL VARS
+
 /// FIRE BASE AUTHENTICATION FUNCTIONS
+String? getterCompId()
+{
+  if (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser?.uid != null)
+    {
+      return FirebaseAuth.instance.currentUser?.uid;
+    }
+}
 
 // SignIn New User With Email and Password To Firebase Authentication
 Future<UserData?> signInWithEmailAndPassword(

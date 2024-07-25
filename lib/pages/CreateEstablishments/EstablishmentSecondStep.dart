@@ -1,12 +1,13 @@
 import 'dart:io';
 
-import 'package:AleTrail/pages/BusinessHome.dart';
+import 'package:AleTrail/pages/BusinessHome[LEGACY].dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../constants/ThemeConstants.dart';
 import '../../firebase_api_controller.dart';
+import '../BusinessHome.dart';
 
 class EstablishmentTwoPage extends StatefulWidget {
   final String docId;
@@ -156,7 +157,7 @@ class _EstablishmentTwoPageState extends State<EstablishmentTwoPage> {
                   Navigator.of(context).pushReplacement(
                     PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
-                            const BusinessHomePage(title: ""),
+                            const BusinessHomePage(),
                         transitionsBuilder:
                             (context, animation, secondaryAnimation, child) {
                           var begin = const Offset(10.0, 0.0);
