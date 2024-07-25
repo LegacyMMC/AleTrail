@@ -1,16 +1,19 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
+import 'package:http/http.dart' as http;
 import '../classes/SearchedItem.dart';
 import '../constants/ThemeConstants.dart';
 import '../firebase_api_controller.dart';
-import 'PubPage[LEGACY].dart';
+import '../widgets/PriceMarketWidget.dart';
 import 'UserEstablishmentViewPage.dart';
+import 'package:image/image.dart' as img;
 
 class UserMapPage extends StatefulWidget {
   const UserMapPage({super.key, required this.title});
@@ -41,6 +44,7 @@ class _UserMapPageState extends State<UserMapPage>
   List<SearchedItem> _searchResults = [];
   Timer? _debounce; // Debounce timer
 
+  bool _setSearchText = false;
   bool _showSearchResults =
       false; // Boolean to track the visibility of the search results
 
@@ -62,6 +66,7 @@ class _UserMapPageState extends State<UserMapPage>
           setState(() {
             _searchResults = [];
             _showSearchResults = false; // Hide the search results list
+            _setSearchText = false; // Hide the search results list
           });
         }
       });
@@ -110,6 +115,37 @@ class _UserMapPageState extends State<UserMapPage>
     return degrees * pi / 180;
   }
 
+  Future<Uint8List> _resizeImage(Uint8List data, int width, int height) async {
+    // Decode the image to a format suitable for manipulation
+    img.Image? image = img.decodeImage(data);
+    if (image == null) {
+      throw Exception('Unable to decode image');
+    }
+
+    // Resize the image
+    img.Image resizedImage =
+        img.copyResize(image, width: width, height: height);
+
+    // Encode the resized image back to Uint8List
+    return Uint8List.fromList(img.encodePng(resizedImage));
+  }
+
+  Future<BitmapDescriptor> _createMarkerImageFromUrl(String imageUrl) async {
+    final Uint8List bytes = await _getBytesFromUrl(imageUrl);
+    final Uint8List resizedBytes =
+        await _resizeImage(bytes, 200, 200); // Resize to desired size
+    return BitmapDescriptor.fromBytes(resizedBytes);
+  }
+
+  Future<Uint8List> _getBytesFromUrl(String url) async {
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      return response.bodyBytes;
+    } else {
+      throw Exception('Failed to load image from $url');
+    }
+  }
+
   Future<void> _initUserLocation() async {
     try {
       Position position = await _determinePosition();
@@ -126,6 +162,7 @@ class _UserMapPageState extends State<UserMapPage>
         double lon = data['Longitude'];
         String establishmentId = data['EstablishmentId'];
         String establishmentName = data['EstablishmentName'];
+        String establishmentImage = data['Image'];
 
         // Add distance from user to establishment
         String distance = await calculateDistance(
@@ -134,7 +171,8 @@ class _UserMapPageState extends State<UserMapPage>
         // Collection is used in the list builder for top 5 location menus
         establishentDistances.add(distance);
 
-        _addMarker(establishmentId, establishmentName, lat, lon);
+        _addMarker(
+            establishmentId, establishmentName, lat, lon, establishmentImage);
       }
 
       _positionStreamSubscription =
@@ -175,17 +213,62 @@ class _UserMapPageState extends State<UserMapPage>
     }
   }
 
-  void _addMarker(String establishmentId, String establishmentName,
-      double latitude, double longitude) {
+  Future<void> _addMarker(String establishmentId, String establishmentName,
+      double latitude, double longitude, String establishmentImage) async {
+    // Generate Marker From Image
+    final BitmapDescriptor customIcon =
+        await _createMarkerImageFromUrl(establishmentImage);
+    final marker = Marker(
+        onTap: () => {
+              Navigator.of(context).push(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      UserEstablishmentViewPage(
+                          pubId: establishmentId,
+                          long: longitude,
+                          latitude: latitude),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                    var begin = const Offset(10.0, 0.0);
+                    var end = Offset.zero;
+                    var curve = Curves.ease;
+
+                    var tween = Tween(begin: begin, end: end)
+                        .chain(CurveTween(curve: curve));
+
+                    return SlideTransition(
+                      position: animation.drive(tween),
+                      child: child,
+                    );
+                  },
+                  transitionDuration: const Duration(milliseconds: 800),
+                ),
+              )
+            },
+        markerId: MarkerId(establishmentId),
+        position: LatLng(latitude, longitude),
+        infoWindow: InfoWindow(
+          title: establishmentName,
+        ),
+        icon: customIcon);
+
+    setState(() {
+      _markers.add(marker);
+    });
+  }
+
+  Future<void> _addMarkerPrice(SearchedItem item) async {
+    // Generate Marker From Image
+    // final BitmapDescriptor customIcon =
     final marker = Marker(
       onTap: () => {
         Navigator.of(context).push(
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 UserEstablishmentViewPage(
-                    pubId: establishmentId,
-                    long: longitude,
-                    latitude: latitude),
+                    pubId: item.searchEstablishment ?? "",
+                    long: item.searchLon ?? 0.0,
+                    latitude: item.searchLat ?? 0.0),
             transitionsBuilder:
                 (context, animation, secondaryAnimation, child) {
               var begin = const Offset(10.0, 0.0);
@@ -204,11 +287,8 @@ class _UserMapPageState extends State<UserMapPage>
           ),
         )
       },
-      markerId: MarkerId(establishmentId),
-      position: LatLng(latitude, longitude),
-      infoWindow: InfoWindow(
-        title: establishmentName,
-      ),
+      markerId: MarkerId(item.searchEstablishment ?? ""),
+      position: LatLng(item.searchLat ?? 0.0, item.searchLon ?? 0.0),
     );
 
     setState(() {
@@ -217,32 +297,40 @@ class _UserMapPageState extends State<UserMapPage>
   }
 
   Future<void> _performSearch(String searchTerm) async {
-    final searchTermLower = searchTerm.toLowerCase();
+    if (_setSearchText == false) {
+      final searchTermLower = searchTerm.toLowerCase();
 
-    // Query the search_indexes collection
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('SearchIndex')
-        .where('Terms', arrayContains: searchTermLower)
-        .get();
+      // Query the search_indexes collection
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('SearchIndex')
+          .where('Terms', arrayContains: searchTermLower)
+          .get();
 
-    // Fetch the document references and get the full documents
-    List<SearchedItem> results = [];
-    for (var doc in querySnapshot.docs) {
-      // Form new searched item
-      SearchedItem gatheredItem = SearchedItem(
-          searchName: doc['ActualName'],
-          searchType: doc['Type'],
-          searchRef: doc['Ref']);
+      // Fetch the document references and get the full documents
+      List<SearchedItem> results = [];
+      for (var doc in querySnapshot.docs) {
+        // Form new searched item
+        SearchedItem gatheredItem = SearchedItem(
+            searchName: doc['ActualName'],
+            searchType: doc['Type'],
+            searchRef: doc['Ref']);
+        if (gatheredItem.searchType == "Product") {
+          gatheredItem.searchPrice = doc['Price'];
+          gatheredItem.searchLat = doc['Latitude'];
+          gatheredItem.searchLon = doc['Longitude'];
+          gatheredItem.searchEstablishment = doc['EstablishmentRef'];
+        }
 
-      // Add to results
-      results.add(gatheredItem);
+        // Add to results
+        results.add(gatheredItem);
+      }
+
+      setState(() {
+        _searchResults = results;
+        _showSearchResults = results
+            .isNotEmpty; // Show the search results list if there are results
+      });
     }
-
-    setState(() {
-      _searchResults = results;
-      _showSearchResults = results
-          .isNotEmpty; // Show the search results list if there are results
-    });
   }
 
   void startTimer() {
@@ -277,6 +365,7 @@ class _UserMapPageState extends State<UserMapPage>
                 setState(() {
                   _isAtMinExtent = true;
                   _showSearchResults = false; // Hide the search results list
+                  _setSearchText = false; // Hide the search results list
                 });
               });
             },
@@ -325,6 +414,11 @@ class _UserMapPageState extends State<UserMapPage>
                             ],
                           ),
                           child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                _setSearchText = false;
+                              });
+                            },
                             controller: _searchController,
                             decoration: const InputDecoration(
                               hintText: 'Search bars, beers & businesses...',
@@ -366,8 +460,21 @@ class _UserMapPageState extends State<UserMapPage>
                                 subtitle: Text(result.searchType ??
                                     'No details available'),
                                 onTap: () {
-                                  // Handle search result tap, e.g., navigate to details
-                                  // Note: Add your logic for search result tap here.
+                                  setState(() {
+                                    // Hide search drop down
+                                    _showSearchResults = false;
+                                    _setSearchText = true;
+
+                                    // Set Search bar text to found item name
+                                    _searchController.text = result.searchName;
+
+                                    // Update map icons to price icons
+                                    _markers.clear();
+                                    for (SearchedItem searchedItem
+                                        in _searchResults) {
+                                      _addMarkerPrice(searchedItem);
+                                    }
+                                  });
                                 },
                               );
                             },
