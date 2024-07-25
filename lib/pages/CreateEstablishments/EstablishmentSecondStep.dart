@@ -51,8 +51,7 @@ class _EstablishmentTwoPageState extends State<EstablishmentTwoPage> {
               left: 0,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
-                colorFilter:
-                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                colorFilter: const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
               ),
             ),
@@ -69,8 +68,7 @@ class _EstablishmentTwoPageState extends State<EstablishmentTwoPage> {
               right: screenWidth * 0.085,
               child: GestureDetector(
                 onTap: () async {
-                  final pickedImage = await ImagePicker()
-                      .pickImage(source: ImageSource.gallery);
+                  final pickedImage = await ImagePicker().pickImage(source: ImageSource.gallery);
                   if (pickedImage != null) {
                     setState(() {
                       _imageFile = File(pickedImage.path);
@@ -86,28 +84,34 @@ class _EstablishmentTwoPageState extends State<EstablishmentTwoPage> {
                   ),
                   child: _imageFile != null
                       ? Image.file(
-                          _imageFile!,
-                          fit: BoxFit.cover,
-                        )
+                    _imageFile!,
+                    fit: BoxFit.cover,
+                  )
                       : const Center(
-                          child: Icon(
-                            Icons.camera_alt,
-                            size: 50,
-                            color: Colors.grey,
-                          ),
-                        ),
+                    child: Icon(
+                      Icons.camera_alt,
+                      size: 50,
+                      color: Colors.grey,
+                    ),
+                  ),
                 ),
               ),
             ),
             Positioned(
-              top: registerButtonTop *
-                  1, // Adjust this value according to your layout
+              top: registerButtonTop * 0.94, // Adjust this value according to your layout
+              right: screenWidth * 0.115,
+              child: const Text(
+                'This will be shown to users on the map interface',
+                style: TextStyle(fontSize: 14),
+              ),
+            ),
+            Positioned(
+              top: registerButtonTop * 1, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: Container(
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                      color: secondaryButton, width: 2), // Outer border
+                  border: Border.all(color: Colors.grey, width: 1), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -120,17 +124,16 @@ class _EstablishmentTwoPageState extends State<EstablishmentTwoPage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: TextField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines:
-                          null, // Allows the TextField to support multiple lines
+                      keyboardType: TextInputType.text,
+                      maxLines: 1, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         EstablishmentTagline = value;
                       },
                       decoration: const InputDecoration(
-                        hintText: 'Establishment Tagline',
+                        hintText: 'Tagline',
+                        hintStyle: TextStyle(fontSize: 14),
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
-                            15), // Adjust padding for multi-line support
+                        contentPadding: EdgeInsets.fromLTRB(15, 13, 20, 15), // Adjust padding for multi-line support
                       ),
                     ),
                   ),
@@ -146,33 +149,36 @@ class _EstablishmentTwoPageState extends State<EstablishmentTwoPage> {
                   backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () async {
+                  if (_imageFile == null && EstablishmentTagline.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please upload an image and enter a tagline.')),
+                    );
+                    return;
+                  }
+
                   if (_imageFile != null) {
-                    await updateNewVenueImage(
-                        widget.docId, EstablishmentTagline, _imageFile);
+                    await updateNewVenueImage(widget.docId, EstablishmentTagline, _imageFile);
                   } else if (EstablishmentTagline.isNotEmpty) {
-                    await updateNewVenueImage(
-                        widget.docId, EstablishmentTagline, null);
+                    await updateNewVenueImage(widget.docId, EstablishmentTagline, null);
                   }
 
                   Navigator.of(context).pushReplacement(
                     PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) =>
-                            const BusinessHomePage(),
-                        transitionsBuilder:
-                            (context, animation, secondaryAnimation, child) {
-                          var begin = const Offset(10.0, 0.0);
-                          var end = Offset.zero;
-                          var curve = Curves.ease;
+                      pageBuilder: (context, animation, secondaryAnimation) => const BusinessHomePage(),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                        var begin = const Offset(10.0, 0.0);
+                        var end = Offset.zero;
+                        var curve = Curves.ease;
 
-                          var tween = Tween(begin: begin, end: end)
-                              .chain(CurveTween(curve: curve));
+                        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
-                          return SlideTransition(
-                            position: animation.drive(tween),
-                            child: child,
-                          );
-                        },
-                        transitionDuration: const Duration(milliseconds: 800)),
+                        return SlideTransition(
+                          position: animation.drive(tween),
+                          child: child,
+                        );
+                      },
+                      transitionDuration: const Duration(milliseconds: 800),
+                    ),
                   );
                 },
                 child: Padding(

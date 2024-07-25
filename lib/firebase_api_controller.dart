@@ -10,19 +10,16 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-import 'classes/BusinessProduct.dart';
 import 'classes/MenuProduct.dart';
 
 /// GETTER FUNCTIONS FOR GLOBAL VARS
 
 /// FIRE BASE AUTHENTICATION FUNCTIONS
-String? getterCompId()
-{
-  if (FirebaseAuth.instance.currentUser != null && FirebaseAuth.instance.currentUser?.uid != null)
-    {
-      return FirebaseAuth.instance.currentUser?.uid;
-    }
+String? getterCompId() {
+  if (FirebaseAuth.instance.currentUser != null &&
+      FirebaseAuth.instance.currentUser?.uid != null) {
+    return FirebaseAuth.instance.currentUser?.uid;
+  }
 }
 
 // SignIn New User With Email and Password To Firebase Authentication
@@ -509,6 +506,7 @@ Future<Map<String, dynamic>> fetchAddressSuggestions(String input) async {
     throw Exception('Failed to load suggestions');
   }
 }
+
 /// REGISTER NEW VENUE TO FIREBASE
 Future<String> addNewVenueToFirebase(
     String establishmentName, String establishmentAddress,
@@ -643,6 +641,30 @@ Future<String> uploadImageToStorage(io.File imageFile) async {
   }
 }
 
+Future<String> uploadImageToStorageProduct(
+    io.File imageFile, String productId) async {
+  try {
+    // Get a reference to the Firebase Storage instance
+    FirebaseStorage storage = FirebaseStorage.instance;
+
+    Reference ref = storage
+        .ref("Users/${FirebaseAuth.instance.currentUser!.uid}")
+        .child('Products/$productId.jpg');
+
+    // Upload the image to Firebase Storage
+    UploadTask uploadTask = ref.putFile(imageFile);
+
+    // Wait for the upload to complete and get the download URL
+    TaskSnapshot snapshot = await uploadTask.whenComplete(() {});
+    String imageUrl = await snapshot.ref.getDownloadURL();
+
+    return imageUrl;
+  } catch (e) {
+    // Handle error
+    throw Exception('Failed to upload image: $e');
+  }
+}
+
 // Upload image to storage for users profile photo
 Future<String> uploadProfileImageToStorage(io.File imageFile) async {
   try {
@@ -669,6 +691,37 @@ Future<String> uploadProfileImageToStorage(io.File imageFile) async {
 
 // Update Firebase database with user profile photo
 Future<bool?> updateProfileImage(io.File? imageFile) async {
+  try {
+    // Get a reference to the Firestore instance
+    FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
+
+    String imageUrl = "";
+    // Upload image to Firebase Storage
+    if (imageFile != null) {
+      imageUrl = await uploadImageToStorage(imageFile);
+    }
+
+    // Add the data to the specified collection and get the document reference
+    DocumentReference docRef = firestoreInst
+        .collection('AleTrailUsers')
+        .doc(FirebaseAuth.instance.currentUser?.uid);
+
+    // Update the document with its own ID
+    await docRef.update({
+      'ProfileImage': imageUrl, // Add the image URL
+    });
+
+    return true; // Operation successful
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error adding image to Firestore: $e');
+    }
+    return false; // Operation failed
+  }
+}
+
+// Update Firebase database with user profile photo
+Future<bool?> uploadNewProductImage(io.File? imageFile) async {
   try {
     // Get a reference to the Firestore instance
     FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
@@ -807,7 +860,8 @@ Future<String> addNewProductToFirebase(
     String productName,
     String productPrice,
     String? productDescription,
-    String selectedProductType) async {
+    String selectedProductType,
+    io.File? imageFile) async {
   try {
     // Get a reference to the Firestore instance
     FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
@@ -839,6 +893,15 @@ Future<String> addNewProductToFirebase(
     await documentReference.set({
       'Products': FieldValue.arrayUnion([docRef.id]),
     }, SetOptions(merge: true));
+
+    // Upload Product Image To Database
+    await uploadImageToStorageProduct(imageFile!, docRef.id);
+
+
+    // Add to search index
+    // This will work when we pass through the establishment ID to get the coords and everything
+    // await addNewProductToSearchIndex(productName, productDescription!, selectedProductType, docRef.id,
+    //     establishmentRef, productPrice, longitude, latitude)
 
     if (kDebugMode) {
       print('New product added to Firestore with ID: ${documentReference.id}');
@@ -890,7 +953,8 @@ Future<List<Menuproduct>> getProductsBasedOnId(List<String> ids) async {
   const int batchSize = 10;
   List<List<String>> batches = [];
   for (int i = 0; i < ids.length; i += batchSize) {
-    batches.add(ids.sublist(i, i + batchSize > ids.length ? ids.length : i + batchSize));
+    batches.add(ids.sublist(
+        i, i + batchSize > ids.length ? ids.length : i + batchSize));
   }
 
   List<Menuproduct> products = [];
@@ -906,8 +970,12 @@ Future<List<Menuproduct>> getProductsBasedOnId(List<String> ids) async {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
         // gather list of products
-        Menuproduct newProduct = Menuproduct(productName: data['ProductName'], productDescription: data['ProductDescription'], productPrice: data['ProductPrice']);
-        products.add(newProduct); // or add productData if you extract specific fields
+        Menuproduct newProduct = Menuproduct(
+            productName: data['ProductName'],
+            productDescription: data['ProductDescription'],
+            productPrice: data['ProductPrice']);
+        products.add(
+            newProduct); // or add productData if you extract specific fields
       }
     } catch (e) {
       if (kDebugMode) {
@@ -919,7 +987,6 @@ Future<List<Menuproduct>> getProductsBasedOnId(List<String> ids) async {
 
   return products;
 }
-
 
 /// DELETE MENU FROM FIRESTORE
 Future<void> deleteProductFromMenu(String menuId, String productId) async {
@@ -940,6 +1007,55 @@ Future<void> deleteProductFromMenu(String menuId, String productId) async {
     if (kDebugMode) {
       print("Error deleting document: $e");
     }
+  }
+}
+
+/// Push To SearchIndex
+Future<String> addNewProductToSearchIndex(
+    String productName,
+    String productDescription,
+    String productType,
+    String productRef,
+    String establishmentRef,
+    String productPrice,
+    double longitude,
+    double latitude) async {
+  try {
+    // Get a reference to the Firestore instance
+    FirebaseFirestore firestoreInst = FirebaseFirestore.instance;
+
+    double? setPrice = double.tryParse(productPrice);
+
+    // Define the data you want to add
+    Map<String, Object> data = {
+      'ActualName': productName,
+      'Latitude': latitude,
+      'Longitude': longitude,
+      'ProductType': productType,
+      'EstablishmentRef': establishmentRef,
+      'Ref': productRef,
+      'ProductPrice': setPrice ?? 0.0
+    };
+
+    // Add the data to the specified collection and get the document reference
+    DocumentReference docRef =
+        await firestoreInst.collection('SearchIndex').add(data);
+
+    // Update the document with its own ID
+    await docRef.update({
+      'searchRef': docRef.id,
+    });
+
+    if (kDebugMode) {
+      print('New product added to Firestore with ID: ${docRef.id}');
+    }
+
+    return docRef.id; // Operation successful
+  } catch (e) {
+    if (kDebugMode) {
+      print('Error adding product to search index: $e');
+    }
+    return ""; // Operation failed
   }
 }
 

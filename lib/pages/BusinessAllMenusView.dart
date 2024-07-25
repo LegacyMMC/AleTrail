@@ -1,8 +1,6 @@
 import 'package:AleTrail/pages/BusinessMenuProductView.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../constants/ThemeConstants.dart';
 import '../classes/MenuItem.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/MenuCategories.dart';
@@ -29,142 +27,118 @@ class BusinessAllMenusView extends StatelessWidget {
           semanticsLabel: 'Orange Corner SVG',
         ),
       ),
-      Positioned(
+      const Positioned(
         top: 30,
         left: 0,
         right: 0,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(8.0),
           child: Row(
             // Wrap TextField and Icon in a Row
-            children: [
-              Expanded(
-                // Use Expanded to make TextField take remaining space
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(
-                        20), // Adjust the radius to your preference
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.5),
-                        spreadRadius: 7,
-                        blurRadius: 5,
-                        offset:
-                            const Offset(0, 3), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: const TextField(
-                    decoration: InputDecoration(
-                      focusColor: mainBackground,
-                      hintText: 'Menus & products...',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.all(10),
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            children: [],
           ),
         ),
       ),
-          Positioned(
-            top: 100,
-            right: screenWidth * 0.27,
-            child: SvgPicture.asset(
-              "lib/assets/images/svg/AletrailMenus.svg",
-              semanticsLabel: 'AleTrail Menus',
-            ),
-          ),
+      Positioned(
+        top: 100,
+        right: screenWidth * 0.27,
+        child: SvgPicture.asset(
+          "lib/assets/images/svg/AletrailMenus.svg",
+          semanticsLabel: 'AleTrail Menus',
+        ),
+      ),
       Positioned(
           top: screenHeight * 0.3,
           left: 0,
           right: 0,
           child: FutureBuilder<List<Map<String, dynamic>>?>(
-        future: getAllMenusForBusinessUser(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No menu items found'));
-          }
+            future: getAllMenusForBusinessUser(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(child: Text('No menu items found'));
+              }
 
-          List<MenuItem> menuItems = [];
-          for (var data in snapshot.data!) {
-            menuItems.add(MenuItem(
-              name: data['MenuName'] ?? '',
-              description: data['MenuDescription'] ?? '',
-              menuId:
-                  data['MenuId'] ?? '', // Ensure MenuId is correctly assigned
-            ));
-          }
+              List<MenuItem> menuItems = [];
+              for (var data in snapshot.data!) {
+                menuItems.add(MenuItem(
+                  name: data['MenuName'] ?? '',
+                  description: data['MenuDescription'] ?? '',
+                  menuId: data['MenuId'] ??
+                      '', // Ensure MenuId is correctly assigned
+                ));
+              }
 
-          // Extract distinct categories from menu items
-          Set<String> categories = menuItems.map((item) => item.name).toSet();
+              // Extract distinct categories from menu items
+              Set<String> categories =
+                  menuItems.map((item) => item.name).toSet();
 
-          return Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Build menu categories dynamically
-                for (var category in categories)
-                  GestureDetector(
-                    onTap: () {
-                      var menuId = menuItems
-                          .firstWhere((item) => item.name == category)
-                          .menuId;
-                      var menuDesc = menuItems
-                          .firstWhere((item) => item.name == category)
-                          .description;
+              return Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Build menu categories dynamically
+                    for (var category in categories)
+                      GestureDetector(
+                        onTap: () {
+                          var menuId = menuItems
+                              .firstWhere((item) => item.name == category)
+                              .menuId;
+                          var menuDesc = menuItems
+                              .firstWhere((item) => item.name == category)
+                              .description;
 
-                      var menuName = menuItems
-                          .firstWhere((item) => item.name == category)
-                          .name;
-                      // Ensure the correct MenuId is passed to MenuProductView
-                      if (kDebugMode) {
-                        print("Selected MenuId: $menuId");
-                      }
-                      Navigator.of(context).push(
-                        PageRouteBuilder(
-                          pageBuilder:
-                              (context, animation, secondaryAnimation) =>
-                                  BusinessMenuProductView(
-                                      menuId: menuId, menuDesc: menuDesc, menuName: menuName,),
-                          transitionsBuilder:
-                              (context, animation, secondaryAnimation, child) {
-                            var begin = const Offset(10.0, 0.0);
-                            var end = Offset.zero;
-                            var curve = Curves.ease;
+                          var menuName = menuItems
+                              .firstWhere((item) => item.name == category)
+                              .name;
+                          // Ensure the correct MenuId is passed to MenuProductView
+                          if (kDebugMode) {
+                            print("Selected MenuId: $menuId");
+                          }
+                          Navigator.of(context).push(
+                            PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      BusinessMenuProductView(
+                                menuId: menuId,
+                                menuDesc: menuDesc,
+                                menuName: menuName,
+                              ),
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
+                                var begin = const Offset(10.0, 0.0);
+                                var end = Offset.zero;
+                                var curve = Curves.ease;
 
-                            var tween = Tween(begin: begin, end: end)
-                                .chain(CurveTween(curve: curve));
+                                var tween = Tween(begin: begin, end: end)
+                                    .chain(CurveTween(curve: curve));
 
-                            return SlideTransition(
-                              position: animation.drive(tween),
-                              child: child,
-                            );
-                          },
-                          transitionDuration: const Duration(milliseconds: 800),
+                                return SlideTransition(
+                                  position: animation.drive(tween),
+                                  child: child,
+                                );
+                              },
+                              transitionDuration:
+                                  const Duration(milliseconds: 800),
+                            ),
+                          );
+                        },
+                        child: MenuCategoryWidget(
+                          edit: false,
+                          category: category,
+                          items: menuItems
+                              .where((item) => item.name == category)
+                              .toList(),
                         ),
-                      );
-                    },
-                    child: MenuCategoryWidget(
-                      edit: false,
-                      category: category,
-                      items: menuItems
-                          .where((item) => item.name == category)
-                          .toList(),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        },
-      ))
+                      ),
+                  ],
+                ),
+              );
+            },
+          ))
     ]));
   }
 

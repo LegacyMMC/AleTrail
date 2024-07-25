@@ -1,16 +1,19 @@
+import 'dart:io';
 import 'package:AleTrail/classes/BusinessProduct.dart';
 import 'package:AleTrail/constants/ThemeConstants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../constants/ProductTypes.dart';
 import '../../firebase_api_controller.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EstablishmentProductOnePage extends StatefulWidget {
   final String menuId;
   const EstablishmentProductOnePage({super.key, required this.menuId});
 
   @override
-  State<EstablishmentProductOnePage> createState() => _EstablishmentOnePageState();
+  State<EstablishmentProductOnePage> createState() =>
+      _EstablishmentOnePageState();
 }
 
 class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
@@ -19,6 +22,16 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
   String ProductPrice = "";
   String ProductDesc = "";
   String selectedProductType = ""; // New variable for selected product type
+  File? _imageFile;
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedFile = await ImagePicker().pickImage(source: source);
+    setState(() {
+      if (pickedFile != null) {
+        _imageFile = File(pickedFile.path);
+      }
+    });
+  }
 
   final TextEditingController _addressController = TextEditingController();
 
@@ -30,12 +43,12 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
 
     // Define relative positions and sizes based on screen dimensions
     final double orangeCornerBottom = screenHeight * 0.0000001 - 110;
-    final double aleTrailTitleTop = screenHeight * 0.15;
+    final double aleTrailTitleTop = screenHeight * 0.03;
     final double registerButtonTop = screenHeight * 0.65;
 
     return Scaffold(
       resizeToAvoidBottomInset:
-      false, // Prevents resizing when keyboard appears
+          false, // Prevents resizing when keyboard appears
       body: Container(
         color: Colors.white,
         child: Stack(
@@ -46,16 +59,8 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
               child: SvgPicture.asset(
                 "lib/assets/images/svg/orangeCorner.svg",
                 colorFilter:
-                const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
+                    const ColorFilter.mode(Colors.orange, BlendMode.srcIn),
                 semanticsLabel: 'Orange Corner SVG',
-              ),
-            ),
-            Positioned(
-              top: aleTrailTitleTop,
-              right: screenWidth * 0.07,
-              child: SvgPicture.asset(
-                "lib/assets/images/svg/AletrailNewProduct.svg",
-                semanticsLabel: 'AleTrail New Product',
               ),
             ),
             Positioned(
@@ -66,7 +71,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                  Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 1), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -79,16 +84,17 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: TextField(
-                      keyboardType: TextInputType.multiline,
+                      keyboardType: TextInputType.text,
                       maxLines:
-                      null, // Allows the TextField to support multiple lines
+                          1, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         ProductName = value;
                       },
                       decoration: const InputDecoration(
                         hintText: 'Product Name',
+                        hintStyle: TextStyle(fontSize: 14),
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
+                        contentPadding: EdgeInsets.fromLTRB(15, 15, 20,
                             15), // Adjust padding for multi-line support
                       ),
                     ),
@@ -104,7 +110,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                  Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 1), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -123,8 +129,9 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                       },
                       decoration: const InputDecoration(
                         hintText: 'Product Price',
+                        hintStyle: TextStyle(fontSize: 14),
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
+                        contentPadding: EdgeInsets.fromLTRB(15, 15, 20,
                             15), // Adjust padding for multi-line support
                       ),
                     ),
@@ -140,7 +147,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                  Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 1), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -153,6 +160,8 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: DropdownButtonFormField<String>(
+                      isDense: true,
+                      icon: const Icon(Icons.arrow_drop_down),
                       value: selectedProductType.isEmpty
                           ? null
                           : selectedProductType,
@@ -163,8 +172,9 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                       },
                       decoration: const InputDecoration(
                         hintText: 'Select Product Type',
+                        hintStyle: TextStyle(fontSize: 14),
                         border: InputBorder.none,
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+                        contentPadding: EdgeInsets.fromLTRB(15, 15, 20, 15),
                       ),
                       items: Products()
                           .productTypes
@@ -187,7 +197,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                  Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 1), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -195,7 +205,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                   borderRadius: BorderRadius.circular(20),
                   child: Container(
                     height:
-                    200, // Set the desired height for multi-line support
+                        200, // Set the desired height for multi-line support
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -203,14 +213,15 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                      null, // Allows the TextField to support multiple lines
+                          null, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         ProductDesc = value;
                       },
                       decoration: const InputDecoration(
                         hintText: 'Product Description',
+                        hintStyle: TextStyle(fontSize: 14),
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
+                        contentPadding: EdgeInsets.fromLTRB(15, 15, 20,
                             15), // Adjust padding for multi-line support
                       ),
                     ),
@@ -228,9 +239,27 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 ),
                 onPressed: () async {
                   // Check if name, price, and product type are not empty
-                  if (ProductName != "" &&
-                      ProductPrice != "" &&
-                      selectedProductType != "") {
+                  if (ProductName.isNotEmpty &&
+                      ProductPrice.isNotEmpty &&
+                      selectedProductType.isNotEmpty) {
+                    // Validate product name length
+                    if (ProductName.length > 15) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Product name cannot exceed 15 characters'),
+                        ),
+                      );
+                      return;
+                    }
+                    if (_imageFile == null) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please upload a product image'),
+                        ),
+                      );
+                      return;
+                    }
                     // Validate ProductPrice to be a number
                     if (double.tryParse(ProductPrice) != null) {
                       // Register to backend
@@ -239,10 +268,15 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                           ProductName,
                           ProductPrice,
                           ProductDesc,
-                          selectedProductType); // Include product type
-                      if (stepCompleted != "") {
+                          selectedProductType,
+                          _imageFile); // Include product type
+                      if (stepCompleted.isNotEmpty) {
                         // Build Business Product To Return
-                        Navigator.of(context).pop(BusinessProduct(productName: ProductName, productDescription: ProductDesc, productPrice: double.tryParse(ProductPrice) ?? 0.00));
+                        Navigator.of(context).pop(BusinessProduct(
+                            productName: ProductName,
+                            productDescription: ProductDesc,
+                            productPrice:
+                                double.tryParse(ProductPrice) ?? 0.00));
                       }
                     } else {
                       // Show error message if ProductPrice is not a valid number
@@ -252,6 +286,13 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                         ),
                       );
                     }
+                  } else {
+                    // Show error message if any required field is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('All fields must be populated'),
+                      ),
+                    );
                   }
                 },
                 child: Padding(
@@ -271,6 +312,39 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                 semanticsLabel: 'Yellow Corner SVG',
               ),
             ),
+            Positioned(
+              top: aleTrailTitleTop,
+              right: screenWidth * 0.07,
+              child: SvgPicture.asset(
+                "lib/assets/images/svg/AletrailNewProduct.svg",
+                semanticsLabel: 'AleTrail New Product',
+              ),
+            ),
+            Positioned(
+                top: screenHeight * 0.12,
+                left: screenWidth * 0.345,
+                child: GestureDetector(
+                  onTap: () async {
+                    final pickedImage = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (pickedImage != null) {
+                      setState(() {
+                        _imageFile = File(pickedImage.path);
+                      });
+                      // Upload
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Image succesfully uploaded...')),
+                      );
+                    }
+                  },
+                  child: CircleAvatar(
+                      radius: 60,
+                      backgroundColor: primaryButton,
+                      backgroundImage: _imageFile != null
+                          ? FileImage(_imageFile!) as ImageProvider<Object>
+                          : null),
+                )),
           ],
         ),
       ),

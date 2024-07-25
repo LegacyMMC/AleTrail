@@ -62,7 +62,7 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 1), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -77,7 +77,7 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                     child: TextField(
                       keyboardType: TextInputType.multiline,
                       maxLines:
-                          null, // Allows the TextField to support multiple lines
+                          1, // Allows the TextField to support multiple lines
                       onChanged: (value) {
                         setState(() {
                           menuName = value;
@@ -85,8 +85,9 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                       },
                       decoration: const InputDecoration(
                         hintText: 'Menu Name',
+                        hintStyle: TextStyle(fontSize: 14),
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
+                        contentPadding: EdgeInsets.fromLTRB(15, 15, 20,
                             15), // Adjust padding for multi-line support
                       ),
                     ),
@@ -95,14 +96,22 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
               ),
             ),
             Positioned(
+                top: registerButtonTop *
+                    0.70, // Adjust this value according to your layout
+                right: screenWidth * 0.085,
+                child: const Text(
+                  "This will be visible as your menus tagline for users",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+                )),
+            Positioned(
               top: registerButtonTop *
-                  0.65, // Adjust this value according to your layout
+                  0.76, // Adjust this value according to your layout
               right: screenWidth * 0.085,
               child: Container(
                 width: screenWidth * 0.85,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey, width: 2), // Outer border
+                      Border.all(color: Colors.grey, width: 1), // Outer border
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Material(
@@ -125,9 +134,10 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                         });
                       },
                       decoration: const InputDecoration(
-                        hintText: 'Menu Description',
+                        hintText: 'Description',
+                        hintStyle: TextStyle(fontSize: 14),
                         border: InputBorder.none, // Remove the internal border
-                        contentPadding: EdgeInsets.fromLTRB(20, 15, 20,
+                        contentPadding: EdgeInsets.fromLTRB(15, 15, 20,
                             15), // Adjust padding for multi-line support
                       ),
                     ),
@@ -136,7 +146,7 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
               ),
             ),
             Positioned(
-              top: registerButtonTop * 1.2,
+              top: registerButtonTop * 1.25,
               right: screenWidth * 0.06,
               child: ElevatedButton(
                 style: const ButtonStyle(
@@ -144,27 +154,39 @@ class _EstablishmentCreateMenuState extends State<EstablishmentCreateMenuPage> {
                   backgroundColor: MaterialStatePropertyAll(secondaryButton),
                 ),
                 onPressed: () async {
-                  // Call firebase function
-                  if (menuName.length > 2) {
-                    var response = await createNewMenuInEstablishment(
-                        widget.pubId, menuName, menuDesc);
-
-                    if (response == false) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                                Text('Failed to add menu to establishment!')),
-                      );
-                    } else {
-                      // Navigate back
-                      Navigator.of(context).pop(true);
-                    }
-                  } else {
+                  // Validate inputs
+                  if (menuName.length < 3) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                          content: Text(
-                              'Menu name needs to be great than 2 characters!')),
+                        content: Text(
+                            'Menu name must be at least 3 characters long!'),
+                      ),
                     );
+                    return;
+                  }
+
+                  if (menuDesc.split(' ').length > 15) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Description must not exceed 15 words!'),
+                      ),
+                    );
+                    return;
+                  }
+
+                  // Call firebase function
+                  var response = await createNewMenuInEstablishment(
+                      widget.pubId, menuName, menuDesc);
+
+                  if (response == false) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content:
+                              Text('Failed to add menu to establishment!')),
+                    );
+                  } else {
+                    // Navigate back
+                    Navigator.of(context).pop(true);
                   }
                 },
                 child: Padding(
