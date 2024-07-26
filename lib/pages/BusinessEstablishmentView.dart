@@ -278,7 +278,7 @@ class EstablishmentViewState extends State<EstablishmentViewPage> {
                             BusinessMenuProductView(
                                 menuId: menuId,
                                 menuDesc: menuDesc,
-                                menuName: menuName),
+                                menuName: menuName, establishmentRef: pubId,),
                         transitionDuration: Duration.zero,
                         reverseTransitionDuration: Duration.zero,
                         transitionsBuilder:

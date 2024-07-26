@@ -8,7 +8,8 @@ import 'MenuProductView.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BusinessAllMenusView extends StatelessWidget {
-  const BusinessAllMenusView({super.key});
+  final String pubId;
+  const BusinessAllMenusView({super.key, required this.pubId});
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +106,7 @@ class BusinessAllMenusView extends StatelessWidget {
                                       BusinessMenuProductView(
                                 menuId: menuId,
                                 menuDesc: menuDesc,
-                                menuName: menuName,
+                                menuName: menuName, establishmentRef: pubId,
                               ),
                               transitionsBuilder: (context, animation,
                                   secondaryAnimation, child) {

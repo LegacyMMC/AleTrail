@@ -9,7 +9,8 @@ import 'package:image_picker/image_picker.dart';
 
 class EstablishmentProductOnePage extends StatefulWidget {
   final String menuId;
-  const EstablishmentProductOnePage({super.key, required this.menuId});
+  final String establishmentRef;
+  const EstablishmentProductOnePage({super.key, required this.menuId, required this.establishmentRef});
 
   @override
   State<EstablishmentProductOnePage> createState() =>
@@ -269,6 +270,7 @@ class _EstablishmentOnePageState extends State<EstablishmentProductOnePage> {
                           ProductPrice,
                           ProductDesc,
                           selectedProductType,
+                          widget.establishmentRef,
                           _imageFile); // Include product type
                       if (stepCompleted.isNotEmpty) {
                         // Build Business Product To Return

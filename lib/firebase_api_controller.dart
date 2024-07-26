@@ -861,6 +861,7 @@ Future<String> addNewProductToFirebase(
     String productPrice,
     String? productDescription,
     String selectedProductType,
+    String establishmentRef,
     io.File? imageFile) async {
   try {
     // Get a reference to the Firestore instance
@@ -897,12 +898,55 @@ Future<String> addNewProductToFirebase(
     // Upload Product Image To Database
     await uploadImageToStorageProduct(imageFile!, docRef.id);
 
+    if (establishmentRef != null || establishmentRef != "") {
+      // Get Coords from pub doc
+      // Specify the document reference
+      DocumentReference docRef = firestoreInst
+          .collection('EstablishmentSimple')
+          .doc(
+              establishmentRef); // Replace 'establishmentRef' with your document ID
 
-    // Add to search index
-    // This will work when we pass through the establishment ID to get the coords and everything
-    // await addNewProductToSearchIndex(productName, productDescription!, selectedProductType, docRef.id,
-    //     establishmentRef, productPrice, longitude, latitude)
+      // Get the document
+      DocumentSnapshot docSnapshot = await docRef.get();
 
+      if (docSnapshot.exists) {
+        // Extract Latitude and Longitude fields
+        Map<String, dynamic>? data =
+            docSnapshot.data() as Map<String, dynamic>?;
+        if (data != null) {
+          double? latitude = data['Latitude'];
+          double? longitude = data['Longitude'];
+
+          if (latitude != null && longitude != null) {
+            if (kDebugMode) {
+              print('Latitude: $latitude, Longitude: $longitude');
+            }
+            // Add to search index
+            await addNewProductToSearchIndex(
+                productName,
+                productDescription!,
+                selectedProductType,
+                docRef.id,
+                establishmentRef,
+                productPrice,
+                longitude,
+                latitude);
+          } else {
+            if (kDebugMode) {
+              print('Latitude or Longitude field is missing.');
+            }
+          }
+        } else {
+          if (kDebugMode) {
+            print('No data found in the document.');
+          }
+        }
+      } else {
+        if (kDebugMode) {
+          print('Document does not exist.');
+        }
+      }
+    }
     if (kDebugMode) {
       print('New product added to Firestore with ID: ${documentReference.id}');
     }
@@ -1026,6 +1070,28 @@ Future<String> addNewProductToSearchIndex(
 
     double? setPrice = double.tryParse(productPrice);
 
+    // Determine Search Terms
+    List<String> searchTerms = [];
+
+    // Function to split terms into individual words and add them if they don't exist
+    void addSplitTerms(String term) {
+      if (!searchTerms.contains(term)) {
+        searchTerms.add(term);
+        term.split(' ').forEach((word) {
+          if (word.isNotEmpty && !searchTerms.contains(word)) {
+            searchTerms.add(word);
+          }
+        });
+      }
+    }
+
+    addSplitTerms(productName);
+    addSplitTerms(productDescription);
+    addSplitTerms(productType);
+    addSplitTerms(productName.toLowerCase());
+    addSplitTerms(productDescription.toLowerCase());
+    addSplitTerms(productType.toLowerCase());
+
     // Define the data you want to add
     Map<String, Object> data = {
       'ActualName': productName,
@@ -1034,7 +1100,9 @@ Future<String> addNewProductToSearchIndex(
       'ProductType': productType,
       'EstablishmentRef': establishmentRef,
       'Ref': productRef,
-      'ProductPrice': setPrice ?? 0.0
+      'Price': setPrice ?? 0.0,
+      'Terms': searchTerms,
+      'Type': 'Product'
     };
 
     // Add the data to the specified collection and get the document reference

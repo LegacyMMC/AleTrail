@@ -285,7 +285,7 @@ class CompInfoWidget extends StatelessWidget {
                                       PageRouteBuilder(
                                         pageBuilder: (context, animation,
                                                 secondaryAnimation) =>
-                                            const BusinessAllMenusView(),
+                                            const BusinessAllMenusView(pubId: "" ,),
                                         transitionDuration: Duration.zero,
                                         reverseTransitionDuration:
                                             Duration.zero,

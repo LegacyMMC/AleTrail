@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:math';
-import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,6 @@ import 'package:http/http.dart' as http;
 import '../classes/SearchedItem.dart';
 import '../constants/ThemeConstants.dart';
 import '../firebase_api_controller.dart';
-import '../widgets/PriceMarketWidget.dart';
 import 'UserEstablishmentViewPage.dart';
 import 'package:image/image.dart' as img;
 
@@ -30,7 +28,9 @@ class _UserMapPageState extends State<UserMapPage>
       const LatLng(0, 0); // Default initial position
   late StreamSubscription<Position> _positionStreamSubscription;
 
-  final Set<Marker> _markers = {}; // Set to store markers
+  late Set<Marker> _markers = {}; // Set to store markers
+  Set<Marker> _copyMarkers = {}; // After first get store them so we can reload after searches
+
   final DraggableScrollableController _scrollableController =
       DraggableScrollableController();
   double _previousExtent = 0.1;
@@ -252,6 +252,10 @@ class _UserMapPageState extends State<UserMapPage>
         ),
         icon: customIcon);
 
+    // Store copy of local markers
+    _copyMarkers.add(marker);
+    print("TOTAL COPY MARKERS: " + _copyMarkers.length.toString());
+
     setState(() {
       _markers.add(marker);
     });
@@ -351,6 +355,7 @@ class _UserMapPageState extends State<UserMapPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           GoogleMap(
@@ -420,11 +425,29 @@ class _UserMapPageState extends State<UserMapPage>
                               });
                             },
                             controller: _searchController,
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               hintText: 'Search bars, beers & businesses...',
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.all(10),
                               prefixIcon: Icon(Icons.search),
+                              suffixIcon: IconButton(
+                                icon: Icon(Icons.clear),
+                                onPressed: () {
+                                  // Clear the search field
+                                  _searchController.clear();
+                                  // Reset any additional states or actions
+                                  setState(() {
+                                    _showSearchResults = false;
+                                    // Clear price markets
+                                    _markers.clear();
+
+                                    // Restore From Copy
+                                    for (Marker storedMarker in _copyMarkers) {
+                                      _markers.add(storedMarker);
+                                    }
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ),
