@@ -28,6 +28,7 @@ class _UserMapPageState extends State<UserMapPage>
   LatLng _initialCameraPosition =
       const LatLng(0, 0); // Default initial position
   late StreamSubscription<Position> _positionStreamSubscription;
+  double _offset = 0.0;
 
   late Set<Marker> _markers = {}; // Set to store markers
   Set<Marker> _copyMarkers =
@@ -110,6 +111,29 @@ class _UserMapPageState extends State<UserMapPage>
       return '${distanceKm.toStringAsFixed(2)} km';
     } else {
       return '${distanceMeters.toStringAsFixed(0)} meters';
+    }
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    setState(() {
+      _offset += details.delta.dy;
+    });
+
+    // Add your custom logic here
+    if (details.delta.dy > 0) {
+      _scrollableController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 700),
+        curve: Curves.easeInOut,
+      );
+    } else if (details.delta.dy < 0) {
+      setState(() {
+        _scrollableController.animateTo(
+          1,
+          duration: const Duration(milliseconds: 700),
+          curve: Curves.easeInOut,
+        );
+      });
     }
   }
 
@@ -263,6 +287,7 @@ class _UserMapPageState extends State<UserMapPage>
 
   Future<BitmapDescriptor> createCustomMarkerBitmapWithText(String text) async {
     // Load the image
+
     final ByteData imageData = await DefaultAssetBundle.of(context)
         .load(r"lib/assets/images/png/PriceMarker.png");
     final Uint8List imageBytes = imageData.buffer.asUint8List();
@@ -469,10 +494,10 @@ class _UserMapPageState extends State<UserMapPage>
                             decoration: InputDecoration(
                               hintText: 'Search bars, beers & businesses...',
                               border: InputBorder.none,
-                              contentPadding: EdgeInsets.all(10),
-                              prefixIcon: Icon(Icons.search),
+                              contentPadding: const EdgeInsets.all(10),
+                              prefixIcon: const Icon(Icons.search),
                               suffixIcon: IconButton(
-                                icon: Icon(Icons.clear),
+                                icon: const Icon(Icons.clear),
                                 onPressed: () {
                                   // Clear the search field
                                   _searchController.clear();
@@ -590,32 +615,35 @@ class _UserMapPageState extends State<UserMapPage>
             child: DraggableScrollableSheet(
               controller: _scrollableController,
               initialChildSize:
-                  0.05, // Reduced initial size of the scrollable sheet
+                  0.03, // Reduced initial size of the scrollable sheet
               minChildSize:
-                  0.05, // Reduced minimum size to which the sheet can be dragged down
+                  0.03, // Reduced minimum size to which the sheet can be dragged down
               maxChildSize: 0.7, // Keeping the maximum size as is
               builder:
                   (BuildContext context, ScrollController scrollController) {
                 return Column(
                   children: [
                     // Top part with orange color
-                    Container(
-                      height: 20, // Adjust the height as needed
-                      decoration: const BoxDecoration(
-                        color: Colors.orange,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20),
+                    GestureDetector(
+                      onVerticalDragUpdate: _handleDragUpdate,
+                      child: Container(
+                        height: 20, // Adjust the height as needed
+                        decoration: const BoxDecoration(
+                          color: Colors.orange,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
                         ),
-                      ),
-                      child: Center(
-                        child: Container(
-                          margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                          width: 50,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            color: Colors.grey,
-                            borderRadius: BorderRadius.circular(2.5),
+                        child: Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                            width: 50,
+                            height: 5,
+                            decoration: BoxDecoration(
+                              color: secondaryButton,
+                              borderRadius: BorderRadius.circular(2.5),
+                            ),
                           ),
                         ),
                       ),
@@ -647,7 +675,7 @@ class _UserMapPageState extends State<UserMapPage>
                                       padding:
                                           EdgeInsets.fromLTRB(10, 0, 10, 10),
                                       child: Text(
-                                        "Top 5 locations",
+                                        "Whats in your area",
                                         style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.bold,
