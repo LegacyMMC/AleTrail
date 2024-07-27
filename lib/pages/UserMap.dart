@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,8 @@ class _UserMapPageState extends State<UserMapPage>
   late StreamSubscription<Position> _positionStreamSubscription;
 
   late Set<Marker> _markers = {}; // Set to store markers
-  Set<Marker> _copyMarkers = {}; // After first get store them so we can reload after searches
+  Set<Marker> _copyMarkers =
+      {}; // After first get store them so we can reload after searches
 
   final DraggableScrollableController _scrollableController =
       DraggableScrollableController();
@@ -254,16 +256,54 @@ class _UserMapPageState extends State<UserMapPage>
 
     // Store copy of local markers
     _copyMarkers.add(marker);
-    print("TOTAL COPY MARKERS: " + _copyMarkers.length.toString());
-
     setState(() {
       _markers.add(marker);
     });
   }
 
+  Future<BitmapDescriptor> createCustomMarkerBitmapWithText(String text) async {
+    // Load the image
+    final ByteData imageData = await DefaultAssetBundle.of(context)
+        .load(r"lib/assets/images/png/PriceMarker.png");
+    final Uint8List imageBytes = imageData.buffer.asUint8List();
+
+    // Decode the image
+    img.Image baseImage = img.decodeImage(imageBytes)!;
+
+    // Draw the text over the image
+    img.drawString(
+        baseImage,
+        font: img.arial48,
+        x: 75,
+        y: 25,
+        text,
+        color: img.ColorRgb8(255, 255, 255));
+
+    // Encode the image to bytes
+    final Uint8List markerImageBytes =
+        Uint8List.fromList(img.encodePng(baseImage));
+
+    // Convert the image to BitmapDescriptor
+    final Completer<BitmapDescriptor> completer = Completer();
+    ui.decodeImageFromList(markerImageBytes, (ui.Image img) async {
+      final ByteData? byteData =
+          await img.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData != null) {
+        final Uint8List resizedMarkerImageBytes = byteData.buffer.asUint8List();
+        completer.complete(BitmapDescriptor.fromBytes(resizedMarkerImageBytes));
+      } else {
+        completer.completeError('Failed to convert image to byte data');
+      }
+    });
+
+    return completer.future;
+  }
+
   Future<void> _addMarkerPrice(SearchedItem item) async {
     // Generate Marker From Image
-    // final BitmapDescriptor customIcon =
+    final BitmapDescriptor priceIcon =
+        await createCustomMarkerBitmapWithText("\$${item.searchPrice}");
+
     final marker = Marker(
       onTap: () => {
         Navigator.of(context).push(
@@ -291,6 +331,7 @@ class _UserMapPageState extends State<UserMapPage>
           ),
         )
       },
+      icon: priceIcon,
       markerId: MarkerId(item.searchEstablishment ?? ""),
       position: LatLng(item.searchLat ?? 0.0, item.searchLon ?? 0.0),
     );
