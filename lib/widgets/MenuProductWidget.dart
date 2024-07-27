@@ -34,7 +34,7 @@ class MenuProductWidget extends StatelessWidget {
                   topRight: Radius.circular(10.0),
                 ),
                 child: Image.network(
-                  'https://wallpapercave.com/wp/rpBDuCI.jpg', // Replace with your image URL
+                  productImage, // Replace with your image URL
                   height: 80.0, // Set a fixed height for the image
                   width: double.infinity, // Make the image span the full width of the card
                   fit: BoxFit.cover, // Ensure the image covers the area

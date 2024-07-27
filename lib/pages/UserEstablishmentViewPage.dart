@@ -7,6 +7,7 @@ import '../constants/ThemeConstants.dart';
 import '../classes/MenuItem.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/MenuProductWidget.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 // Init Global
 double screenWidth = 0.0;
@@ -149,8 +150,7 @@ class _UserEstablishmentViewPageState extends State<UserEstablishmentViewPage> {
                                   productName: product.productName,
                                   productPrice: '£${product.productPrice}',
                                   productDesc: product.productDescription,
-                                  productImage:
-                                      'Item $index', // Use actual image URL or placeholder
+                                  productImage: product.productImage, // Use actual image URL or placeholder
                                 );
                               } else {
                                 return const Center(
@@ -222,7 +222,6 @@ class PubInfoWidget extends StatelessWidget {
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const Center(child: Text('Pub not found'));
         }
-        print("THEY KEY: " + pubId);
         var pubData = snapshot.data!.data() as Map<String, dynamic>;
         var pubName = pubData['EstablishmentName'] ?? "";
         var pubImage = pubData['Image'] ?? "";
@@ -245,7 +244,7 @@ class PubInfoWidget extends StatelessWidget {
                 child: Column(
                   children: [
                     SizedBox(height: screenHeight * 0.07),
-                    Text(
+                    AutoSizeText(
                       pubName,
                       style: const TextStyle(
                           fontSize: 30,
@@ -253,7 +252,7 @@ class PubInfoWidget extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           letterSpacing: 5),
                     ),
-                    Text(
+                    AutoSizeText(
                       pubCity,
                       style: const TextStyle(
                           fontSize: 20,

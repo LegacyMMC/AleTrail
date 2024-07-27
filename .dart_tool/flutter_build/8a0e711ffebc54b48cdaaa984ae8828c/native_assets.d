@@ -1,1 +1,0 @@
- D:\\AleTrail\\.dart_tool\\flutter_build\\8a0e711ffebc54b48cdaaa984ae8828c\\native_assets.yaml: 

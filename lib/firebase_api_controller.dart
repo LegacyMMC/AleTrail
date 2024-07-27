@@ -1020,6 +1020,7 @@ Future<List<Menuproduct>> getProductsBasedOnId(List<String> ids) async {
         Menuproduct newProduct = Menuproduct(
             productName: data['ProductName'],
             productDescription: data['ProductDescription'],
+            productImage: data['ProductImage'],
             productPrice: data['ProductPrice']);
         products.add(
             newProduct); // or add productData if you extract specific fields
