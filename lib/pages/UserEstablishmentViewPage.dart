@@ -222,14 +222,11 @@ class PubInfoWidget extends StatelessWidget {
         if (!snapshot.hasData || !snapshot.data!.exists) {
           return const Center(child: Text('Pub not found'));
         }
-
+        print("THEY KEY: " + pubId);
         var pubData = snapshot.data!.data() as Map<String, dynamic>;
         var pubName = pubData['EstablishmentName'] ?? "";
         var pubImage = pubData['Image'] ?? "";
-        var pubDescription = pubData['Description'] ?? '';
         var pubCity = pubData['EstablishmentCity'] ?? '';
-        var pubTags = pubData['tags'] ?? '';
-        var pubDistance = pubData['distance'] ?? '<150M';
         var promotion = pubData['Promotion'] ?? false;
 
         return Stack(
@@ -364,7 +361,7 @@ class PubInfoWidget extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.network(
                                     pubImage ?? '',
-                                    height: screenHeight * 0.191,
+                                    height: screenHeight * 0.181,
                                     width: screenWidth *
                                         0.89, // Match the height of the container
                                     fit: BoxFit.cover,

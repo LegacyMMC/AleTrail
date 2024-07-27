@@ -587,27 +587,25 @@ Future<bool?> updateNewVenueImage(
       imageUrl = await uploadImageToStorage(imageFile);
     }
 
-    // Add the data to the specified collection and get the document reference
+    // Get the document reference for EstablishmentSimple
     DocumentReference docRef =
-        await firestoreInst.collection('EstablishmentSimple').doc(docId);
+        firestoreInst.collection('EstablishmentSimple').doc(docId);
 
-    // Update the document with its own ID
+    // Update the document with new fields
     await docRef.update({
-      'Image': imageUrl, // Add the image URL
-      'Tags': establishmentTagline, // Add the image URL
+      'Image': imageUrl, // Update the image URL
+      'Tags': establishmentTagline, // Update the tags
     });
 
-    // Add EstablishmentDetailed
-    // Add the data to the specified collection and get the document reference
+    // Get the document reference for EstablishmentDetailed
     DocumentReference docRefDet =
-        await firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
+        firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
 
-    Map<String, dynamic> dataDetailed = {
-      'Image': imageUrl,
-      'Tags': establishmentTagline,
-    };
-
-    await docRefDet.set(dataDetailed);
+    // Update the detailed document with new fields
+    await docRefDet.update({
+      'Image': imageUrl, // Update the image URL
+      'Tags': establishmentTagline, // Update the tags
+    });
 
     return true; // Operation successful
   } catch (e) {
@@ -896,7 +894,12 @@ Future<String> addNewProductToFirebase(
     }, SetOptions(merge: true));
 
     // Upload Product Image To Database
-    await uploadImageToStorageProduct(imageFile!, docRef.id);
+    String imageURL = await uploadImageToStorageProduct(imageFile!, docRef.id);
+
+    // Update the document with the image url
+    await docRef.update({
+      'ProductImage': imageURL,
+    });
 
     if (establishmentRef != null || establishmentRef != "") {
       // Get Coords from pub doc

@@ -71,6 +71,7 @@ class MenuProductView extends StatelessWidget {
                     productDescription: product['ProductDescription'] ,
                     productPrice: product['ProductPrice'] ,
                     productName: product['ProductName'] ,
+                    productImage: product['ProductImage'],
                     context
                   ),
               ],

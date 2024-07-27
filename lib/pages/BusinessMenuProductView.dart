@@ -19,7 +19,8 @@ class BusinessMenuProductView extends StatefulWidget {
       {super.key,
       required this.menuId,
       required this.menuDesc,
-      required this.menuName, required this.establishmentRef});
+      required this.menuName,
+      required this.establishmentRef});
 
   @override
   _BusinessMenuProductViewState createState() =>
@@ -103,7 +104,9 @@ class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
                                     pageBuilder: (context, animation,
                                             secondaryAnimation) =>
                                         EstablishmentProductOnePage(
-                                            menuId: widget.menuId, establishmentRef: widget.establishmentRef),
+                                            menuId: widget.menuId,
+                                            establishmentRef:
+                                                widget.establishmentRef),
                                     transitionDuration: Duration.zero,
                                     reverseTransitionDuration: Duration.zero,
                                     transitionsBuilder: (context, animation,
@@ -218,7 +221,9 @@ class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
                                   pageBuilder: (context, animation,
                                           secondaryAnimation) =>
                                       EstablishmentProductOnePage(
-                                          menuId: widget.menuId, establishmentRef: widget.establishmentRef,),
+                                    menuId: widget.menuId,
+                                    establishmentRef: widget.establishmentRef,
+                                  ),
                                   transitionDuration: Duration.zero,
                                   reverseTransitionDuration: Duration.zero,
                                   transitionsBuilder: (context, animation,
@@ -287,6 +292,7 @@ class _BusinessMenuProductViewState extends State<BusinessMenuProductView> {
                     productName: product['ProductName'],
                     productDescription: product['ProductDescription'],
                     productPrice: product['ProductPrice'],
+                    productImage: product['ProductImage'],
                   )
               ],
             ),
