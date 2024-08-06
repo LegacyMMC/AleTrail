@@ -16,7 +16,7 @@ class CustomMarker extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          '\$$price',
+          "£${price}",
           style: const TextStyle(
             color: Colors.white,
             fontSize: 20,

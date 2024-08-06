@@ -132,7 +132,6 @@ class _HomePageState extends State<HomePage> {
               right: 0,
               child: SvgPicture.asset(
                 "lib/assets/images/svg/yellowCorner.svg",
-                semanticsLabel: 'Yellow Corner SVG',
               ),
             ),
             Positioned(
@@ -140,7 +139,7 @@ class _HomePageState extends State<HomePage> {
               right: screenWidth * 0.31,
               child: TextButton(
                 onPressed: () {
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     PageRouteBuilder(
                         pageBuilder: (context, animation, secondaryAnimation) =>
                         const RegisterBusinessPage(title: ""),

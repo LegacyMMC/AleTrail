@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io' as io; // Import the IO library explicitly
 import 'dart:math';
+import 'package:AleTrail/profanity_filter_api.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -86,6 +87,7 @@ Future<UserData?> signInWithUserToken(
 // Register New User With Email and Password To Firebase Authentication
 Future<UserCredential?> registerWithEmailAndPassword(
     String email, String password) async {
+
   try {
     final UserCredential userCredential =
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
@@ -487,7 +489,7 @@ Future<Map<String, dynamic>> fetchAddressSuggestions(String input) async {
 
       String? city;
       for (var component in results[0]['address_components']) {
-        if (component['types'].contains('locality')) {
+        if (component['types'].contains('postal_town')) {
           city = component['long_name'];
           break;
         }
@@ -525,8 +527,8 @@ Future<String> addNewVenueToFirebase(
       'EstablishmentCity': coords['city'] ?? '',
       'Image': '',
       'Popularity': '',
-      'Latitude': coords['lat'],
-      'Longitude': coords['lng'],
+      'Latitude': coords['lat'].toDouble(),
+      'Longitude': coords['lng'].toDouble(),
     };
 
     // Add the data to the specified collection and get the document reference
@@ -542,13 +544,18 @@ Future<String> addNewVenueToFirebase(
     // Add the data to the specified collection and get the document reference
     DocumentReference docRefDet =
         firestoreInst.collection('EstablishmentDetailed').doc(docRef.id);
-
+    print("HERE");
     //Empty array
-    Map<String, String> dataDetailed = {
+    Map<String, Object> dataDetailed = {
       'EstablishmentName': establishmentName,
       'Description': establishmentAddress ?? '',
       'Image': '',
       'Popularity': '',
+      'EstablishmentAddress': coords['address'] ?? '',
+      'EstablishmentCity': coords['city'] ?? '',
+      'Image': '',
+      'Latitude': coords['lat'].toDouble(),
+      'Longitude': coords['lng'].toDouble(),
     };
 
     await docRefDet.set(dataDetailed);
@@ -806,6 +813,45 @@ Map<String, double> calculateBoundingBox(
     'minLon': minLon,
     'maxLon': maxLon,
   };
+}
+
+Future<Map<String, double>?> getEstablishmentCoords(String pubId) async {
+  try {
+    // Fetch the document from Firestore
+    DocumentSnapshot<Map<String, dynamic>> snapshot = await FirebaseFirestore.instance
+        .collection('EstablishmentSimple')
+        .doc(pubId)
+        .get();
+
+    // Check if the document exists
+    if (snapshot.exists) {
+      Map<String, dynamic>? data = snapshot.data();
+
+      // Ensure the data is not null
+      if (data != null) {
+        // Extract latitude and longitude
+        double? lat = data['Latitude']?.toDouble();
+        double? lon = data['Longitude']?.toDouble();
+
+        // Check if lat and lon are not null
+        if (lat != null && lon != null) {
+          return {
+            'Latitude': lat,
+            'Longitude': lon,
+          };
+        } else {
+          print('Latitude or Longitude is null.');
+        }
+      } else {
+        print('No data found.');
+      }
+    } else {
+      print('Document does not exist.');
+    }
+  } catch (e) {
+    print('Error fetching document: $e');
+  }
+  return null; // Return null if no valid data is found
 }
 
 // Function to fetch documents within the bounding box

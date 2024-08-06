@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -231,9 +232,21 @@ class _UserMapPageState extends State<UserMapPage>
       mapController.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(
-            target: LatLng(latitude, longitude),
-            zoom: 20.0,
-          ),
+              target: LatLng(latitude, longitude), zoom: 25.0, tilt: 45),
+        ),
+      );
+    }
+  }
+
+  void _searchZoomOut(double latitude, double longitude) {
+    if (mapTracker) {
+      setState(() {
+        _initialCameraPosition = LatLng(latitude, longitude);
+      });
+      mapController.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+              target: LatLng(latitude, longitude), zoom: 10.0),
         ),
       );
     }
@@ -327,7 +340,7 @@ class _UserMapPageState extends State<UserMapPage>
   Future<void> _addMarkerPrice(SearchedItem item) async {
     // Generate Marker From Image
     final BitmapDescriptor priceIcon =
-        await createCustomMarkerBitmapWithText("\$${item.searchPrice}");
+        await createCustomMarkerBitmapWithText("£${item.searchPrice}");
 
     final marker = Marker(
       onTap: () => {
@@ -395,7 +408,7 @@ class _UserMapPageState extends State<UserMapPage>
         results.add(gatheredItem);
       }
 
-      setState(() {
+      setState(() async {
         _searchResults = results;
         _showSearchResults = results
             .isNotEmpty; // Show the search results list if there are results
@@ -453,7 +466,8 @@ class _UserMapPageState extends State<UserMapPage>
             zoomControlsEnabled: false,
             initialCameraPosition: CameraPosition(
               target: _initialCameraPosition,
-              zoom: 10.0,
+              tilt: 45,
+              zoom: 25.0,
             ),
             markers: _markers, // Set the markers on the map
             onMapCreated: (GoogleMapController controller) {
@@ -461,7 +475,7 @@ class _UserMapPageState extends State<UserMapPage>
             },
           ),
           Positioned(
-            top: 15,
+            top: 30,
             left: 0,
             right: 0,
             child: Padding(
@@ -549,7 +563,7 @@ class _UserMapPageState extends State<UserMapPage>
                                 subtitle: Text(result.searchType ??
                                     'No details available'),
                                 onTap: () {
-                                  setState(() {
+                                  setState(() async {
                                     // Hide search drop down
                                     _showSearchResults = false;
                                     _setSearchText = true;
@@ -562,6 +576,10 @@ class _UserMapPageState extends State<UserMapPage>
                                     for (SearchedItem searchedItem
                                         in _searchResults) {
                                       _addMarkerPrice(searchedItem);
+
+                                      // Zoom out camera
+                                      //Position currentPos = await _determinePosition();
+                                      //_searchZoomOut(currentPos.longitude, currentPos.latitude);
                                     }
                                   });
                                 },
@@ -572,6 +590,22 @@ class _UserMapPageState extends State<UserMapPage>
                   ),
                 ],
               ),
+            ),
+          ),
+          Positioned(
+            top: 500,
+            left: 330,
+            child: FloatingActionButton(
+              mini: true,
+              backgroundColor: primaryButton,
+              splashColor: CupertinoColors.systemYellow,
+              onPressed: () async {
+                // Go to users current location
+                Position newLocation = await _determinePosition();
+                _updateCameraPosition(
+                    newLocation.latitude, newLocation.longitude);
+              },
+              child: const Icon(Icons.pin_drop_sharp),
             ),
           ),
           NotificationListener<DraggableScrollableNotification>(

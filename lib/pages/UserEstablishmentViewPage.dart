@@ -8,6 +8,7 @@ import '../classes/MenuItem.dart';
 import '../firebase_api_controller.dart';
 import '../widgets/MenuProductWidget.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Init Global
 double screenWidth = 0.0;
@@ -208,6 +209,20 @@ class PubInfoWidget extends StatelessWidget {
 
   const PubInfoWidget({required this.pubId, Key? key}) : super(key: key);
 
+  // This will launch google maps navigation
+  Future<void> _launchNavigation(double latitude, double longitude, String establishmentName) async {
+    final googleMapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=$latitude,$longitude&travelmode=driving';
+    final appleMapsUrl = 'https://maps.apple.com/?daddr=$latitude,$longitude&dirflg=d';
+
+    if (await canLaunch(googleMapsUrl)) {
+      await launch(googleMapsUrl);
+    } else if (await canLaunch(appleMapsUrl)) {
+      await launch(appleMapsUrl);
+    } else {
+      throw 'Could not launch maps';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<DocumentSnapshot>(
@@ -227,6 +242,8 @@ class PubInfoWidget extends StatelessWidget {
         var pubImage = pubData['Image'] ?? "";
         var pubCity = pubData['EstablishmentCity'] ?? '';
         var promotion = pubData['Promotion'] ?? false;
+        double latitude = pubData['Latitude'] ?? 0.0;
+        double longitude = pubData['Longitude'] ?? 0.0;
 
         return Stack(
           children: [
@@ -360,7 +377,7 @@ class PubInfoWidget extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                   child: Image.network(
                                     pubImage ?? '',
-                                    height: screenHeight * 0.181,
+                                    height: screenHeight * 0.19,
                                     width: screenWidth *
                                         0.89, // Match the height of the container
                                     fit: BoxFit.cover,
@@ -372,7 +389,19 @@ class PubInfoWidget extends StatelessWidget {
                   ),
                 ),
               ),
-            )
+            ),
+            Positioned(
+              top: 240,
+              left: 300,
+              child: FloatingActionButton(
+                mini: true,
+                backgroundColor: Colors.blue,
+                onPressed: () async {
+                  _launchNavigation(latitude, longitude, pubName);
+                },
+                child: const Icon(Icons.map_sharp),
+              ),
+            ),
           ],
         );
       },
